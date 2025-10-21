@@ -28,6 +28,8 @@
           <a class="btn btn-primary" href="/">Mağazaya Dön</a>
         </div>
       <% } else { %>
+        <% const shippingAddresses = addresses && addresses.shipping ? addresses.shipping : []; %>
+        <% const billingAddresses = addresses && addresses.billing ? addresses.billing : []; %>
         <div class="checkout-shell">
           <article class="checkout-panel checkout-form-card">
             <header>
@@ -36,36 +38,123 @@
               <p>Gönderi adresinizi ekleyin; seçtiğiniz harman <strong>24 saat</strong> içinde yola çıksın.</p>
             </header>
             <form action="/checkout" method="POST" class="checkout-form">
-          <div class="form-grid">
-            <label>
-              Ad Soyad
-              <input name="name" autocomplete="name" value="<%= currentUser ? currentUser.name : '' %>" required>
-            </label>
-            <label>
-              E-posta
-              <input name="email" type="email" autocomplete="email" value="<%= currentUser ? currentUser.email : '' %>" required>
-            </label>
-            <label>
-              Telefon
-              <input
-                name="phone"
-                type="tel"
-                autocomplete="tel"
-                value="<%= currentUser && currentUser.phone ? currentUser.phone : '+90 ' %>">
-            </label>
+              <div class="form-grid">
+                <label>
+                  E-posta
+                  <input name="email" type="email" autocomplete="email" value="<%= currentUser ? currentUser.email : '' %>" required>
+                </label>
+                <label>
+                  Telefon
+                  <input name="shipping_phone" type="tel" autocomplete="tel" value="<%= currentUser && currentUser.phone ? currentUser.phone : '+90 ' %>">
+                </label>
+              </div>
+
+              <% if (shippingAddresses.length) { %>
+                <label class="address-select">
+                  Kayıtlı teslimat adresi
+                  <select name="shippingAddressId">
+                    <option value="">Yeni adres kullanacağım</option>
+                    <% shippingAddresses.forEach(addr => { %>
+                      <option value="<%= addr.id %>"><%= addr.title ? addr.title + ' — ' : '' %><%= addr.recipientName %>, <%= addr.city %></option>
+                    <% }) %>
+                  </select>
+                </label>
+                <p class="form-hint">Kayıtlı adres seçerseniz aşağıdaki alanları doldurmanıza gerek yoktur.</p>
+              <% } %>
+
+              <div class="form-grid">
+                <label>
+                  Alıcı Adı
+                  <input name="shipping_name" value="<%= currentUser ? currentUser.name : '' %>" placeholder="Ad Soyad">
+                </label>
                 <label>
                   Şehir
-                  <input name="city" autocomplete="address-level2" required>
+                  <input name="shipping_city" autocomplete="address-level2" placeholder="İstanbul">
+                </label>
+                <label>
+                  İlçe
+                  <input name="shipping_district" placeholder="Kadıköy">
+                </label>
+                <label>
+                  Posta Kodu
+                  <input name="shipping_postal" placeholder="34000">
                 </label>
               </div>
               <label>
                 Adres
-                <textarea name="address" rows="3" autocomplete="street-address" required></textarea>
+                <textarea name="shipping_address" rows="3" autocomplete="street-address" placeholder="Mahalle, sokak, bina, daire"></textarea>
               </label>
               <label>
-                Teslimat Notu
+                Ülke
+                <input name="shipping_country" value="Türkiye">
+              </label>
+
+              <% if (currentUser) { %>
+                <label class="checkbox-inline">
+                  <input type="checkbox" name="save_shipping" value="on"> Bu adresi kaydet / varsayılan yap
+                </label>
+              <% } %>
+
+              <hr class="form-divider">
+              <h3>Fatura Bilgileri</h3>
+              <label class="checkbox-inline">
+                <input type="checkbox" name="billingSame" value="on" checked> Fatura adresim teslimat adresi ile aynı
+              </label>
+
+              <% if (billingAddresses.length) { %>
+                <label class="address-select">
+                  Kayıtlı fatura adresi
+                  <select name="billingAddressId">
+                    <option value="">Yeni adres kullanacağım</option>
+                    <% billingAddresses.forEach(addr => { %>
+                      <option value="<%= addr.id %>"><%= addr.title ? addr.title + ' — ' : '' %><%= addr.recipientName %>, <%= addr.city %></option>
+                    <% }) %>
+                  </select>
+                </label>
+                <p class="form-hint">Farklı bir fatura adresi isterseniz alanları doldurun.</p>
+              <% } %>
+
+              <div class="form-grid">
+                <label>
+                  Fatura Adı
+                  <input name="billing_name" placeholder="Ad Soyad / Firma">
+                </label>
+                <label>
+                  Şehir
+                  <input name="billing_city" placeholder="İstanbul">
+                </label>
+                <label>
+                  İlçe
+                  <input name="billing_district" placeholder="Beşiktaş">
+                </label>
+                <label>
+                  Posta Kodu
+                  <input name="billing_postal" placeholder="34000">
+                </label>
+              </div>
+              <label>
+                Fatura Adresi
+                <textarea name="billing_address" rows="3" placeholder="Fatura adresiniz"></textarea>
+              </label>
+              <label>
+                Ülke
+                <input name="billing_country" value="Türkiye">
+              </label>
+              <label>
+                Fatura Telefonu
+                <input name="billing_phone" placeholder="+90 ...">
+              </label>
+              <% if (currentUser) { %>
+                <label class="checkbox-inline">
+                  <input type="checkbox" name="save_billing" value="on"> Fatura adresini kaydet
+                </label>
+              <% } %>
+
+              <label>
+                Sipariş Notu
                 <textarea name="notes" rows="3" placeholder="Teslimat saat aralığı, kapı şifresi vb."></textarea>
               </label>
+
               <div class="secure-badge">
                 <span>🔒</span>
                 <p>Tüm ödemeler 256-bit SSL ile şifrelenir. Bilgileriniz yalnızca siparişi tamamlamak için kullanılır.</p>

@@ -32,7 +32,7 @@
             </tr>
           </thead>
           <tbody>
-            <% const statusLabels = { paid: 'Ödendi', pending: 'Beklemede', failed: 'Başarısız' }; %>
+            <% const statusLabels = orderStatusLabels || { processing: 'Hazırlanıyor', shipped: 'Yolda', delivered: 'Teslim Edildi', failed: 'İptal', pending: 'Beklemede' }; %>
             <% orders.forEach(order => { %>
               <tr>
                 <td><%= order.orderNumber %></td>

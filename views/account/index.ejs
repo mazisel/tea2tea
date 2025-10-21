@@ -4,6 +4,8 @@
 <body>
   <%- include('../partials/shop-header') %>
   <main class="page">
+    <% const activeList = activeOrders || []; %>
+    <% const pastList = pastOrders || []; %>
     <section class="container">
       <div class="account-card">
         <header>
@@ -21,8 +23,118 @@
           </div>
           <div>
             <span>Sipariş Sayısı</span>
-            <strong><%= orders.length %></strong>
+            <strong><%= activeList.length + pastList.length %></strong>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="container account-grid">
+      <div class="account-panel">
+        <h2>Profil Bilgileri</h2>
+        <form action="/account/profile" method="POST" class="account-form">
+          <label>
+            Ad Soyad
+            <input name="name" value="<%= currentUser.name %>" required>
+          </label>
+          <label>
+            Telefon
+            <input name="phone" value="<%= currentUser.phone || '' %>" placeholder="+90 ...">
+          </label>
+          <button type="submit" class="btn btn-primary">Bilgileri Güncelle</button>
+        </form>
+      </div>
+      <div class="account-panel">
+        <h2>Adreslerim</h2>
+        <div class="address-group">
+          <h3>Teslimat Adresi</h3>
+          <form action="/account/address" method="POST" class="account-form">
+            <input type="hidden" name="type" value="shipping">
+            <label>
+              Başlık
+              <input name="title" value="<%= shippingAddress ? shippingAddress.title : '' %>" placeholder="Ev, Ofis...">
+            </label>
+            <label>
+              Alıcı
+              <input name="recipientName" value="<%= shippingAddress ? shippingAddress.recipientName : currentUser.name %>" required>
+            </label>
+            <label>
+              Telefon
+              <input name="phone" value="<%= shippingAddress ? shippingAddress.phone : currentUser.phone || '' %>" placeholder="+90 ...">
+            </label>
+            <label>
+              Adres
+              <textarea name="addressLine" required><%= shippingAddress ? shippingAddress.addressLine : '' %></textarea>
+            </label>
+            <label>
+              İlçe
+              <input name="district" value="<%= shippingAddress ? shippingAddress.district : '' %>">
+            </label>
+            <label>
+              Şehir
+              <input name="city" value="<%= shippingAddress ? shippingAddress.city : '' %>" required>
+            </label>
+            <label>
+              Posta Kodu
+              <input name="postalCode" value="<%= shippingAddress ? shippingAddress.postalCode : '' %>">
+            </label>
+            <label>
+              Ülke
+              <input name="country" value="<%= shippingAddress ? shippingAddress.country : 'Türkiye' %>">
+            </label>
+            <button type="submit" class="btn btn-primary">Teslimat Adresini Kaydet</button>
+          </form>
+          <% if (shippingAddress) { %>
+            <form action="/account/address?_method=DELETE" method="POST" class="address-delete-form">
+              <input type="hidden" name="type" value="shipping">
+              <button type="submit" class="btn btn-ghost">Teslimat adresini sil</button>
+            </form>
+          <% } %>
+        </div>
+        <div class="address-group">
+          <h3>Fatura Adresi</h3>
+          <form action="/account/address" method="POST" class="account-form">
+            <input type="hidden" name="type" value="billing">
+            <label>
+              Başlık
+              <input name="title" value="<%= billingAddress ? billingAddress.title : '' %>" placeholder="Ev, Ofis...">
+            </label>
+            <label>
+              Alıcı
+              <input name="recipientName" value="<%= billingAddress ? billingAddress.recipientName : currentUser.name %>" required>
+            </label>
+            <label>
+              Telefon
+              <input name="phone" value="<%= billingAddress ? billingAddress.phone : currentUser.phone || '' %>" placeholder="+90 ...">
+            </label>
+            <label>
+              Adres
+              <textarea name="addressLine" required><%= billingAddress ? billingAddress.addressLine : '' %></textarea>
+            </label>
+            <label>
+              İlçe
+              <input name="district" value="<%= billingAddress ? billingAddress.district : '' %>">
+            </label>
+            <label>
+              Şehir
+              <input name="city" value="<%= billingAddress ? billingAddress.city : '' %>" required>
+            </label>
+            <label>
+              Posta Kodu
+              <input name="postalCode" value="<%= billingAddress ? billingAddress.postalCode : '' %>">
+            </label>
+            <label>
+              Ülke
+              <input name="country" value="<%= billingAddress ? billingAddress.country : 'Türkiye' %>">
+            </label>
+            <button type="submit" class="btn btn-primary">Fatura Adresini Kaydet</button>
+          </form>
+          <% if (billingAddress) { %>
+            <form action="/account/address?_method=DELETE" method="POST" class="address-delete-form">
+              <input type="hidden" name="type" value="billing">
+              <button type="submit" class="btn btn-ghost">Fatura adresini sil</button>
+            </form>
+          <% } %>
         </div>
       </div>
     </section>
@@ -71,11 +183,11 @@
 
     <section class="container account-grid">
       <div class="account-panel">
-        <h2>Son Siparişlerim</h2>
-        <% if (orders.length === 0) { %>
+        <h2>Aktif Siparişlerim</h2>
+        <% if (activeList.length === 0) { %>
           <div class="empty-state">
-            <h3>Henüz siparişiniz yok</h3>
-            <p>Mağazaya göz atarak ilk siparişinizi oluşturabilirsiniz.</p>
+            <h3>Aktif siparişiniz bulunmuyor</h3>
+            <p>Yeni sipariş oluşturduğunuzda durumu burada görüntülenecek.</p>
             <a class="btn btn-primary" href="/">Alışverişe Başla</a>
           </div>
         <% } else { %>
@@ -84,15 +196,53 @@
               <tr>
                 <th>Sipariş No</th>
                 <th>Tutar</th>
+                <th>Durum</th>
                 <th>Tarih</th>
               </tr>
             </thead>
             <tbody>
-              <% orders.forEach(order => { %>
+              <% activeList.forEach(order => { %>
+                <% const statusLabels = orderStatusLabels || { processing: 'Sipariş Hazırlanıyor', shipped: 'Sipariş Yolda' }; %>
+                <% const statusLabel = statusLabels[order.status] || order.status; %>
+                <% const timelineDate = order.shippedAt || order.paidAt || order.createdAt; %>
                 <tr>
                   <td><%= order.orderNumber %></td>
                   <td><%= order.totalAmount.toFixed(2) %> ₺</td>
-                  <td><%= new Date(order.paidAt || order.createdAt).toLocaleString('tr-TR') %></td>
+                  <td><%= statusLabel %></td>
+                  <td><%= new Date(timelineDate).toLocaleString('tr-TR') %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        <% } %>
+      </div>
+      <div class="account-panel">
+        <h2>Geçmiş Siparişlerim</h2>
+        <% if (pastList.length === 0) { %>
+          <div class="empty-state">
+            <h3>Henüz geçmiş siparişiniz yok</h3>
+            <p>Teslim edilen siparişleriniz bu alanda listelenecek.</p>
+          </div>
+        <% } else { %>
+          <table class="account-table">
+            <thead>
+              <tr>
+                <th>Sipariş No</th>
+                <th>Tutar</th>
+                <th>Durum</th>
+                <th>Tarih</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% pastList.forEach(order => { %>
+                <% const statusLabels = orderStatusLabels || { delivered: 'Teslim Edildi', failed: 'İptal Edildi' }; %>
+                <% const statusLabel = statusLabels[order.status] || order.status; %>
+                <% const timelineDate = order.deliveredAt || order.shippedAt || order.paidAt || order.createdAt; %>
+                <tr>
+                  <td><%= order.orderNumber %></td>
+                  <td><%= order.totalAmount.toFixed(2) %> ₺</td>
+                  <td><%= statusLabel %></td>
+                  <td><%= new Date(timelineDate).toLocaleString('tr-TR') %></td>
                 </tr>
               <% }) %>
             </tbody>

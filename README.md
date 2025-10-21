@@ -10,12 +10,17 @@ Tea2Tea; kayıt sistemine ihtiyaç duymayan, tek yöneticili, küçük ölçekli
   - Basit ödeme formu ve sipariş oluşturma
   - Sipariş özeti ekranı
 - 🔐 **Yönetici Paneli**
-  - Varsayılan kullanıcı: `admin`
-  - Varsayılan şifre: `admin123` (ilk girişte değiştirmeniz önerilir)
+  - Yönetici bilgileri `.env` dosyasındaki `ADMIN_USERNAME` ve `ADMIN_PASSWORD` üzerinden belirlenir.
+  - Güçlü bir şifre seçip `.env` içinde saklayın; gerekirse admin panelinden güncelleyebilirsiniz.
   - Ürün ekleme/düzenleme/silme, aktif/pasif durumu
   - Sipariş listesi ve detayları
+  - Sipariş durumu yönetimi (Hazırlanıyor / Yolda / Teslim Edildi) ve otomatik e-posta bilgilendirmesi
   - Site adı, hero içerikleri, iletişim bilgileri ve görsel ayarları
   - Şifre değiştirme arayüzü
+- 👤 **Müşteri Hesabı**
+  - Kayıtlı teslimat ve fatura adresleri, profil bilgilerini güncelleme
+  - Aktif siparişleri ve teslim edilen sipariş geçmişini ayrı ayrı görüntüleme
+  - Sipariş durumları değiştikçe otomatik e-posta ile bilgilendirilme
 
 ## Başlarken
 
@@ -30,6 +35,8 @@ npm run dev
 ```
 
 Sunucu varsayılan olarak `http://localhost:3010` adresinde çalışır.
+
+> ⚠️ `.env` dosyanızda `ADMIN_USERNAME` ve en az 6 karakterlik `ADMIN_PASSWORD` tanımlamadığınız sürece uygulama başlamaz.
 
 ### Komutlar
 - `npm run dev`: Nodemon ile geliştirme sunucusu

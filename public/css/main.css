@@ -307,7 +307,9 @@ body.is-navigating .site-header {
 
 .nav-auth form {
   margin: 0;
+  display: contents;
 }
+
 
 .nav-auth__link,
 .nav-auth__button {
@@ -315,6 +317,12 @@ body.is-navigating .site-header {
   font-weight: 600;
   color: rgba(11, 12, 15, 0.65);
   transition: color 0.18s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  border-radius: 999px;
+  padding: 0.55rem 1rem;
 }
 
 .nav-auth__link.is-active,
@@ -323,36 +331,46 @@ body.is-navigating .site-header {
 }
 
 .nav-auth__button {
-  border: none;
-  background: none;
+  border: 1px solid rgba(11, 12, 15, 0.12);
+  background: rgba(11, 12, 15, 0.04);
   cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
 }
+
 
 .nav-auth__primary {
   border: 1px solid rgba(11, 12, 15, 0.14);
-  border-radius: 999px;
-  padding: 0.55rem 1rem;
-  color: var(--color-text);
+  color: #fff;
+  background: linear-gradient(135deg, #0a80ff, #5a99ff);
+  box-shadow: 0 10px 28px rgba(10, 128, 255, 0.24);
 }
 
 .nav-auth__primary:hover {
   border-color: rgba(11, 12, 15, 0.28);
+  box-shadow: 0 12px 32px rgba(10, 128, 255, 0.28);
+}
+
+.nav-auth__button:hover {
+  background: rgba(11, 12, 15, 0.08);
+  border-color: rgba(11, 12, 15, 0.2);
+  color: var(--color-text);
 }
 
 
 
 .menu-toggle {
   display: none;
-  width: 46px;
-  height: 46px;
-  border: 1px solid rgba(15, 18, 23, 0.12);
-  border-radius: 14px;
-  background: var(--color-surface);
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(15, 18, 23, 0.08);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.92);
   align-items: center;
   justify-content: center;
   flex-direction: column;
   gap: 6px;
   cursor: pointer;
+  box-shadow: none;
 }
 
 .menu-toggle span {
@@ -360,6 +378,22 @@ body.is-navigating .site-header {
   height: 2px;
   background: var(--color-text);
   transition: transform 0.18s ease, opacity 0.18s ease;
+  border-radius: 999px;
+}
+
+.menu-toggle::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: 0 10px 20px rgba(11, 12, 15, 0.08);
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+
+.menu-toggle:hover::before,
+.menu-toggle.is-open::before {
+  opacity: 1;
 }
 
 .menu-toggle.is-open span:nth-child(1) {
@@ -1478,6 +1512,71 @@ body.is-navigating .site-header {
   padding: calc(1.4rem * var(--phi));
   display: grid;
   gap: 1.2rem;
+}
+
+.account-form {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.account-form label {
+  display: grid;
+  gap: 0.45rem;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+.account-form input,
+.account-form textarea,
+.account-form select {
+  width: 100%;
+  border: 1px solid rgba(11, 12, 15, 0.12);
+  border-radius: var(--radius-sm);
+  padding: 0.65rem 0.9rem;
+  font: inherit;
+  background: #fff;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.account-form input:focus,
+.account-form textarea:focus,
+.account-form select:focus {
+  border-color: rgba(0, 113, 227, 0.45);
+  box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.12);
+  outline: none;
+}
+
+.account-form textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.account-form button {
+  justify-self: start;
+}
+
+.address-group {
+  display: grid;
+  gap: 1rem;
+  padding: 1.2rem;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(11, 12, 15, 0.08);
+  background: rgba(11, 12, 15, 0.015);
+}
+
+.address-group h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+}
+
+.address-delete-form {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.address-delete-form .btn {
+  padding: 0.55rem 1rem;
 }
 
 .account-grid {
@@ -2780,6 +2879,51 @@ body.is-navigating .site-header {
   color: var(--color-muted);
 }
 
+.address-select {
+  display: grid;
+  gap: 0.4rem;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+.address-select select {
+  border: 1px solid rgba(11, 12, 15, 0.12);
+  border-radius: var(--radius-sm);
+  padding: 0.65rem 0.9rem;
+  font: inherit;
+  background: #fff;
+}
+
+.address-select select:focus {
+  border-color: rgba(0, 113, 227, 0.45);
+  box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.12);
+  outline: none;
+}
+
+.checkbox-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 600;
+  color: rgba(11, 12, 15, 0.6);
+}
+
+.checkbox-inline input {
+  width: auto;
+}
+
+.form-divider {
+  border: none;
+  height: 1px;
+  background: rgba(11, 12, 15, 0.08);
+}
+
+.form-hint {
+  margin: -0.2rem 0 0;
+  font-size: 0.85rem;
+  color: rgba(11, 12, 15, 0.55);
+}
+
 .secure-badge {
   display: flex;
   align-items: center;
@@ -3161,23 +3305,28 @@ textarea {
 
 @media (max-width: 860px) {
   .nav-shell {
-    position: absolute;
-    inset: 100% 0 auto;
-    padding: 1.4rem 1.6rem 1.8rem;
-    background: rgba(245, 245, 247, 0.96);
-    border-bottom: 1px solid rgba(14, 16, 20, 0.08);
+    position: fixed;
+    top: 80px;
+    left: 20px;
+    right: 20px;
+    padding: 1.6rem;
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(14px);
+    border-radius: 20px;
+    border: 1px solid rgba(14, 16, 20, 0.08);
     flex-direction: column;
     transform-origin: top;
-    transform: scaleY(0);
+    transform: translateY(-16px) scale(0.92);
     opacity: 0;
     pointer-events: none;
-    transition: transform 0.2s ease, opacity 0.2s ease;
+    transition: transform 0.26s var(--motion-ease-standard), opacity 0.26s var(--motion-ease-standard);
     margin-left: 0;
     flex: unset;
+    box-shadow: 0 30px 60px rgba(11, 12, 15, 0.14);
   }
 
   .nav-shell.is-open {
-    transform: scaleY(1);
+    transform: translateY(0) scale(1);
     opacity: 1;
     pointer-events: auto;
   }
@@ -3200,18 +3349,26 @@ textarea {
   }
 
   .nav-shell .nav-auth {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.6rem;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
   }
 
-  .nav-shell a,
-  .nav-shell .btn,
+  .nav-shell .nav-auth form {
+    width: 100%;
+  }
+
+  .nav-shell .nav-auth__link,
+  .nav-shell .nav-auth__primary {
+    flex: 1;
+  }
+
   .nav-shell .nav-auth__link,
   .nav-shell .nav-auth__button,
   .nav-shell .nav-auth__primary {
-    width: 100%;
     justify-content: center;
+    min-height: 48px;
+    border-radius: 999px;
   }
 
   .menu-toggle {

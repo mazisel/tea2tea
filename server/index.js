@@ -14,7 +14,12 @@ const { db, initializeDatabase, getAllSettings, setSetting } = require('./db');
 const app = express();
 const PORT = process.env.PORT || 3010;
 
-initializeDatabase();
+try {
+  initializeDatabase();
+} catch (err) {
+  console.error('Veritabanı başlatılırken hata oluştu:', err.message);
+  process.exit(1);
+}
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '..', 'views'));
@@ -69,12 +74,30 @@ const PAYTR_CURRENCY = (process.env.PAYTR_CURRENCY || 'TRY').toUpperCase();
 const PAYTR_DEBUG_ON = process.env.PAYTR_DEBUG === '1' ? 1 : 0;
 const PAYTR_LANG = (process.env.PAYTR_LANG || 'tr').toLowerCase();
 
+const ORDER_STATUS = {
+  pending: 'pending',
+  processing: 'processing',
+  shipped: 'shipped',
+  delivered: 'delivered',
+  failed: 'failed',
+};
+
+const FULFILLED_STATUSES = [ORDER_STATUS.processing, ORDER_STATUS.shipped, ORDER_STATUS.delivered];
+const ORDER_STATUS_LABELS = {
+  [ORDER_STATUS.pending]: 'Beklemede',
+  [ORDER_STATUS.processing]: 'Sipariş Hazırlanıyor',
+  [ORDER_STATUS.shipped]: 'Sipariş Yolda',
+  [ORDER_STATUS.delivered]: 'Teslim Edildi',
+  [ORDER_STATUS.failed]: 'İptal Edildi',
+};
+
 const updateProductStockStmt = db.prepare('UPDATE products SET stock = MAX(stock - ?, 0) WHERE id = ?');
 const updateOrderPaymentStmt = db.prepare(
   'UPDATE orders SET status = ?, payment_reference = ?, payment_payload = ?, paid_at = CURRENT_TIMESTAMP WHERE id = ?',
 );
 const updateOrderPayloadStmt = db.prepare('UPDATE orders SET payment_payload = ? WHERE id = ?');
 const markOrderFailedStmt = db.prepare('UPDATE orders SET status = ?, payment_payload = ? WHERE id = ?');
+const updateOrderStatusStmt = db.prepare('UPDATE orders SET status = ?, shipped_at = ?, delivered_at = ? WHERE id = ?');
 
 app.use((req, res, next) => {
   res.locals.settings = getAllSettings();
@@ -84,6 +107,7 @@ app.use((req, res, next) => {
   res.locals.flash = req.session.flash;
   res.locals.cart = formatCart(req.session.cart);
   res.locals.currentPath = req.path;
+  res.locals.orderStatusLabels = ORDER_STATUS_LABELS;
   delete req.session.flash;
   next();
 });
@@ -195,6 +219,172 @@ function createPaytrBasket(cart, pricing) {
   };
 }
 
+function listCustomerAddresses(customerId) {
+  return db
+    .prepare(
+      `SELECT id, customer_id AS customerId, type, title, recipient_name AS recipientName, phone,
+              address_line AS addressLine, district, city, postal_code AS postalCode, country, notes,
+              is_default AS isDefault, created_at AS createdAt, updated_at AS updatedAt
+       FROM customer_addresses
+       WHERE customer_id = ?
+       ORDER BY is_default DESC, updated_at DESC`,
+    )
+    .all(customerId);
+}
+
+function getCustomerAddressById(customerId, addressId) {
+  return db
+    .prepare(
+      `SELECT id, customer_id AS customerId, type, title, recipient_name AS recipientName, phone,
+              address_line AS addressLine, district, city, postal_code AS postalCode, country, notes,
+              is_default AS isDefault, created_at AS createdAt, updated_at AS updatedAt
+       FROM customer_addresses
+       WHERE customer_id = ? AND id = ?`,
+    )
+    .get(customerId, addressId);
+}
+
+function convertAddressToSnapshot(address) {
+  if (!address) return null;
+  const snapshot = {
+    title: address.title || '',
+    recipientName: address.recipientName,
+    phone: address.phone || '',
+    addressLine: address.addressLine,
+    district: address.district || '',
+    city: address.city,
+    postalCode: address.postalCode || '',
+    country: address.country || 'Türkiye',
+    notes: address.notes || '',
+    type: address.type,
+    savedAddressId: address.id,
+  };
+  return JSON.stringify(snapshot);
+}
+
+function saveCustomerAddress(customerId, type, payload) {
+  const now = new Date().toISOString();
+  const cleaned = {
+    title: payload.title?.trim() || '',
+    recipientName: payload.recipientName?.trim(),
+    phone: payload.phone?.trim() || '',
+    addressLine: payload.addressLine?.trim(),
+    district: payload.district?.trim() || '',
+    city: payload.city?.trim(),
+    postalCode: payload.postalCode?.trim() || '',
+    country: payload.country?.trim() || 'Türkiye',
+    notes: payload.notes?.trim() || '',
+  };
+
+  if (!cleaned.recipientName || !cleaned.addressLine || !cleaned.city) {
+    throw new Error('ADRES_BILGISI_EKSİK');
+  }
+
+  const existing = db
+    .prepare('SELECT id FROM customer_addresses WHERE customer_id = ? AND type = ? ORDER BY updated_at DESC LIMIT 1')
+    .get(customerId, type);
+
+  if (existing) {
+    db.prepare(
+      `UPDATE customer_addresses
+       SET title = ?, recipient_name = ?, phone = ?, address_line = ?, district = ?, city = ?, postal_code = ?, country = ?, notes = ?, is_default = 1, updated_at = ?
+       WHERE id = ?`,
+    ).run(
+      cleaned.title,
+      cleaned.recipientName,
+      cleaned.phone,
+      cleaned.addressLine,
+      cleaned.district,
+      cleaned.city,
+      cleaned.postalCode,
+      cleaned.country,
+      cleaned.notes,
+      now,
+      existing.id,
+    );
+    // reset other rows of same type to not default
+    db.prepare('UPDATE customer_addresses SET is_default = 0 WHERE customer_id = ? AND type = ? AND id != ?').run(
+      customerId,
+      type,
+      existing.id,
+    );
+    db.prepare('UPDATE customer_addresses SET is_default = 1 WHERE id = ?').run(existing.id);
+    return existing.id;
+  }
+
+  const result = db
+    .prepare(
+      `INSERT INTO customer_addresses (customer_id, type, title, recipient_name, phone, address_line, district, city, postal_code, country, notes, is_default, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)`,
+    )
+    .run(
+      customerId,
+      type,
+      cleaned.title,
+      cleaned.recipientName,
+      cleaned.phone,
+      cleaned.addressLine,
+      cleaned.district,
+      cleaned.city,
+      cleaned.postalCode,
+      cleaned.country,
+      cleaned.notes,
+      now,
+      now,
+    );
+
+  db.prepare('UPDATE customer_addresses SET is_default = 0 WHERE customer_id = ? AND type = ? AND id != ?').run(
+    customerId,
+    type,
+    result.lastInsertRowid,
+  );
+
+  return result.lastInsertRowid;
+}
+
+function deleteCustomerAddress(customerId, type) {
+  db.prepare('DELETE FROM customer_addresses WHERE customer_id = ? AND type = ?').run(customerId, type);
+}
+
+function createManualAddress(type, data) {
+  return {
+    id: null,
+    type,
+    title: data.title || '',
+    recipientName: data.recipientName,
+    phone: data.phone || '',
+    addressLine: data.addressLine,
+    district: data.district || '',
+    city: data.city,
+    postalCode: data.postalCode || '',
+    country: data.country || 'Türkiye',
+    notes: data.notes || '',
+  };
+}
+
+function parseAddressSnapshot(snapshot) {
+  if (!snapshot) return null;
+  return safeJsonParse(snapshot);
+}
+
+function formatAddressHtmlFromSnapshot(address) {
+  if (!address) return '';
+  const lines = [
+    address.recipientName,
+    address.addressLine,
+    address.district,
+    [address.city, address.postalCode].filter(Boolean).join(' '),
+    address.country,
+  ]
+    .filter(Boolean)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .join('<br>');
+
+  const phoneLine = address.phone ? `<br><small>Tel: ${address.phone}</small>` : '';
+  return `<p>${lines}${phoneLine}</p>`;
+}
+
 function createPaytrToken({
   merchantId,
   merchantKey,
@@ -213,6 +403,133 @@ function createPaytrToken({
   const hmac = crypto.createHmac('sha256', merchantKey);
   hmac.update(hashStr + merchantSalt);
   return Buffer.from(hmac.digest()).toString('base64');
+}
+
+function fetchOrderWithItems(orderId) {
+  const order = db
+    .prepare(
+      `SELECT id, order_number AS orderNumber, customer_name AS customerName, customer_email AS customerEmail,
+              customer_phone AS customerPhone, customer_address AS customerAddress, customer_city AS customerCity,
+              customer_notes AS customerNotes, total_amount AS totalAmount, status, created_at AS createdAt,
+              paid_at AS paidAt, shipped_at AS shippedAt, delivered_at AS deliveredAt,
+              shipping_address_snapshot AS shippingAddressSnapshot,
+              billing_address_snapshot AS billingAddressSnapshot
+       FROM orders WHERE id = ?`,
+    )
+    .get(orderId);
+
+  if (!order) {
+    return null;
+  }
+
+  order.shippingAddress = parseAddressSnapshot(order.shippingAddressSnapshot);
+  order.billingAddress = parseAddressSnapshot(order.billingAddressSnapshot);
+
+  const items = db
+    .prepare('SELECT product_name AS productName, unit_price AS unitPrice, quantity FROM order_items WHERE order_id = ?')
+    .all(orderId);
+
+  return { order, items };
+}
+
+function formatListItemsHtml(items) {
+  if (!items || items.length === 0) {
+    return '<p>Sipariş içeriği bulunamadı.</p>';
+  }
+
+  const lines = items
+    .map(
+      (item) =>
+        `<li><strong>${item.productName}</strong> x${item.quantity} — ${(item.unitPrice * item.quantity).toFixed(2)} ₺</li>`,
+    )
+    .join('');
+
+  return `<ul>${lines}</ul>`;
+}
+
+function getStoreSettingsForEmail() {
+  const settings = getAllSettings();
+  return {
+    name: settings.site_name || 'Tea2Tea',
+    contactEmail: settings.contact_email || 'destek@tea2tea.com',
+    contactPhone: settings.contact_phone || '',
+  };
+}
+
+function createStatusEmailTemplate(order, items, status, storeSettings) {
+  const orderDate = new Date(order.createdAt).toLocaleString('tr-TR');
+  const shippedDate = order.shippedAt ? new Date(order.shippedAt).toLocaleString('tr-TR') : null;
+  const deliveredDate = order.deliveredAt ? new Date(order.deliveredAt).toLocaleString('tr-TR') : null;
+  const itemsHtml = formatListItemsHtml(items);
+  const contactLine = storeSettings.contactEmail
+    ? `<p>Herhangi bir sorunuz olursa <a href="mailto:${storeSettings.contactEmail}">${storeSettings.contactEmail}</a> adresinden bize ulaşabilirsiniz.</p>`
+    : '';
+  const shippingHtml = formatAddressHtmlFromSnapshot(order.shippingAddress);
+  const billingHtml = formatAddressHtmlFromSnapshot(order.billingAddress);
+
+  if (status === ORDER_STATUS.processing) {
+    return {
+      subject: `${storeSettings.name} Siparişiniz Alındı`,
+      html: `
+        <h1>Teşekkürler ${order.customerName}</h1>
+        <p>Sipariş numaranız <strong>${order.orderNumber}</strong>. Harmanlarınızı hazırlamaya başladık.</p>
+        <p><strong>Sipariş Tarihi:</strong> ${orderDate}</p>
+        <h3>Sipariş Özeti</h3>
+        ${itemsHtml}
+        <p><strong>Toplam Tutar:</strong> ${order.totalAmount.toFixed(2)} ₺</p>
+        ${shippingHtml ? `<h3>Teslimat Adresi</h3>${shippingHtml}` : ''}
+        ${billingHtml ? `<h3>Fatura Adresi</h3>${billingHtml}` : ''}
+        <p>Kargonuz hazır olduğunda sizi bilgilendireceğiz.</p>
+        ${contactLine}
+      `,
+    };
+  }
+
+  if (status === ORDER_STATUS.shipped) {
+    return {
+      subject: `${storeSettings.name} Siparişiniz Yola Çıktı`,
+      html: `
+        <h1>Siparişiniz yola çıktı!</h1>
+        <p><strong>${order.orderNumber}</strong> numaralı siparişiniz kargoya teslim edildi.</p>
+        <p><strong>Kargo Tarihi:</strong> ${shippedDate || orderDate}</p>
+        <h3>Sipariş Özeti</h3>
+        ${itemsHtml}
+        <p><strong>Toplam Tutar:</strong> ${order.totalAmount.toFixed(2)} ₺</p>
+        ${shippingHtml ? `<h3>Teslimat Adresi</h3>${shippingHtml}` : ''}
+        ${billingHtml ? `<h3>Fatura Adresi</h3>${billingHtml}` : ''}
+        <p>Kargoyu teslim aldıktan sonra memnuniyetinizi bizimle paylaşabilirsiniz.</p>
+        ${contactLine}
+      `,
+    };
+  }
+
+  if (status === ORDER_STATUS.delivered) {
+    return {
+      subject: `${storeSettings.name} Siparişiniz Teslim Edildi`,
+      html: `
+        <h1>Afiyet olsun!</h1>
+        <p><strong>${order.orderNumber}</strong> numaralı siparişiniz teslim edildi olarak işaretlendi.</p>
+        <p><strong>Teslim Tarihi:</strong> ${deliveredDate || new Date().toLocaleString('tr-TR')}</p>
+        <h3>Sipariş Özeti</h3>
+        ${itemsHtml}
+        <p><strong>Toplam Tutar:</strong> ${order.totalAmount.toFixed(2)} ₺</p>
+        ${shippingHtml ? `<h3>Teslimat Adresi</h3>${shippingHtml}` : ''}
+        ${billingHtml ? `<h3>Fatura Adresi</h3>${billingHtml}` : ''}
+        <p>Lezzet deneyiminizi bizle paylaşırsanız çok seviniriz.</p>
+        ${contactLine}
+      `,
+    };
+  }
+
+  return null;
+}
+
+async function sendOrderStatusEmail(order, items, status) {
+  if (!order.customerEmail) return;
+  const storeSettings = getStoreSettingsForEmail();
+  const template = createStatusEmailTemplate(order, items, status, storeSettings);
+  if (!template) return;
+  await sendEmail(order.customerEmail, template.subject, template.html);
 }
 
 function requestPaytrToken(payload) {
@@ -501,7 +818,15 @@ app.get('/checkout', (req, res) => {
     setFlash(req, 'danger', 'Önce sepetinize ürün ekleyin.');
     return res.redirect('/');
   }
-  res.render('shop/checkout');
+  let addressBook = { shipping: [], billing: [] };
+  if (req.session.user) {
+    const all = listCustomerAddresses(req.session.user.id);
+    addressBook = {
+      shipping: all.filter((addr) => addr.type === 'shipping'),
+      billing: all.filter((addr) => addr.type === 'billing'),
+    };
+  }
+  res.render('shop/checkout', { addresses: addressBook });
 });
 
 app.post('/checkout', async (req, res) => {
@@ -517,18 +842,157 @@ app.post('/checkout', async (req, res) => {
   }
 
   const user = req.session.user;
-  const { name, email, phone, address, city, notes } = req.body;
+  const {
+    email,
+    notes,
+    shippingAddressId,
+    shipping_title,
+    shipping_name,
+    shipping_phone,
+    shipping_address,
+    shipping_district,
+    shipping_city,
+    shipping_postal,
+    shipping_country,
+    billingSame,
+    billingAddressId,
+    billing_title,
+    billing_name,
+    billing_phone,
+    billing_address,
+    billing_district,
+    billing_city,
+    billing_postal,
+    billing_country,
+    save_shipping,
+    save_billing,
+    name,
+    phone,
+    address,
+    city,
+  } = req.body;
 
-  const customerName = (name || user?.name || '').trim();
   const customerEmail = (email || user?.email || '').trim().toLowerCase();
-  const customerPhone = (phone || user?.phone || '').trim();
-  const customerAddress = (address || '').trim();
-  const customerCity = (city || '').trim();
+  if (!customerEmail) {
+    setFlash(req, 'danger', 'Lütfen e-posta adresinizi girin.');
+    return res.redirect('/checkout');
+  }
+
+  let shippingAddressRecord = null;
+  let shippingSnapshotJson;
+  let shippingAddressData;
+  let shippingSourceForSave = null;
+
+  if (shippingAddressId) {
+    if (!user) {
+      setFlash(req, 'danger', 'Kayıtlı adres seçebilmek için giriş yapmanız gerekir.');
+      return res.redirect('/checkout');
+    }
+    shippingAddressRecord = getCustomerAddressById(user.id, Number(shippingAddressId));
+    if (!shippingAddressRecord) {
+      setFlash(req, 'danger', 'Seçilen teslimat adresi bulunamadı.');
+      return res.redirect('/checkout');
+    }
+    shippingSnapshotJson = convertAddressToSnapshot(shippingAddressRecord);
+    shippingAddressData = parseAddressSnapshot(shippingSnapshotJson);
+    shippingSourceForSave = shippingAddressRecord;
+  } else {
+    const shipName = (shipping_name || name || user?.name || '').trim();
+    const shipPhone = (shipping_phone || phone || user?.phone || '').trim();
+    const shipAddress = (shipping_address || address || '').trim();
+    const shipCity = (shipping_city || city || '').trim();
+    const shipDistrict = (shipping_district || '').trim();
+    const shipPostal = (shipping_postal || '').trim();
+    const shipCountry = (shipping_country || 'Türkiye').trim();
+
+    if (!shipName || !shipAddress || !shipCity) {
+      setFlash(req, 'danger', 'Teslimat adresi için ad, adres ve şehir alanları zorunludur.');
+      return res.redirect('/checkout');
+    }
+
+    const manualShipping = createManualAddress('shipping', {
+      title: shipping_title?.trim() || '',
+      recipientName: shipName,
+      phone: shipPhone,
+      addressLine: shipAddress,
+      district: shipDistrict,
+      city: shipCity,
+      postalCode: shipPostal,
+      country: shipCountry,
+      notes: '',
+    });
+    shippingSnapshotJson = convertAddressToSnapshot(manualShipping);
+    shippingAddressData = parseAddressSnapshot(shippingSnapshotJson);
+    shippingSourceForSave = manualShipping;
+  }
+
+  const customerName = shippingAddressData.recipientName;
+  const customerPhone = (shippingAddressData.phone || phone || user?.phone || '').trim();
+  if (!customerPhone) {
+    setFlash(req, 'danger', 'Telefon numarası zorunludur.');
+    return res.redirect('/checkout');
+  }
+  const customerAddress = shippingAddressData.addressLine;
+  const customerCity = shippingAddressData.city;
   const customerNotes = (notes || '').trim();
 
-  if (!customerName || !customerEmail || !customerAddress || !customerCity || !customerPhone) {
-    setFlash(req, 'danger', 'Lütfen tüm zorunlu alanları doldurun.');
-    return res.redirect('/checkout');
+  let billingSameFlag = billingSame === 'on' || billingSame === 'true' || billingSame === '1';
+  if (billingAddressId) {
+    billingSameFlag = false;
+  }
+  let billingAddressData = null;
+  let billingSnapshotJson = null;
+  let billingSourceForSave = null;
+
+  if (billingSameFlag) {
+    billingAddressData = shippingAddressData;
+    billingSnapshotJson = shippingSnapshotJson;
+  } else if (billingAddressId) {
+    if (!user) {
+      setFlash(req, 'danger', 'Kayıtlı fatura adresi seçebilmek için giriş yapmanız gerekir.');
+      return res.redirect('/checkout');
+    }
+    const billingRecord = getCustomerAddressById(user.id, Number(billingAddressId));
+    if (!billingRecord) {
+      setFlash(req, 'danger', 'Seçilen fatura adresi bulunamadı.');
+      return res.redirect('/checkout');
+    }
+    const typedRecord = { ...billingRecord, type: 'billing' };
+    billingSnapshotJson = convertAddressToSnapshot(typedRecord);
+    billingAddressData = parseAddressSnapshot(billingSnapshotJson);
+    billingSourceForSave = typedRecord;
+  } else {
+    const billName = (billing_name || '').trim();
+    const billAddress = (billing_address || '').trim();
+    const billCity = (billing_city || '').trim();
+    const billDistrict = (billing_district || '').trim();
+    const billPostal = (billing_postal || '').trim();
+    const billCountry = (billing_country || 'Türkiye').trim();
+    const billPhone = (billing_phone || '').trim();
+    const hasBillingInput =
+      billName || billAddress || billCity || billDistrict || billPostal || billCountry || billPhone;
+
+    if (hasBillingInput) {
+      if (!billName || !billAddress || !billCity) {
+        setFlash(req, 'danger', 'Fatura adresi için ad, adres ve şehir alanları zorunludur.');
+        return res.redirect('/checkout');
+      }
+      billingSameFlag = false;
+      const manualBilling = createManualAddress('billing', {
+        title: billing_title?.trim() || '',
+        recipientName: billName,
+        phone: billPhone,
+        addressLine: billAddress,
+        district: billDistrict,
+        city: billCity,
+        postalCode: billPostal,
+        country: billCountry,
+        notes: '',
+      });
+      billingSnapshotJson = convertAddressToSnapshot(manualBilling);
+      billingAddressData = parseAddressSnapshot(billingSnapshotJson);
+      billingSourceForSave = manualBilling;
+    }
   }
 
   const pricing = calculateCartTotals(cart);
@@ -542,7 +1006,7 @@ app.post('/checkout', async (req, res) => {
   const basket = createPaytrBasket(cart, pricing);
   const userIp = getClientIp(req);
   const orderNumber = generateOrderNumber();
-  const paytrPhone = customerPhone.replace(/[^\d+]/g, '');
+  const paytrPhone = (shippingAddressData.phone || customerPhone).replace(/[^\d+]/g, '');
 
   const tokenPayload = {
     merchant_id: PAYTR_MERCHANT_ID,
@@ -608,6 +1072,19 @@ app.post('/checkout', async (req, res) => {
 
   const paytrToken = paytrResponse.token;
   const cartSnapshot = snapshotCart(cart);
+  if (user) {
+    try {
+      if (save_shipping === 'on' && shippingSourceForSave) {
+        saveCustomerAddress(user.id, 'shipping', shippingSourceForSave);
+      }
+      if (!billingSameFlag && save_billing === 'on' && billingSourceForSave) {
+        saveCustomerAddress(user.id, 'billing', billingSourceForSave);
+      }
+    } catch (err) {
+      console.warn('Adres kaydedilirken hata oluştu:', err.message);
+    }
+  }
+
   const paymentPayload = {
     paymentAmount,
     currency: PAYTR_CURRENCY,
@@ -615,6 +1092,8 @@ app.post('/checkout', async (req, res) => {
     subtotal: pricing.subtotal,
     cartSnapshot,
     basket: basket.items,
+    shippingAddress: shippingAddressData,
+    billingAddress: billingAddressData,
     testMode: PAYTR_TEST_MODE,
   };
 
@@ -633,8 +1112,10 @@ app.post('/checkout', async (req, res) => {
       payment_provider,
       payment_reference,
       payment_payload,
-      paid_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      paid_at,
+      shipping_address_snapshot,
+      billing_address_snapshot
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
   const insertOrderItem = db.prepare(`
@@ -658,11 +1139,13 @@ app.post('/checkout', async (req, res) => {
       customerNotes || null,
       pricing.total,
       user ? user.id : null,
-      'pending',
+      ORDER_STATUS.pending,
       'paytr',
       paytrToken,
       JSON.stringify(paymentPayload),
       null,
+      shippingSnapshotJson,
+      billingSnapshotJson,
     );
 
     Object.values(cart.items).forEach((item) => {
@@ -709,12 +1192,14 @@ app.get('/order/success/:orderNumber', (req, res) => {
   const order = db
     .prepare(
       `SELECT id, order_number AS orderNumber, customer_name AS customerName, total_amount AS totalAmount,
-              created_at AS createdAt, paid_at AS paidAt, status
+              created_at AS createdAt, paid_at AS paidAt, shipped_at AS shippedAt, delivered_at AS deliveredAt, status,
+              shipping_address_snapshot AS shippingAddressSnapshot,
+              billing_address_snapshot AS billingAddressSnapshot
        FROM orders WHERE order_number = ?`,
     )
     .get(orderNumber);
 
-  if (!order || order.status !== 'paid') {
+  if (!order || !FULFILLED_STATUSES.includes(order.status)) {
     return res.status(404).render('shop/not-found', { message: 'Sipariş bulunamadı.' });
   }
 
@@ -723,13 +1208,16 @@ app.get('/order/success/:orderNumber', (req, res) => {
     return res.redirect('/');
   }
 
+  order.shippingAddress = parseAddressSnapshot(order.shippingAddressSnapshot);
+  order.billingAddress = parseAddressSnapshot(order.billingAddressSnapshot);
+
   const items = db
     .prepare(
       'SELECT product_name AS productName, unit_price AS unitPrice, quantity FROM order_items WHERE order_id = ?',
     )
     .all(order.id);
 
-  res.render('shop/order-success', { order, items });
+  res.render('shop/order-success', { order, items, statusLabel: ORDER_STATUS_LABELS[order.status] });
 });
 
 app.post('/paytr/notify', async (req, res) => {
@@ -773,44 +1261,22 @@ app.post('/paytr/notify', async (req, res) => {
 
   try {
     if (status === 'success') {
-      if (order.status !== 'paid') {
+      if (!FULFILLED_STATUSES.includes(order.status)) {
         applyStockAdjustments(existingPayload.cartSnapshot);
         const paymentReference = payload.payment_id || payload.token || merchantOid;
-        updateOrderPaymentStmt.run('paid', paymentReference, JSON.stringify(mergedPayload), order.id);
-
-        if (order.customerEmail) {
-          const storeSettings = getAllSettings();
-          const storeName = storeSettings.site_name || 'Tea2Tea';
-          const items = db
-            .prepare(
-              'SELECT product_name AS productName, unit_price AS unitPrice, quantity FROM order_items WHERE order_id = ?',
-            )
-            .all(order.id);
-          const orderLines = items
-            .map(
-              (item) => `<li>${item.productName} x${item.quantity} - ${(item.unitPrice * item.quantity).toFixed(2)} ₺</li>`,
-            )
-            .join('');
-          const shippingLine =
-            existingPayload.shippingAmount && existingPayload.shippingAmount > 0
-              ? `<p><strong>Kargo:</strong> ${existingPayload.shippingAmount.toFixed(2)} ₺</p>`
-              : `<p><strong>Kargo:</strong> Ücretsiz</p>`;
-          const mailHtml = `
-            <h1>Teşekkürler ${order.customerName}</h1>
-            <p>Sipariş numaranız <strong>${merchantOid}</strong>.</p>
-            <p>Sipariş özeti:</p>
-            <ul>${orderLines}</ul>
-            ${shippingLine}
-            <p><strong>Toplam:</strong> ${order.totalAmount.toFixed(2)} ₺</p>
-          `;
-          await sendEmail(order.customerEmail, `${storeName} Sipariş Onayı`, mailHtml);
+        updateOrderPaymentStmt.run(ORDER_STATUS.processing, paymentReference, JSON.stringify(mergedPayload), order.id);
+        updateOrderStatusStmt.run(ORDER_STATUS.processing, null, null, order.id);
+        const fresh = fetchOrderWithItems(order.id);
+        if (fresh) {
+          await sendOrderStatusEmail(fresh.order, fresh.items, ORDER_STATUS.processing);
         }
       } else {
         updateOrderPayloadStmt.run(JSON.stringify(mergedPayload), order.id);
       }
     } else {
-      if (order.status !== 'paid') {
-        markOrderFailedStmt.run('failed', JSON.stringify(mergedPayload), order.id);
+      if (!FULFILLED_STATUSES.includes(order.status)) {
+        markOrderFailedStmt.run(ORDER_STATUS.failed, JSON.stringify(mergedPayload), order.id);
+        updateOrderStatusStmt.run(ORDER_STATUS.failed, null, null, order.id);
       } else {
         updateOrderPayloadStmt.run(JSON.stringify(mergedPayload), order.id);
       }
@@ -844,7 +1310,7 @@ app.all('/paytr/return/success', (req, res) => {
     return res.redirect('/');
   }
 
-  if (order.status === 'paid') {
+  if (FULFILLED_STATUSES.includes(order.status)) {
     req.session.lastOrderNumber = merchantOid;
     req.session.cart = { items: {}, totalQuantity: 0, totalAmount: 0 };
     delete req.session.awaitingPaymentOrder;
@@ -864,10 +1330,11 @@ app.all('/paytr/return/fail', (req, res) => {
     const order = db
       .prepare('SELECT id, status, payment_payload AS paymentPayload FROM orders WHERE order_number = ?')
       .get(merchantOid);
-    if (order && order.status !== 'paid') {
+    if (order && !FULFILLED_STATUSES.includes(order.status)) {
       const existingPayload = safeJsonParse(order.paymentPayload) || {};
       const mergedPayload = { ...existingPayload, lastFailReturn: payload };
-      markOrderFailedStmt.run('failed', JSON.stringify(mergedPayload), order.id);
+      markOrderFailedStmt.run(ORDER_STATUS.failed, JSON.stringify(mergedPayload), order.id);
+      updateOrderStatusStmt.run(ORDER_STATUS.failed, null, null, order.id);
     }
   }
   delete req.session.awaitingPaymentOrder;
@@ -1017,8 +1484,11 @@ app.post('/subscriptions/cancel', requireUser, (req, res) => {
 app.get('/account', requireUser, (req, res) => {
   const orders = db
     .prepare(
-      `SELECT order_number AS orderNumber, total_amount AS totalAmount, paid_at AS paidAt, created_at AS createdAt
-       FROM orders WHERE customer_id = ? AND status = 'paid' ORDER BY COALESCE(paid_at, created_at) DESC`,
+      `SELECT order_number AS orderNumber, total_amount AS totalAmount, paid_at AS paidAt, created_at AS createdAt,
+              shipped_at AS shippedAt, delivered_at AS deliveredAt, status
+       FROM orders
+       WHERE customer_id = ? AND status IN ('processing', 'shipped', 'delivered', 'failed')
+       ORDER BY COALESCE(delivered_at, shipped_at, paid_at, created_at) DESC`,
     )
     .all(req.session.user.id);
   const blends = db
@@ -1029,8 +1499,90 @@ app.get('/account', requireUser, (req, res) => {
     .all(req.session.user.id);
 
   const subscription = getActiveSubscription(req.session.user.id);
+  const addressList = listCustomerAddresses(req.session.user.id);
+  const shippingAddress = addressList.find((addr) => addr.type === 'shipping' && addr.isDefault) || addressList.find((addr) => addr.type === 'shipping');
+  const billingAddress = addressList.find((addr) => addr.type === 'billing' && addr.isDefault) || addressList.find((addr) => addr.type === 'billing');
+  const activeOrders = orders.filter((order) => order.status === ORDER_STATUS.processing || order.status === ORDER_STATUS.shipped);
+  const pastOrders = orders.filter((order) => order.status === ORDER_STATUS.delivered || order.status === ORDER_STATUS.failed);
 
-  res.render('account/index', { orders, blends, subscription, teaLabPlan: TEA_LAB_PLAN });
+  res.render('account/index', {
+    activeOrders,
+    pastOrders,
+    blends,
+    subscription,
+    teaLabPlan: TEA_LAB_PLAN,
+    shippingAddress,
+    billingAddress,
+  });
+});
+
+app.post('/account/profile', requireUser, (req, res) => {
+  const { name, phone } = req.body;
+  const trimmedName = name ? name.trim() : '';
+  const trimmedPhone = phone ? phone.trim() : '';
+
+  if (!trimmedName) {
+    setFlash(req, 'danger', 'Ad Soyad alanı boş bırakılamaz.');
+    return res.redirect('/account');
+  }
+
+  try {
+    db.prepare('UPDATE customers SET name = ?, phone = ? WHERE id = ?').run(trimmedName, trimmedPhone || null, req.session.user.id);
+    req.session.user.name = trimmedName;
+    req.session.user.phone = trimmedPhone;
+    setFlash(req, 'success', 'Profil bilgileriniz güncellendi.');
+  } catch (err) {
+    console.error('Profil güncellemesi başarısız', err);
+    setFlash(req, 'danger', 'Profil güncellenirken bir hata oluştu.');
+  }
+
+  res.redirect('/account');
+});
+
+app.post('/account/address', requireUser, (req, res) => {
+  const type = (req.body.type || '').toLowerCase();
+  if (!['shipping', 'billing'].includes(type)) {
+    setFlash(req, 'danger', 'Geçersiz adres tipi.');
+    return res.redirect('/account');
+  }
+
+  const payload = {
+    title: req.body.title?.trim() || '',
+    recipientName: req.body.recipientName?.trim() || '',
+    phone: req.body.phone?.trim() || '',
+    addressLine: req.body.addressLine?.trim() || '',
+    district: req.body.district?.trim() || '',
+    city: req.body.city?.trim() || '',
+    postalCode: req.body.postalCode?.trim() || '',
+    country: req.body.country?.trim() || 'Türkiye',
+    notes: req.body.notes?.trim() || '',
+  };
+
+  try {
+    saveCustomerAddress(req.session.user.id, type, payload);
+    setFlash(req, 'success', `${type === 'shipping' ? 'Teslimat' : 'Fatura'} adresiniz kaydedildi.`);
+  } catch (err) {
+    if (err.message === 'ADRES_BILGISI_EKSİK') {
+      setFlash(req, 'danger', 'Adres kaydedilemedi. Zorunlu alanları doldurun.');
+    } else {
+      console.error('Adres kaydedilirken hata', err);
+      setFlash(req, 'danger', 'Adres kaydedilirken bir hata oluştu.');
+    }
+  }
+
+  res.redirect('/account');
+});
+
+app.delete('/account/address', requireUser, (req, res) => {
+  const type = (req.body.type || '').toLowerCase();
+  if (!['shipping', 'billing'].includes(type)) {
+    setFlash(req, 'danger', 'Geçersiz adres tipi.');
+    return res.redirect('/account');
+  }
+
+  deleteCustomerAddress(req.session.user.id, type);
+  setFlash(req, 'info', `${type === 'shipping' ? 'Teslimat' : 'Fatura'} adresiniz kaldırıldı.`);
+  res.redirect('/account');
 });
 
 app.get('/blends/create', requireUser, (req, res) => {
@@ -1318,9 +1870,16 @@ app.use('/admin', requireAdmin);
 
 app.get('/admin', (req, res) => {
   const totalProducts = db.prepare('SELECT COUNT(*) AS count FROM products').get().count;
-  const totalOrders = db.prepare("SELECT COUNT(*) AS count FROM orders WHERE status = 'paid'").get().count;
-  const totalRevenue = db.prepare("SELECT IFNULL(SUM(total_amount), 0) AS total FROM orders WHERE status = 'paid'").get()
-    .total;
+  const totalOrders = db
+    .prepare(
+      "SELECT COUNT(*) AS count FROM orders WHERE status IN ('processing', 'shipped', 'delivered')",
+    )
+    .get().count;
+  const totalRevenue = db
+    .prepare(
+      "SELECT IFNULL(SUM(total_amount), 0) AS total FROM orders WHERE status IN ('processing', 'shipped', 'delivered')",
+    )
+    .get().total;
   const recentOrders = db
     .prepare(
       `SELECT id, order_number AS orderNumber, customer_name AS customerName, total_amount AS totalAmount,
@@ -1487,7 +2046,10 @@ app.get('/admin/orders/:id', (req, res) => {
       `SELECT id, order_number AS orderNumber, customer_name AS customerName, customer_email AS customerEmail,
               customer_phone AS customerPhone, customer_address AS customerAddress, customer_city AS customerCity,
               customer_notes AS customerNotes, total_amount AS totalAmount, created_at AS createdAt, status,
-              paid_at AS paidAt, payment_provider AS paymentProvider, payment_reference AS paymentReference
+              paid_at AS paidAt, shipped_at AS shippedAt, delivered_at AS deliveredAt,
+              payment_provider AS paymentProvider, payment_reference AS paymentReference,
+              shipping_address_snapshot AS shippingAddressSnapshot,
+              billing_address_snapshot AS billingAddressSnapshot
        FROM orders WHERE id = ?`,
     )
     .get(req.params.id);
@@ -1504,7 +2066,64 @@ app.get('/admin/orders/:id', (req, res) => {
     )
     .all(order.id);
 
+  order.shippingAddress = parseAddressSnapshot(order.shippingAddressSnapshot);
+  order.billingAddress = parseAddressSnapshot(order.billingAddressSnapshot);
+
   res.render('admin/orders/detail', { order, items });
+});
+
+const ADMIN_STATUS_OPTIONS = [ORDER_STATUS.processing, ORDER_STATUS.shipped, ORDER_STATUS.delivered, ORDER_STATUS.failed];
+
+app.post('/admin/orders/:id/status', async (req, res) => {
+  const orderId = Number(req.params.id);
+  const targetStatus = req.body.status;
+
+  if (!ADMIN_STATUS_OPTIONS.includes(targetStatus)) {
+    setFlash(req, 'danger', 'Geçersiz sipariş durumu.');
+    return res.redirect(`/admin/orders/${orderId}`);
+  }
+
+  const record = fetchOrderWithItems(orderId);
+  if (!record) {
+    setFlash(req, 'danger', 'Sipariş bulunamadı.');
+    return res.redirect('/admin/orders');
+  }
+
+  const currentStatus = record.order.status;
+  if (currentStatus === targetStatus) {
+    setFlash(req, 'info', 'Sipariş durumu zaten seçtiğiniz değer.');
+    return res.redirect(`/admin/orders/${orderId}`);
+  }
+
+  const nowIso = new Date().toISOString();
+  let shippedAt = record.order.shippedAt;
+  let deliveredAt = record.order.deliveredAt;
+
+  if (targetStatus === ORDER_STATUS.processing || targetStatus === ORDER_STATUS.failed) {
+    shippedAt = null;
+    deliveredAt = null;
+  } else if (targetStatus === ORDER_STATUS.shipped) {
+    shippedAt = shippedAt || nowIso;
+    deliveredAt = null;
+  } else if (targetStatus === ORDER_STATUS.delivered) {
+    shippedAt = shippedAt || nowIso;
+    deliveredAt = nowIso;
+  }
+
+  updateOrderStatusStmt.run(targetStatus, shippedAt, deliveredAt, orderId);
+
+  // Refresh order data after update
+  const updated = fetchOrderWithItems(orderId);
+  if (updated && (targetStatus === ORDER_STATUS.shipped || targetStatus === ORDER_STATUS.delivered)) {
+    try {
+      await sendOrderStatusEmail(updated.order, updated.items, targetStatus);
+    } catch (err) {
+      console.error('Failed to send status email', err);
+    }
+  }
+
+  setFlash(req, 'success', `Sipariş durumu '${ORDER_STATUS_LABELS[targetStatus]}' olarak güncellendi.`);
+  res.redirect(`/admin/orders/${orderId}`);
 });
 
 // Settings

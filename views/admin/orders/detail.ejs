@@ -38,7 +38,7 @@
         <div>
           <h2>Sipariş Özeti</h2>
           <div class="order-summary-box">
-            <% const statusLabels = { paid: 'Ödendi', pending: 'Beklemede', failed: 'Başarısız' }; %>
+            <% const statusLabels = orderStatusLabels || { processing: 'Hazırlanıyor', shipped: 'Yolda', delivered: 'Teslim Edildi', failed: 'İptal Edildi', pending: 'Beklemede' }; %>
             <div>
               <span>Tutar</span>
               <strong><%= order.totalAmount.toFixed(2) %> ₺</strong>
@@ -55,6 +55,18 @@
               <div>
                 <span>Ödeme Tarihi</span>
                 <strong><%= new Date(order.paidAt).toLocaleString('tr-TR') %></strong>
+              </div>
+            <% } %>
+            <% if (order.shippedAt) { %>
+              <div>
+                <span>Kargoya Verildi</span>
+                <strong><%= new Date(order.shippedAt).toLocaleString('tr-TR') %></strong>
+              </div>
+            <% } %>
+            <% if (order.deliveredAt) { %>
+              <div>
+                <span>Teslim Edildi</span>
+                <strong><%= new Date(order.deliveredAt).toLocaleString('tr-TR') %></strong>
               </div>
             <% } %>
             <% if (order.paymentProvider) { %>
@@ -74,8 +86,53 @@
               <strong><%= items.length %></strong>
             </div>
           </div>
+          <% if (order.shippingAddress) { %>
+            <div class="order-summary-box order-summary-box--address">
+              <div>
+                <span>Teslimat Adresi</span>
+                <strong>
+                  <%= order.shippingAddress.recipientName %><br>
+                  <%= order.shippingAddress.addressLine %><br>
+                  <% if (order.shippingAddress.district) { %><%= order.shippingAddress.district %><br><% } %>
+                  <%= order.shippingAddress.city %> <%= order.shippingAddress.postalCode || '' %><br>
+                  <%= order.shippingAddress.country %>
+                </strong>
+                <% if (order.shippingAddress.phone) { %><small>Tel: <%= order.shippingAddress.phone %></small><% } %>
+              </div>
+              <% if (order.billingAddress && order.billingAddressSnapshot && order.billingAddressSnapshot !== order.shippingAddressSnapshot) { %>
+                <div>
+                  <span>Fatura Adresi</span>
+                  <strong>
+                    <%= order.billingAddress.recipientName %><br>
+                    <%= order.billingAddress.addressLine %><br>
+                    <% if (order.billingAddress.district) { %><%= order.billingAddress.district %><br><% } %>
+                    <%= order.billingAddress.city %> <%= order.billingAddress.postalCode || '' %><br>
+                    <%= order.billingAddress.country %>
+                  </strong>
+                  <% if (order.billingAddress.phone) { %><small>Tel: <%= order.billingAddress.phone %></small><% } %>
+                </div>
+              <% } %>
+            </div>
+          <% } %>
         </div>
       </div>
+    </section>
+
+    <section class="admin-panel">
+      <h2>Durum Güncelle</h2>
+      <form action="/admin/orders/<%= order.id %>/status" method="POST" class="admin-form inline-form">
+        <label>
+          Sipariş Durumu
+          <select name="status" required>
+            <option value="processing" <%= order.status === 'processing' ? 'selected' : '' %>>Hazırlanıyor</option>
+            <option value="shipped" <%= order.status === 'shipped' ? 'selected' : '' %>>Yolda</option>
+            <option value="delivered" <%= order.status === 'delivered' ? 'selected' : '' %>>Teslim Edildi</option>
+            <option value="failed" <%= order.status === 'failed' ? 'selected' : '' %>>İptal Edildi</option>
+          </select>
+        </label>
+        <button type="submit" class="btn btn-primary">Durumu Güncelle</button>
+      </form>
+      <p class="form-hint">Durumu <em>Yolda</em> veya <em>Teslim Edildi</em> olarak işaretlediğinizde müşteriye bilgilendirme e-postası gönderilir.</p>
     </section>
 
     <section class="admin-panel">

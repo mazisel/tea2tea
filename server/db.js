@@ -14,11 +14,6 @@ if (!fs.existsSync(dataDir)) {
 const db = new Database(dbFilePath);
 db.pragma('foreign_keys = ON');
 
-const DEFAULT_ADMIN = {
-  username: 'admin',
-  password: 'admin123',
-};
-
 const DEFAULT_SETTINGS = [
   { key: 'site_name', value: 'Tea2Tea' },
   { key: 'hero_title', value: 'Çayınızı Seçin, Keyfini Çıkarın' },
@@ -92,6 +87,25 @@ function createTables() {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
 
+    CREATE TABLE IF NOT EXISTS customer_addresses (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      customer_id INTEGER NOT NULL,
+      type TEXT NOT NULL CHECK(type IN ('shipping','billing')),
+      title TEXT,
+      recipient_name TEXT NOT NULL,
+      phone TEXT,
+      address_line TEXT NOT NULL,
+      district TEXT,
+      city TEXT NOT NULL,
+      postal_code TEXT,
+      country TEXT DEFAULT 'Türkiye',
+      notes TEXT,
+      is_default INTEGER NOT NULL DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY(customer_id) REFERENCES customers(id) ON DELETE CASCADE
+    );
+
     CREATE TABLE IF NOT EXISTS products (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
@@ -122,6 +136,8 @@ function createTables() {
       payment_reference TEXT,
       payment_payload TEXT,
       paid_at DATETIME,
+      shipped_at DATETIME,
+      delivered_at DATETIME,
       FOREIGN KEY(customer_id) REFERENCES customers(id)
     );
 
@@ -190,7 +206,7 @@ function createTables() {
 
   try {
     db.prepare("ALTER TABLE orders ADD COLUMN status TEXT NOT NULL DEFAULT 'pending'").run();
-    db.prepare("UPDATE orders SET status = 'paid'").run();
+    db.prepare("UPDATE orders SET status = 'processing'").run();
   } catch (err) {
     if (!String(err.message).includes('duplicate column')) {
       throw err;
@@ -230,6 +246,22 @@ function createTables() {
   }
 
   try {
+    db.prepare('ALTER TABLE orders ADD COLUMN shipped_at DATETIME').run();
+  } catch (err) {
+    if (!String(err.message).includes('duplicate column')) {
+      throw err;
+    }
+  }
+
+  try {
+    db.prepare('ALTER TABLE orders ADD COLUMN delivered_at DATETIME').run();
+  } catch (err) {
+    if (!String(err.message).includes('duplicate column')) {
+      throw err;
+    }
+  }
+
+  try {
     db.prepare('ALTER TABLE customers ADD COLUMN phone TEXT').run();
   } catch (err) {
     if (!String(err.message).includes('duplicate column')) {
@@ -256,10 +288,23 @@ function createTables() {
   }
 
   db.prepare('CREATE UNIQUE INDEX IF NOT EXISTS idx_customers_email ON customers(email)').run();
+  db.prepare('CREATE INDEX IF NOT EXISTS idx_customer_addresses_customer ON customer_addresses(customer_id)').run();
+  db.prepare('CREATE INDEX IF NOT EXISTS idx_customer_addresses_type ON customer_addresses(type)').run();
   db.prepare('CREATE INDEX IF NOT EXISTS idx_blends_user ON blends(user_id)').run();
   db.prepare('CREATE INDEX IF NOT EXISTS idx_blend_items_blend ON blend_items(blend_id)').run();
   db.prepare('CREATE INDEX IF NOT EXISTS idx_blend_comments_blend ON blend_comments(blend_id)').run();
   db.prepare('CREATE INDEX IF NOT EXISTS idx_subscriptions_customer ON subscriptions(customer_id)').run();
+}
+
+function getDefaultAdminCredentials() {
+  const username = process.env.ADMIN_USERNAME || 'admin';
+  const password = process.env.ADMIN_PASSWORD;
+
+  if (!password || password.trim().length < 6) {
+    throw new Error('ADMIN_PASSWORD environment variable must be set and at least 6 characters.');
+  }
+
+  return { username, password: password.trim() };
 }
 
 function seedDefaults() {
@@ -277,9 +322,10 @@ function seedDefaults() {
 
   const adminCount = db.prepare('SELECT COUNT(*) as count FROM admin_users').get().count;
   if (adminCount === 0) {
-    const passwordHash = bcrypt.hashSync(DEFAULT_ADMIN.password, 10);
+    const defaultAdmin = getDefaultAdminCredentials();
+    const passwordHash = bcrypt.hashSync(defaultAdmin.password, 10);
     db.prepare('INSERT INTO admin_users (username, password_hash) VALUES (?, ?)').run(
-      DEFAULT_ADMIN.username,
+      defaultAdmin.username,
       passwordHash,
     );
   }
@@ -310,4 +356,5 @@ module.exports = {
   getSetting,
   getAllSettings,
   setSetting,
+  getDefaultAdminCredentials,
 };
