@@ -7,8 +7,6 @@ services:
     restart: unless-stopped
     ports:
       - "3010:3010"
-    env_file:
-      - .env
     volumes:
       - tea2tea_data:/app/data
       - tea2tea_uploads:/app/public/uploads
