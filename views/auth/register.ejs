@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="tr">
+<%- include('../partials/shop-head', { title: 'Kaydol' }) %>
+<body>
+  <%- include('../partials/shop-header') %>
+  <main class="page">
+    <section class="container">
+      <div class="auth-card">
+        <h1>Hesap Oluştur</h1>
+        <p>Tea2Tea hesabınızla siparişlerinizi takip edin ve hızlıca ödeme yapın.</p>
+        <%- include('../partials/flash') %>
+        <form action="/register" method="POST" class="auth-form">
+          <label>
+            Ad Soyad
+            <input name="name" value="<%= typeof form !== 'undefined' ? form.name : '' %>" required>
+          </label>
+          <label>
+            E-posta
+            <input name="email" type="email" value="<%= typeof form !== 'undefined' ? form.email : '' %>" required>
+          </label>
+          <label>
+            Telefon
+            <input
+              name="phone"
+              type="tel"
+              autocomplete="tel"
+              value="<%= typeof form !== 'undefined' ? (form.phone || '+90 ') : '+90 ' %>"
+              required>
+          </label>
+          <label>
+            Şifre
+            <input name="password" type="password" minlength="6" required>
+          </label>
+          <button type="submit" class="btn btn-primary btn-lg">Kaydol</button>
+        </form>
+        <p class="auth-note">Zaten hesabınız var mı? <a href="/login">Giriş yapın</a>.</p>
+      </div>
+    </section>
+  </main>
+  <%- include('../partials/shop-footer') %>
+</body>
+</html>

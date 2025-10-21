@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="tr">
+<%- include('../partials/shop-head', { title: 'Ödeme Adımı' }) %>
+<body>
+  <%- include('../partials/shop-header') %>
+  <main class="page page-checkout">
+    <section class="container">
+      <div class="payment-shell">
+        <div>
+          <h1>Ödemenizi Tamamlayın</h1>
+          <p>PAYTR güvenli ödeme alanını kullanarak siparişinizi birkaç dakika içinde tamamlayabilirsiniz.</p>
+        </div>
+        <div class="payment-shell__meta">
+          <span>Sipariş No: <strong><%= orderNumber %></strong></span>
+          <span>Ödenecek Tutar: <strong><%= totalAmount.toFixed(2) %> ₺</strong></span>
+        </div>
+        <div class="paytr-iframe-wrapper">
+          <iframe
+            id="paytr-iframe"
+            src="https://www.paytr.com/odeme/iframe/<%= paytrToken %>"
+            allow="payment"
+            scrolling="no"
+            class="paytr-iframe"
+            title="PAYTR Güvenli Ödeme">
+          </iframe>
+        </div>
+        <p class="payment-note">
+          Ödeme alanı yüklenmezse <a href="https://www.paytr.com/odeme/iframe/<%= paytrToken %>" target="_blank" rel="noopener">buraya tıklayarak</a> yeni bir sekmede açabilirsiniz.
+        </p>
+      </div>
+    </section>
+  </main>
+  <%- include('../partials/shop-footer') %>
+  <script src="https://www.paytr.com/js/iframeResizer.min.js"></script>
+  <script>
+    if (typeof iFrameResize === 'function') {
+      iFrameResize({ checkOrigin: false, log: false }, '#paytr-iframe');
+    }
+  </script>
+</body>
+</html>

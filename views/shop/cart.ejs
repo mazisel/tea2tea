@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="tr">
+<%- include('../partials/shop-head', { title: 'Sepet' }) %>
+<body>
+  <%- include('../partials/shop-header') %>
+  <main class="page page-cart">
+    <section class="page-intro">
+      <div class="container intro-heading">
+        <span class="eyebrow">Siparişiniz</span>
+        <h1>Sepetiniz hazır.</h1>
+        <p>Minimal, rafine ve günlük ritüelinize uyum sağlayan çaylar. Dilediğiniz zaman adetleri düzenleyin.</p>
+      </div>
+    </section>
+
+    <section class="container cart-shell">
+      <div class="cart-shell__header">
+        <%- include('../partials/flash') %>
+      </div>
+      <% if (!cart.items.length) { %>
+        <div class="empty-state elevated">
+          <h3>Sepetiniz boş</h3>
+          <p>Tea2Tea koleksiyonundan favori harmanlarınızı seçmeye başlayın.</p>
+          <a class="btn btn-primary" href="/">Ürünleri Keşfet</a>
+        </div>
+      <% } else { %>
+        <div class="cart-shell__grid">
+          <form action="/cart/update" method="POST" class="cart-list elevated">
+            <ul class="cart-lines">
+            <% cart.items.forEach(item => { %>
+              <li class="cart-line">
+                <div class="line-main">
+                  <div>
+                    <h3>
+                      <% if (item.type === 'blend') { %>
+                        <a href="/blends/<%= item.blendId %>"><%= item.name %></a>
+                      <% } else { %>
+                        <a href="/product/<%= item.slug %>"><%= item.name %></a>
+                      <% } %>
+                    </h3>
+                    <span class="unit-price"><%= item.price.toFixed(2) %> ₺</span>
+                    <% if (item.type === 'blend' && item.components) { %>
+                      <small class="cart-blend-items">
+                        <% item.components.forEach(component => { %>
+                          <span><%= component.productName %> (<%= component.grams %> g)</span>
+                        <% }) %>
+                      </small>
+                    <% } %>
+                  </div>
+                  <button
+                    type="submit"
+                    class="btn btn-ghost"
+                    name="key"
+                    value="<%= item.key %>"
+                    formaction="/cart/remove"
+                    formmethod="POST"
+                  >
+                    Kaldır
+                  </button>
+                </div>
+                <div class="line-actions">
+                  <label>
+                    Adet
+                    <input type="number" name="quantities[<%= item.key %>]" min="0" value="<%= item.quantity %>">
+                  </label>
+                  <span class="line-total"><%= (item.price * item.quantity).toFixed(2) %> ₺</span>
+                </div>
+              </li>
+            <% }) %>
+            </ul>
+            <div class="cart-controls">
+              <button type="submit" class="btn btn-ghost">Sepeti Güncelle</button>
+              <span class="cart-subtotal">Ara Toplam <strong><%= cart.subtotal.toFixed(2) %> ₺</strong></span>
+            </div>
+          </form>
+          <aside class="cart-summary elevated">
+            <h2>Sipariş Özeti</h2>
+            <% const thresholdDisplay = cart.freeShippingThreshold.toLocaleString('tr-TR'); %>
+            <% const remainingForFree = cart.remainingForFreeShipping; %>
+            <% const qualifiesForFree = cart.shippingAmount === 0; %>
+            <dl>
+              <div>
+                <dt>Ara Toplam</dt>
+                <dd><%= cart.subtotal.toFixed(2) %> ₺</dd>
+              </div>
+              <div>
+                <dt>Kargo</dt>
+                <dd>
+                  <% if (qualifiesForFree) { %>
+                    Ücretsiz (₺<%= thresholdDisplay %> üzeri)
+                  <% } else { %>
+                    <%= cart.shippingAmount.toFixed(2) %> ₺
+                    <small class="cart-shipping-note">₺<%= thresholdDisplay %> üzeri ücretsiz</small>
+                  <% } %>
+                </dd>
+              </div>
+              <div class="summary-total">
+                <dt>Genel Toplam</dt>
+                <dd><%= cart.totalAmount.toFixed(2) %> ₺</dd>
+              </div>
+            </dl>
+            <% if (!qualifiesForFree && remainingForFree > 0) { %>
+              <p class="cart-free-shipping-hint">Ücretsiz kargo için ₺<%= remainingForFree.toFixed(2) %> daha ekleyin.</p>
+            <% } %>
+            <a class="btn btn-primary btn-lg full-width" href="/checkout">Ödeme Adımına Geç</a>
+            <form action="/cart/clear" method="POST">
+              <button type="submit" class="btn btn-ghost full-width">Sepeti Temizle</button>
+            </form>
+          </aside>
+        </div>
+      <% } %>
+    </section>
+  </main>
+  <%- include('../partials/shop-footer') %>
+</body>
+</html>

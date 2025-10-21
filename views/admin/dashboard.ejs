@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="tr">
+<%- include('../partials/admin-head', { title: 'Genel Bakış' }) %>
+<body class="admin-app">
+  <%- include('../partials/admin-nav') %>
+  <main class="admin-main">
+    <header class="admin-page-header">
+      <div>
+        <h1>Genel Bakış</h1>
+        <p>Bugünün performansını kontrol edin ve en son siparişlere göz atın.</p>
+      </div>
+      <div>
+        <span class="badge badge-soft">Son Güncelleme</span>
+        <strong><%= new Date().toLocaleString('tr-TR') %></strong>
+      </div>
+    </header>
+
+    <%- include('../partials/flash') %>
+
+    <section class="admin-summary">
+      <article class="summary-card">
+        <span>Ürün Sayısı</span>
+        <strong><%= stats.totalProducts %></strong>
+      </article>
+      <article class="summary-card">
+        <span>Toplam Sipariş</span>
+        <strong><%= stats.totalOrders %></strong>
+      </article>
+      <article class="summary-card">
+        <span>Toplam Ciro</span>
+        <strong><%= stats.totalRevenue.toFixed(2) %> ₺</strong>
+      </article>
+      <article class="summary-card">
+        <span>Ortalama Sipariş</span>
+        <% const monthlyAvg = stats.totalOrders ? (stats.totalRevenue / Math.max(stats.totalOrders, 1)).toFixed(2) : '0.00'; %>
+        <strong><%= monthlyAvg %> ₺</strong>
+      </article>
+    </section>
+
+    <section class="admin-panel">
+      <div class="admin-panel__header">
+        <h2>Son Siparişler</h2>
+        <a href="/admin/orders">Tümünü Gör</a>
+      </div>
+      <% if (recentOrders.length === 0) { %>
+        <div class="empty-state">
+          <h3>Henüz sipariş bulunmuyor</h3>
+          <p>Mağaza üzerinden gelen yeni siparişler burada listelenecek.</p>
+        </div>
+      <% } else { %>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Sipariş No</th>
+              <th>Müşteri</th>
+              <th>Tutar</th>
+              <th>Durum</th>
+              <th>Tarih</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% const statusLabels = { paid: 'Ödendi', pending: 'Beklemede', failed: 'Başarısız' }; %>
+            <% recentOrders.forEach(order => { %>
+              <tr>
+                <td><%= order.orderNumber %></td>
+                <td><%= order.customerName %></td>
+                <td><%= order.totalAmount.toFixed(2) %> ₺</td>
+                <td><%= statusLabels[order.status] || order.status %></td>
+                <td><%= new Date(order.createdAt).toLocaleString('tr-TR') %></td>
+                <td><a class="btn btn-link" href="/admin/orders/<%= order.id %>">Detay</a></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      <% } %>
+    </section>
+
+    <section class="admin-panel">
+      <div class="admin-panel__header">
+        <h2>Hızlı İşlemler</h2>
+      </div>
+      <p>Yeni ürün ekleyin, siparişlerinizi yönetin veya site içeriklerini güncelleyin.</p>
+      <div class="admin-actions">
+        <a class="btn btn-primary" href="/admin/products/new">Yeni Ürün Ekle</a>
+        <a class="btn btn-outline" href="/admin/orders">Siparişleri Yönet</a>
+        <a class="btn btn-outline" href="/admin/settings">Site Ayarları</a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

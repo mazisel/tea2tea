@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="tr">
+<%- include('../partials/shop-head', { title: 'Bulunamadı' }) %>
+<body>
+  <%- include('../partials/shop-header') %>
+  <main class="page page-not-found">
+    <section class="container not-found-card elevated">
+      <span class="not-found-icon">🙇‍♂️</span>
+      <h1>Üzgünüz</h1>
+      <p><%= message || 'Aradığınız içerik bulunamadı ya da kaldırıldı.' %></p>
+      <div class="not-found-actions">
+        <a href="/" class="btn btn-primary">Ana Sayfaya Dön</a>
+        <a href="/cart" class="btn btn-ghost">Sepeti Görüntüle</a>
+      </div>
+    </section>
+  </main>
+  <%- include('../partials/shop-footer') %>
+</body>
+</html>

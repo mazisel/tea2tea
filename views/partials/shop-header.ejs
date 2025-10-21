@@ -1,0 +1,40 @@
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="/">
+      <img class="brand-logo" src="/logo.png" alt="Tea2Tea logo">
+      <span class="brand-text">
+        <strong><%= settings.site_name %></strong>
+      </span>
+    </a>
+    <button class="menu-toggle" type="button" aria-label="Menüyü Aç/Kapat" aria-expanded="false">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    <nav class="nav-shell" data-nav>
+      <ul class="nav-links">
+        <li><a href="/" class="<%= currentPath === '/' ? 'active' : '' %>">Mağaza</a></li>
+        <li><a href="/#collection" class="<%= currentPath.startsWith('/product') ? 'active' : '' %>">Koleksiyon</a></li>
+        <li><a href="/blends/create" class="<%= currentPath.startsWith('/blends') ? 'active' : '' %>">Karışım</a></li>
+        <li><a href="/community" class="<%= currentPath.startsWith('/community') ? 'active' : '' %>">Topluluk</a></li>
+      </ul>
+      <div class="nav-actions">
+        <a href="/cart" class="nav-chip <%= currentPath.startsWith('/cart') ? 'is-active' : '' %>">
+          Sepet
+          <span class="pill" data-cart-count><%= cart.totalQuantity %></span>
+        </a>
+        <div class="nav-auth">
+          <% if (currentUser) { %>
+            <a href="/account" class="nav-auth__link <%= currentPath.startsWith('/account') ? 'is-active' : '' %>">Hesabım</a>
+            <form action="/logout" method="POST">
+              <button type="submit" class="nav-auth__button">Çıkış Yap</button>
+            </form>
+          <% } else { %>
+            <a href="/login" class="nav-auth__link <%= currentPath.startsWith('/login') ? 'is-active' : '' %>">Giriş Yap</a>
+            <a href="/register" class="nav-auth__button nav-auth__primary">Kaydol</a>
+          <% } %>
+        </div>
+      </div>
+    </nav>
+  </div>
+</header>

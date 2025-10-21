@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="tr">
+<%- include('../../partials/admin-head', { title: 'Siparişler' }) %>
+<body class="admin-app">
+  <%- include('../../partials/admin-nav') %>
+  <main class="admin-main">
+    <header class="admin-page-header">
+      <div>
+        <h1>Siparişler</h1>
+        <p>Gelen siparişleri takip edin ve müşteri memnuniyetini sürdürün.</p>
+      </div>
+    </header>
+
+    <%- include('../../partials/flash') %>
+
+    <section class="admin-panel">
+      <% if (orders.length === 0) { %>
+        <div class="empty-state">
+          <h3>Henüz sipariş bulunmuyor</h3>
+          <p>Yeni sipariş alındığında burada listelenecek.</p>
+        </div>
+      <% } else { %>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Sipariş No</th>
+              <th>Müşteri</th>
+              <th>Tutar</th>
+              <th>Durum</th>
+              <th>Tarih</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% const statusLabels = { paid: 'Ödendi', pending: 'Beklemede', failed: 'Başarısız' }; %>
+            <% orders.forEach(order => { %>
+              <tr>
+                <td><%= order.orderNumber %></td>
+                <td><%= order.customerName %></td>
+                <td><%= order.totalAmount.toFixed(2) %> ₺</td>
+                <td><%= statusLabels[order.status] || order.status %></td>
+                <td><%= new Date(order.createdAt).toLocaleString('tr-TR') %></td>
+                <td><a class="btn btn-link" href="/admin/orders/<%= order.id %>">Detay</a></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      <% } %>
+    </section>
+  </main>
+</body>
+</html>

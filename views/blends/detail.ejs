@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="tr">
+<%- include('../partials/shop-head', { title: blend.name }) %>
+<body>
+  <%- include('../partials/shop-header') %>
+  <main class="page">
+    <section class="container blend-detail">
+      <div class="blend-detail__summary">
+        <span class="eyebrow">Toplam <%= blend.totalGrams %> g</span>
+        <h1><%= blend.name %></h1>
+        <p><%= blend.description || 'Bu karışım için açıklama eklenmedi.' %></p>
+        <p class="blend-detail__meta">
+          <strong><%= totalPrice.toFixed(2) %> ₺</strong>
+          <span><%= blend.ownerName %> • <%= new Date(blend.createdAt).toLocaleDateString('tr-TR') %></span>
+        </p>
+        <% if (ratingStats.ratingCount > 0) { %>
+          <p class="blend-detail__rating"><strong><%= Number(ratingStats.avgRating).toFixed(1) %>/5</strong> • <%= ratingStats.ratingCount %> oy</p>
+        <% } %>
+        <form action="/blends/<%= blend.id %>/cart" method="POST" class="blend-detail__actions">
+          <button type="submit" class="btn btn-primary btn-lg">Bu Karışımı Sipariş Et</button>
+        </form>
+      </div>
+      <div class="blend-detail__ingredients">
+        <h2>İçerik Listesi</h2>
+        <div class="blend-product-list">
+          <% items.forEach(component => { %>
+            <div class="blend-product-row">
+              <div class="blend-product-info">
+                <strong><%= component.productName %></strong>
+                <small>
+                  <%= component.grams %> g • birim fiyat ≈ <%= (component.productPrice / Math.max(component.productGrams, 1)).toFixed(2) %> ₺/g
+                </small>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+    </section>
+
+    <section class="container">
+      <div class="account-panel">
+        <h2>Topluluk Yorumları</h2>
+        <% if (comments.length === 0) { %>
+          <p>Henüz yorum yapılmadı. İlk yorumu siz bırakabilirsiniz.</p>
+        <% } else { %>
+          <ul class="blend-comments">
+            <% comments.forEach(comment => { %>
+              <li>
+                <div class="blend-comment-header">
+                  <strong><%= comment.author %></strong>
+                  <% if (comment.rating) { %>
+                    <span><%= '★'.repeat(comment.rating) %></span>
+                  <% } %>
+                  <small><%= new Date(comment.createdAt).toLocaleDateString('tr-TR') %></small>
+                </div>
+                <% if (comment.comment) { %>
+                  <p><%= comment.comment %></p>
+                <% } %>
+              </li>
+            <% }) %>
+          </ul>
+        <% } %>
+
+        <% if (currentUser) { %>
+          <form action="/blends/<%= blend.id %>/comments" method="POST" class="blend-comment-form">
+            <label>
+              Puan
+              <select name="rating" required>
+                <option value="">Seçin</option>
+                <% for (let r = 5; r >= 1; r--) { %>
+                  <option value="<%= r %>"><%= r %></option>
+                <% } %>
+              </select>
+            </label>
+            <label>
+              Yorum (isteğe bağlı)
+              <textarea name="comment" rows="3" placeholder="Karışım hakkında düşünceleriniz..."></textarea>
+            </label>
+            <button type="submit" class="btn btn-primary">Yorumu Gönder</button>
+          </form>
+        <% } else { %>
+          <p class="auth-note">Yorum yazmak için <a href="/login">giriş yapın</a>.</p>
+        <% } %>
+      </div>
+    </section>
+  </main>
+  <%- include('../partials/shop-footer') %>
+</body>
+</html>

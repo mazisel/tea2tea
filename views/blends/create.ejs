@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="tr">
+<%- include('../partials/shop-head', { title: 'Karışım' }) %>
+<body>
+  <%- include('../partials/shop-header') %>
+  <main class="page">
+    <section class="container">
+      <div class="blend-hero">
+        <div>
+          <span class="eyebrow">Yeni Karışım</span>
+          <h1>Kendi harmanınızı tasarlayın.</h1>
+          <p>Favori çayları seçin, gramajlarını belirleyin, isim verin. İsterseniz yalnızca kendinize saklayın ya da toplulukla paylaşın.</p>
+        </div>
+        <a class="btn btn-outline" href="/community">Topluluk Karışımları</a>
+      </div>
+    </section>
+
+    <section class="container blend-create">
+      <% const gramsForm = form && form.grams ? form.grams : {}; %>
+      <% let totalSelectedGrams = 0; %>
+      <% let selectedSkuCount = 0; %>
+      <% let totalEstimate = 0; %>
+      <% const initialSelections = []; %>
+      <% products.forEach(product => {
+        const packageGrams = Number(product.grams);
+        const hasGramInfo = packageGrams > 0;
+        const unitPrice = hasGramInfo ? product.price / packageGrams : 0;
+        const selectedGrams = Number(gramsForm[product.id]) || 0;
+        if (selectedGrams > 0) {
+          totalSelectedGrams += selectedGrams;
+          selectedSkuCount += 1;
+          if (hasGramInfo) {
+            totalEstimate += unitPrice * selectedGrams;
+          }
+          initialSelections.push({
+            name: product.name,
+            grams: selectedGrams,
+            hasGramInfo,
+            estimatedPrice: hasGramInfo ? unitPrice * selectedGrams : null,
+          });
+        }
+      }); %>
+
+      <form action="/blends" method="POST" class="blend-flow" id="blend-form">
+        <%- include('../partials/flash') %>
+        <header class="blend-progress">
+          <ol class="blend-progress__list">
+            <li class="blend-progress__item is-active" data-step-marker="1">
+              <span class="blend-progress__number">1</span>
+              <strong>Detaylar</strong>
+              <small>İsim & açıklama</small>
+            </li>
+            <li class="blend-progress__item <%= selectedSkuCount > 0 ? 'is-completed' : '' %>" data-step-marker="2">
+              <span class="blend-progress__number">2</span>
+              <strong>Ürünler</strong>
+              <small>Gramaj & seçimler</small>
+            </li>
+            <li class="blend-progress__item" data-step-marker="3">
+              <span class="blend-progress__number">3</span>
+              <strong>Onay</strong>
+              <small>Özet & paylaşım</small>
+            </li>
+          </ol>
+        </header>
+
+        <div class="blend-steps">
+          <section class="blend-step is-active" data-step="1">
+            <div class="blend-create__panel">
+              <header class="blend-panel__header">
+                <span class="blend-step-badge">Adım 1</span>
+                <h2>Karışım Detayları</h2>
+                <p>Kendi harmanınıza karakter katın. İsim, hikâye ve paylaşım tercihleriyle başlayın.</p>
+              </header>
+              <fieldset class="blend-fieldset">
+                <legend>Temel Bilgiler</legend>
+                <label>
+                  Karışım Adı
+                  <input name="name" value="<%= form && form.name ? form.name : '' %>" required>
+                </label>
+                <label>
+                  Açıklama
+                  <textarea name="description" rows="3" placeholder="Karışımınızın hikâyesi, tadım notları..."><%= form && form.description ? form.description : '' %></textarea>
+                </label>
+              </fieldset>
+              <fieldset class="blend-fieldset blend-fieldset--switch">
+                <legend>Görünürlük</legend>
+                <div class="blend-share">
+                  <div class="blend-switch">
+                    <input
+                      type="checkbox"
+                      class="blend-switch__input"
+                      id="blend-share-toggle"
+                      name="isShared"
+                      value="1"
+                      <%= form && form.isShared ? 'checked' : '' %>
+                    >
+                    <label class="blend-switch__track" for="blend-share-toggle">
+                      <span class="blend-switch__handle" aria-hidden="true"></span>
+                      <span class="blend-switch__sr">Toplulukla paylaş</span>
+                    </label>
+                  </div>
+                  <div class="blend-share__copy">
+                    <strong>Toplulukla paylaş</strong>
+                    <p>Harmanınız vitrinde yer alsın, diğer çayseverlerden yorum alın.</p>
+                  </div>
+                </div>
+              </fieldset>
+              <div class="blend-panel__tips">
+                <h3>Usta Harmancı İpuçları</h3>
+                <ul class="blend-pro-tips">
+                  <li>Tat dengesini korumak için baz çayı %60-70 aralığında tutmayı deneyin.</li>
+                  <li>Güçlü kokulu bitkileri küçük gramajlarla ekleyerek kontrollü ilerleyin.</li>
+                  <li>Her harmana kısa bir dinlenme süresi vererek aromaların oturmasını sağlayın.</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <section class="blend-step" data-step="2">
+            <div class="blend-create__products" aria-labelledby="blend-products-title">
+              <header class="blend-products__header">
+                <div>
+                  <span class="blend-step-badge blend-step-badge--accent">Adım 2</span>
+                  <h2 id="blend-products-title">Ürün Seçimi</h2>
+                  <p>Gramajınızı dilediğiniz gibi dağıtın. Boş bıraktığınız ürünler karışıma eklenmez.</p>
+                </div>
+                <div class="blend-summary">
+                  <div class="blend-summary__item">
+                    <span>Seçilen Ürün</span>
+                    <strong data-blend-summary="count"><%= selectedSkuCount %></strong>
+                  </div>
+                  <div class="blend-summary__item">
+                    <span>Toplam Gram</span>
+                    <strong data-blend-summary="grams"><%= totalSelectedGrams > 0 ? totalSelectedGrams + ' g' : '—' %></strong>
+                  </div>
+                  <div class="blend-summary__item">
+                    <span>Tahmini Fiyat</span>
+                    <strong data-blend-summary="price"><%= totalEstimate > 0 ? totalEstimate.toFixed(2) + ' ₺' : '—' %></strong>
+                  </div>
+                </div>
+              </header>
+              <p class="blend-step-alert" data-step-alert hidden>En az bir ürüne gramaj vermelisiniz.</p>
+              <div class="blend-guidelines">
+                <article>
+                  <h3>Denge Kurun</h3>
+                  <p>Temel çayınızı seçtikten sonra aromatik bileşenleri küçük adımlarla artırın. Tatlılık, gövde ve aroma dengesini gözlemleyin.</p>
+                </article>
+                <article>
+                  <h3>Deneyin & Not Alın</h3>
+                  <p>Her deneme için gramajlarınızı not edin. Böylece sevdiğiniz tatları kolayca yeniden oluşturabilirsiniz.</p>
+                </article>
+                <article>
+                  <h3>Topluluğa Açılın</h3>
+                  <p>Paylaşım seçeneğini işaretlerseniz harmanınız toplulukta sergilenecek ve geri bildirim alabileceksiniz.</p>
+                </article>
+              </div>
+              <div class="blend-product-list">
+                <% products.forEach(product => { %>
+                  <% const packageGrams = Number(product.grams); %>
+                  <% const hasGramInfo = packageGrams > 0; %>
+                  <% const unitPrice = hasGramInfo ? (product.price / packageGrams) : 0; %>
+                  <% const selectedGrams = Number(gramsForm[product.id]) || 0; %>
+                  <% const hasSelection = selectedGrams > 0; %>
+                  <% const estimatedLinePrice = hasSelection && hasGramInfo ? unitPrice * selectedGrams : 0; %>
+                  <article
+                    class="blend-product-card <%= hasSelection ? 'is-selected' : '' %>"
+                    data-unit-price="<%= hasGramInfo ? unitPrice : '' %>"
+                    data-has-gram-info="<%= hasGramInfo %>"
+                    data-product-name="<%= product.name %>"
+                    data-product-price="<%= product.price %>"
+                    data-package-grams="<%= packageGrams %>"
+                  >
+                    <div class="blend-product-card__media">
+                      <% if (product.imageUrl) { %>
+                        <img src="<%= product.imageUrl %>" alt="<%= product.name %> görseli">
+                      <% } else { %>
+                        <span><%= product.name.charAt(0) %></span>
+                      <% } %>
+                    </div>
+                    <div class="blend-product-card__content">
+                      <header class="blend-product-card__header">
+                        <strong><%= product.name %></strong>
+                        <span class="blend-product-card__meta">
+                          <%= hasGramInfo ? packageGrams + ' g paket' : 'Gramaj bilgisi yok' %> • <%= product.price.toFixed(2) %> ₺
+                          <% if (hasGramInfo) { %>
+                            (≈ <%= unitPrice.toFixed(2) %> ₺ / g)
+                          <% } %>
+                        </span>
+                      </header>
+                      <div class="blend-product-card__controls">
+                        <label>
+                          <span>Gram</span>
+                          <input type="number" name="grams[<%= product.id %>]" min="0" step="10" value="<%= selectedGrams %>">
+                        </label>
+                        <span
+                          class="blend-product-card__chip"
+                          data-blend-chip
+                          <%= hasSelection ? '' : 'hidden' %>
+                        >
+                          <% if (hasSelection && hasGramInfo) { %>
+                            <%= selectedGrams %> g ≈ <%= estimatedLinePrice.toFixed(2) %> ₺
+                          <% } else if (hasSelection) { %>
+                            <%= selectedGrams %> g
+                          <% } %>
+                        </span>
+                      </div>
+                    </div>
+                  </article>
+                <% }) %>
+              </div>
+            </div>
+          </section>
+
+          <section class="blend-step" data-step="3">
+            <div class="blend-review">
+              <header class="blend-panel__header">
+                <span class="blend-step-badge">Adım 3</span>
+                <h2>Son Kontrol</h2>
+                <p>Harmanınızı özetleyin, paylaşım tercihinizi gözden geçirin ve kaydetmeden önce her şeyin hazır olduğundan emin olun.</p>
+              </header>
+              <div class="blend-review__card">
+                <h3 data-review="name"><%= form && form.name ? form.name : 'İsimsiz Karışım' %></h3>
+                <p data-review="description"><%= form && form.description ? form.description : 'Açıklama ekleyerek karışımınızın hikâyesini paylaşın.' %></p>
+                <dl class="blend-review__stats">
+                  <div>
+                    <dt>Toplam Gram</dt>
+                    <dd data-review="total-grams"><%= totalSelectedGrams > 0 ? totalSelectedGrams + ' g' : 'Henüz gram seçilmedi' %></dd>
+                  </div>
+                  <div>
+                    <dt>Tahmini Fiyat</dt>
+                    <dd data-review="total-price"><%= totalEstimate > 0 ? totalEstimate.toFixed(2) + ' ₺' : 'Hesaplanamadı' %></dd>
+                  </div>
+                  <div>
+                    <dt>Paylaşım</dt>
+                    <dd data-review="visibility"><%= form && form.isShared ? 'Toplulukla paylaşılıyor' : 'Yalnızca size özel' %></dd>
+                  </div>
+                </dl>
+                <div class="blend-review__list">
+                  <h4>Seçilen Ürünler</h4>
+                  <ul data-review="items">
+                    <% if (initialSelections.length === 0) { %>
+                      <li class="blend-review__empty">Henüz gramaj eklenmedi. Bir sonraki adımda ürünleri seçebilirsiniz.</li>
+                    <% } else { %>
+                      <% initialSelections.forEach(item => { %>
+                        <li>
+                          <strong><%= item.name %></strong>
+                          <span><%= item.grams %> g <% if (item.hasGramInfo && item.estimatedPrice) { %>• ≈ <%= item.estimatedPrice.toFixed(2) %> ₺<% } %></span>
+                        </li>
+                      <% }); %>
+                    <% } %>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <footer class="blend-flow__actions">
+          <button type="button" class="btn btn-ghost" data-action="prev" hidden>Geri</button>
+          <button type="button" class="btn btn-primary" data-action="next">Sonraki Adım</button>
+          <button type="submit" class="btn btn-primary btn-lg" data-action="submit" hidden>Karışımı Kaydet</button>
+        </footer>
+      </form>
+    </section>
+  </main>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('blend-form');
+      if (!form) return;
+
+      const steps = Array.from(form.querySelectorAll('[data-step]'));
+      const progressItems = Array.from(form.querySelectorAll('[data-step-marker]'));
+      const prevBtn = form.querySelector('[data-action="prev"]');
+      const nextBtn = form.querySelector('[data-action="next"]');
+      const submitBtn = form.querySelector('[data-action="submit"]');
+      const stepAlert = form.querySelector('[data-step-alert]');
+
+      const summaryEls = {
+        count: form.querySelector('[data-blend-summary="count"]'),
+        grams: form.querySelector('[data-blend-summary="grams"]'),
+        price: form.querySelector('[data-blend-summary="price"]'),
+      };
+
+      const reviewEls = {
+        name: form.querySelector('[data-review="name"]'),
+        description: form.querySelector('[data-review="description"]'),
+        totalGrams: form.querySelector('[data-review="total-grams"]'),
+        totalPrice: form.querySelector('[data-review="total-price"]'),
+        visibility: form.querySelector('[data-review="visibility"]'),
+        items: form.querySelector('[data-review="items"]'),
+      };
+
+      const nameInput = form.querySelector('input[name="name"]');
+      const descriptionInput = form.querySelector('textarea[name="description"]');
+      const shareInput = form.querySelector('input[name="isShared"]');
+
+      const inputs = Array.from(form.querySelectorAll('input[name^="grams["]'));
+
+      const currencyFormatter = new Intl.NumberFormat('tr-TR', {
+        style: 'currency',
+        currency: 'TRY',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
+
+      let activeStep = steps.findIndex((step) => step.classList.contains('is-active'));
+      if (activeStep < 0) activeStep = 0;
+
+      let latestSelections = [];
+      let latestTotals = { grams: 0, price: 0 };
+
+      function showStep(index) {
+        activeStep = index;
+        steps.forEach((step, idx) => step.classList.toggle('is-active', idx === index));
+        progressItems.forEach((item, idx) => {
+          item.classList.toggle('is-active', idx === index);
+          item.classList.toggle('is-completed', idx < index);
+        });
+        if (prevBtn) prevBtn.hidden = index === 0;
+        if (nextBtn) nextBtn.hidden = index >= steps.length - 1;
+        if (submitBtn) submitBtn.hidden = index !== steps.length - 1;
+      }
+
+      function validateStep(index) {
+        const requiredFields = Array.from(steps[index].querySelectorAll('[required]'));
+        if (!requiredFields.length) return true;
+        for (const field of requiredFields) {
+          if (!field.checkValidity()) {
+            field.reportValidity();
+            return false;
+          }
+        }
+        return true;
+      }
+
+      function updateReview(selections, totals) {
+        if (reviewEls.name) {
+          const value = nameInput?.value.trim();
+          reviewEls.name.textContent = value || 'İsimsiz Karışım';
+        }
+        if (reviewEls.description) {
+          const value = descriptionInput?.value.trim();
+          reviewEls.description.textContent = value || 'Açıklama ekleyerek karışımınızın hikâyesini paylaşın.';
+        }
+        if (reviewEls.visibility) {
+          reviewEls.visibility.textContent = shareInput?.checked ? 'Toplulukla paylaşılıyor' : 'Yalnızca size özel';
+        }
+        if (reviewEls.totalGrams) {
+          reviewEls.totalGrams.textContent = totals.grams > 0 ? `${totals.grams} g` : 'Henüz gram seçilmedi';
+        }
+        if (reviewEls.totalPrice) {
+          reviewEls.totalPrice.textContent =
+            totals.price > 0 ? currencyFormatter.format(totals.price) : 'Hesaplanamadı';
+        }
+        if (reviewEls.items) {
+          reviewEls.items.innerHTML = '';
+          if (!selections.length) {
+            const li = document.createElement('li');
+            li.className = 'blend-review__empty';
+            li.textContent = 'Henüz gramaj eklenmedi. Bir önceki adımda ürünleri seçebilirsiniz.';
+            reviewEls.items.appendChild(li);
+          } else {
+            selections.forEach((item) => {
+              const li = document.createElement('li');
+              const name = document.createElement('strong');
+              name.textContent = item.name;
+              const span = document.createElement('span');
+              span.textContent = item.price
+                ? `${item.grams} g • ≈ ${currencyFormatter.format(item.price)}`
+                : `${item.grams} g`;
+              li.appendChild(name);
+              li.appendChild(span);
+              reviewEls.items.appendChild(li);
+            });
+          }
+        }
+      }
+
+      function updateSummary() {
+        let totalGrams = 0;
+        let totalPrice = 0;
+        let selectedCount = 0;
+        const selections = [];
+
+        inputs.forEach((input) => {
+          const grams = Number(input.value) || 0;
+          const card = input.closest('.blend-product-card');
+          if (!card) return;
+
+          const chip = card.querySelector('[data-blend-chip]');
+          const hasGramInfo = card.dataset.hasGramInfo === 'true';
+          const unitPrice = hasGramInfo ? Number(card.dataset.unitPrice) || 0 : 0;
+          const productName = card.dataset.productName || 'Ürün';
+
+          if (grams > 0) {
+            selectedCount += 1;
+            totalGrams += grams;
+
+            let linePrice = null;
+            if (hasGramInfo && unitPrice > 0) {
+              linePrice = unitPrice * grams;
+              totalPrice += linePrice;
+            }
+
+            card.classList.add('is-selected');
+            if (chip) {
+              let chipText = `${grams} g`;
+              if (linePrice) {
+                chipText += ` ≈ ${currencyFormatter.format(linePrice)}`;
+              }
+              chip.textContent = chipText;
+              chip.hidden = false;
+            }
+
+            selections.push({
+              name: productName,
+              grams,
+              price: linePrice,
+            });
+          } else {
+            card.classList.remove('is-selected');
+            if (chip) {
+              chip.hidden = true;
+              chip.textContent = '';
+            }
+          }
+        });
+
+        latestSelections = selections;
+        latestTotals = { grams: totalGrams, price: totalPrice };
+
+        if (summaryEls.count) summaryEls.count.textContent = selectedCount;
+        if (summaryEls.grams) summaryEls.grams.textContent = totalGrams > 0 ? `${totalGrams} g` : '—';
+        if (summaryEls.price) summaryEls.price.textContent = totalPrice > 0 ? currencyFormatter.format(totalPrice) : '—';
+        if (stepAlert && selections.length > 0) stepAlert.hidden = true;
+
+        updateReview(selections, latestTotals);
+      }
+
+      nextBtn?.addEventListener('click', () => {
+        if (!validateStep(activeStep)) return;
+        if (activeStep === 1 && latestSelections.length === 0) {
+          if (stepAlert) stepAlert.hidden = false;
+          return;
+        }
+        if (activeStep < steps.length - 1) {
+          showStep(activeStep + 1);
+        }
+      });
+
+      prevBtn?.addEventListener('click', () => {
+        if (activeStep > 0) {
+          showStep(activeStep - 1);
+        }
+      });
+
+      progressItems.forEach((item, idx) => {
+        item.addEventListener('click', () => {
+          if (idx <= activeStep) {
+            showStep(idx);
+          }
+        });
+      });
+
+      inputs.forEach((input) => {
+        input.addEventListener('input', updateSummary);
+        input.addEventListener('change', updateSummary);
+      });
+      nameInput?.addEventListener('input', updateSummary);
+      descriptionInput?.addEventListener('input', updateSummary);
+      shareInput?.addEventListener('change', updateSummary);
+
+      showStep(activeStep);
+      updateSummary();
+    });
+  </script>
+  <%- include('../partials/shop-footer') %>
+</body>
+</html>

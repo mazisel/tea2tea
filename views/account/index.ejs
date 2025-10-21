@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="tr">
+<%- include('../partials/shop-head', { title: 'Hesabım' }) %>
+<body>
+  <%- include('../partials/shop-header') %>
+  <main class="page">
+    <section class="container">
+      <div class="account-card">
+        <header>
+          <h1>Merhaba, <%= currentUser.name %></h1>
+          <p>Hesap bilgilerinizi yönetip siparişlerinizi takip edebilirsiniz.</p>
+        </header>
+        <div class="account-summary">
+          <div>
+            <span>E-posta</span>
+            <strong><%= currentUser.email %></strong>
+          </div>
+          <div>
+            <span>Telefon</span>
+            <strong><%= currentUser.phone || '—' %></strong>
+          </div>
+          <div>
+            <span>Sipariş Sayısı</span>
+            <strong><%= orders.length %></strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="container">
+      <% const isSubscribed = subscription && subscription.status === 'active'; %>
+      <div class="account-card account-card--subscription">
+        <header>
+          <h2>Tea Lab Aboneliği</h2>
+          <p>Her ay 100 g özel harman, öncelikli erişim ve sadece abonelere özel etkinlik davetleri.</p>
+        </header>
+        <div class="subscription-summary">
+          <div>
+            <span>Plan</span>
+            <strong>Tea Lab Aylık</strong>
+          </div>
+          <div>
+            <span>Aylık Ücret</span>
+            <strong><%= teaLabPlan.price.toFixed(2) %> ₺</strong>
+          </div>
+          <div>
+            <span>Gönderim</span>
+            <strong>Her ay <%= teaLabPlan.grams %> g özel harman</strong>
+          </div>
+          <div>
+            <span>Durum</span>
+            <strong><%= isSubscribed ? 'Aktif' : 'Pasif' %></strong>
+          </div>
+        </div>
+        <div class="subscription-actions">
+          <% if (isSubscribed) { %>
+            <form action="/subscriptions/cancel" method="POST">
+              <button type="submit" class="btn btn-ghost">Aboneliği İptal Et</button>
+            </form>
+          <% } else { %>
+            <form action="/subscriptions" method="POST">
+              <button type="submit" class="btn btn-primary btn-lg">Tea Lab'e Katıl</button>
+            </form>
+          <% } %>
+        </div>
+        <% if (isSubscribed && subscription.createdAt) { %>
+          <p class="subscription-note">Abonelik başlangıcı: <%= new Date(subscription.createdAt).toLocaleDateString('tr-TR') %></p>
+        <% } %>
+      </div>
+    </section>
+
+    <section class="container account-grid">
+      <div class="account-panel">
+        <h2>Son Siparişlerim</h2>
+        <% if (orders.length === 0) { %>
+          <div class="empty-state">
+            <h3>Henüz siparişiniz yok</h3>
+            <p>Mağazaya göz atarak ilk siparişinizi oluşturabilirsiniz.</p>
+            <a class="btn btn-primary" href="/">Alışverişe Başla</a>
+          </div>
+        <% } else { %>
+          <table class="account-table">
+            <thead>
+              <tr>
+                <th>Sipariş No</th>
+                <th>Tutar</th>
+                <th>Tarih</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% orders.forEach(order => { %>
+                <tr>
+                  <td><%= order.orderNumber %></td>
+                  <td><%= order.totalAmount.toFixed(2) %> ₺</td>
+                  <td><%= new Date(order.paidAt || order.createdAt).toLocaleString('tr-TR') %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        <% } %>
+      </div>
+
+      <div class="account-panel">
+        <h2>Karışımlarım</h2>
+        <% if (blends.length === 0) { %>
+          <div class="empty-state">
+            <h3>Henüz karışım oluşturmadınız</h3>
+            <p>Favori çaylarınızı harmanlamak için karışım sayfasını ziyaret edin.</p>
+            <a class="btn btn-primary" href="/blends/create">Karışımını Oluştur</a>
+          </div>
+        <% } else { %>
+          <table class="account-table">
+            <thead>
+              <tr>
+                <th>Karışım</th>
+                <th>Gram</th>
+                <th>Durum</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% blends.forEach(blend => { %>
+                <tr>
+                  <td><a href="/blends/<%= blend.id %>"><%= blend.name %></a></td>
+                  <td><%= blend.totalGrams %> g</td>
+                  <td><%= blend.isShared ? 'Toplulukta' : 'Özel' %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        <% } %>
+      </div>
+    </section>
+  </main>
+  <%- include('../partials/shop-footer') %>
+</body>
+</html>

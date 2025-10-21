@@ -1,0 +1,18 @@
+version: "3.9"
+
+services:
+  tea2tea:
+    build: .
+    container_name: tea2tea_app
+    restart: unless-stopped
+    ports:
+      - "3010:3010"
+    env_file:
+      - .env
+    volumes:
+      - tea2tea_data:/app/data
+      - tea2tea_uploads:/app/public/uploads
+
+volumes:
+  tea2tea_data:
+  tea2tea_uploads:

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="tr">
+<%- include('../partials/shop-head', { title: 'Sipariş Alındı' }) %>
+<body>
+  <%- include('../partials/shop-header') %>
+  <main class="page page-order-success">
+    <section class="page-intro">
+      <div class="container intro-heading">
+        <span class="eyebrow">Tea2Tea</span>
+        <h1>Siparişiniz alındı.</h1>
+        <p>Çay molanız için bizi seçtiğiniz için teşekkür ederiz. Tea2Tea ekibi harmanınızı hazırlamaya başladı.</p>
+      </div>
+    </section>
+
+    <section class="container order-success-card elevated">
+      <%- include('../partials/flash') %>
+      <div class="success-header">
+        <span class="success-icon">✨</span>
+        <h2>Siparişiniz Onaylandı</h2>
+        <p>Sipariş numaranız <strong><%= order.orderNumber %></strong>. Bu numarayı kargo takibi için kullanabilirsiniz.</p>
+      </div>
+      <div class="order-breakdown">
+        <div class="order-meta">
+          <div>
+            <span class="label">Sipariş Tarihi</span>
+            <strong><%= new Date(order.paidAt || order.createdAt).toLocaleString('tr-TR') %></strong>
+          </div>
+          <div>
+            <span class="label">Tutar</span>
+            <strong><%= order.totalAmount.toFixed(2) %> ₺</strong>
+          </div>
+        </div>
+        <h3>Ürünler</h3>
+        <ul class="summary-list">
+          <% items.forEach(item => { %>
+            <li>
+              <div>
+                <strong><%= item.productName %></strong>
+                <small>Adet: <%= item.quantity %></small>
+              </div>
+              <span><%= (item.unitPrice * item.quantity).toFixed(2) %> ₺</span>
+            </li>
+          <% }) %>
+        </ul>
+      </div>
+      <div class="success-actions">
+        <a class="btn btn-primary" href="/">Mağazaya Dön</a>
+        <a class="btn btn-ghost" href="/cart">Sepeti Gör</a>
+      </div>
+    </section>
+  </main>
+  <%- include('../partials/shop-footer') %>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="tr">
+<%- include('../../partials/admin-head', { title: `Sipariş ${order.orderNumber}` }) %>
+<body class="admin-app">
+  <%- include('../../partials/admin-nav') %>
+  <main class="admin-main">
+    <header class="admin-page-header">
+      <div>
+        <h1>Sipariş <%= order.orderNumber %></h1>
+        <p>Müşteri detayları ve sipariş kalemleri aşağıda listelenmiştir.</p>
+      </div>
+      <a class="btn btn-outline" href="/admin/orders">Siparişlere Dön</a>
+    </header>
+
+    <%- include('../../partials/flash') %>
+
+    <section class="admin-panel">
+      <div class="order-meta">
+        <div>
+          <h2>Müşteri Bilgileri</h2>
+          <div class="order-summary-box">
+            <span>Ad Soyad</span>
+            <strong><%= order.customerName %></strong>
+            <span>E-posta</span>
+            <strong><a href="mailto:<%= order.customerEmail %>"><%= order.customerEmail %></a></strong>
+            <% if (order.customerPhone) { %>
+              <span>Telefon</span>
+              <strong><a href="tel:<%= order.customerPhone %>"><%= order.customerPhone %></a></strong>
+            <% } %>
+            <span>Adres</span>
+            <strong><%= order.customerAddress %>, <%= order.customerCity %></strong>
+            <% if (order.customerNotes) { %>
+              <span>Not</span>
+              <strong><%= order.customerNotes %></strong>
+            <% } %>
+          </div>
+        </div>
+        <div>
+          <h2>Sipariş Özeti</h2>
+          <div class="order-summary-box">
+            <% const statusLabels = { paid: 'Ödendi', pending: 'Beklemede', failed: 'Başarısız' }; %>
+            <div>
+              <span>Tutar</span>
+              <strong><%= order.totalAmount.toFixed(2) %> ₺</strong>
+            </div>
+            <div>
+              <span>Tarih</span>
+              <strong><%= new Date(order.createdAt).toLocaleString('tr-TR') %></strong>
+            </div>
+            <div>
+              <span>Durum</span>
+              <strong><%= statusLabels[order.status] || order.status %></strong>
+            </div>
+            <% if (order.paidAt) { %>
+              <div>
+                <span>Ödeme Tarihi</span>
+                <strong><%= new Date(order.paidAt).toLocaleString('tr-TR') %></strong>
+              </div>
+            <% } %>
+            <% if (order.paymentProvider) { %>
+              <div>
+                <span>Ödeme Sağlayıcısı</span>
+                <strong><%= order.paymentProvider.toUpperCase() %></strong>
+              </div>
+            <% } %>
+            <% if (order.paymentReference) { %>
+              <div>
+                <span>Ödeme Referansı</span>
+                <strong><%= order.paymentReference %></strong>
+              </div>
+            <% } %>
+            <div>
+              <span>Ürün Çeşidi</span>
+              <strong><%= items.length %></strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="admin-panel">
+      <h2>Ürünler</h2>
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Ürün</th>
+            <th>Birim Fiyat</th>
+            <th>Adet</th>
+            <th>Ara Toplam</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% items.forEach(item => { %>
+            <tr>
+              <td><%= item.productName %></td>
+              <td><%= item.unitPrice.toFixed(2) %> ₺</td>
+              <td><%= item.quantity %></td>
+              <td><%= (item.unitPrice * item.quantity).toFixed(2) %> ₺</td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

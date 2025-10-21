@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="tr">
+<%- include('../partials/shop-head', { title: null }) %>
+<body>
+  <%- include('../partials/shop-header') %>
+  <main class="page page-home">
+    <section class="hero hero-minimal">
+      <div class="container hero-inner">
+        <div class="hero-copy">
+          <%- include('../partials/flash') %>
+          <span class="eyebrow">Yeni Nesil Çay Deneyimi</span>
+          <h1><%= settings.hero_title %></h1>
+          <p><%= settings.hero_subtitle %></p>
+          <div class="hero-actions">
+            <a href="#collection" class="btn btn-primary btn-lg">Koleksiyonu İncele</a>
+            <a href="/tea-lab" class="btn btn-highlight"><span>Tea Lab'e Katıl</span></a>
+          </div>
+          <div class="hero-metrics">
+            <div>
+              <strong>500+</strong>
+              <span>mutlu çay sever</span>
+            </div>
+            <div>
+              <strong>36</strong>
+              <span>özel harman</span>
+            </div>
+            <div>
+              <strong>24s</strong>
+              <span>teslimat garantisi</span>
+            </div>
+          </div>
+        </div>
+        <div class="hero-media">
+          <%
+            const highlightProduct = products.length ? products[0] : null;
+            const storeBanner = settings.store_banner && settings.store_banner.trim() !== '' ? settings.store_banner : null;
+            const heroImage = storeBanner || (highlightProduct && highlightProduct.imageUrl ? highlightProduct.imageUrl : null);
+            const useProductHighlight = !storeBanner && Boolean(highlightProduct);
+          %>
+          <% if (heroImage) { %>
+            <div class="hero-card" style="background-image: url('<%= heroImage %>');">
+              <div class="hero-card-overlay"></div>
+              <div class="hero-card-content">
+                <% if (useProductHighlight) { %>
+                  <span class="badge badge-soft">Öne Çıkan</span>
+                  <h3><%= highlightProduct.name %></h3>
+                  <p><%= highlightProduct.description %></p>
+                  <div class="hero-card-footer">
+                    <span><%= highlightProduct.price.toFixed(2) %> ₺</span>
+                    <a href="/product/<%= highlightProduct.slug %>">Detaylar</a>
+                  </div>
+                <% } else { %>
+                  <span class="badge badge-soft">Tea2Tea</span>
+                  <h3>Seçkin harmanlarla ritüelinizi yükseltin</h3>
+                  <p>Yeni sezon koleksiyonumuzdaki modern yorumlarla her fincanda farklı bir deneyim yaşayın.</p>
+                  <div class="hero-card-footer hero-card-footer--cta">
+                    <a href="#collection">Koleksiyona Git</a>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+          <% } else { %>
+            <div class="hero-card hero-card-placeholder">
+              <span>Tea2Tea koleksiyonu yakında yenileniyor.</span>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </section>
+
+    <section id="collection" class="section section-collection">
+      <div class="container section-header">
+        <div>
+          <span class="eyebrow">Tea2Tea Koleksiyonu</span>
+          <h2>Özenle hazırlanan premium harmanlar</h2>
+        </div>
+        <p>Minimalist sunum, yoğun aroma ve rafine bir deneyim. Her bir harman; sürdürülebilir çiftliklerden seçilen yaprakların modern yorumudur.</p>
+      </div>
+      <div class="container">
+        <% if (products.length === 0) { %>
+          <div class="empty-state">
+            <h3>Koleksiyon hazır değil</h3>
+            <p>Yeni harmanlar yayınlandığında koleksiyon burada yer alacak.</p>
+          </div>
+        <% } else { %>
+          <% const fallbackImage = 'https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?auto=format&fit=crop&w=1200&q=80'; %>
+          <div id="products" class="collection-board" role="list">
+            <% products.forEach((product, index) => { const imageUrl = product.imageUrl && product.imageUrl.trim() !== '' ? product.imageUrl : fallbackImage; %>
+              <article class="collection-tile" role="listitem" style="--tile-image: url('<%= imageUrl %>');">
+                <header class="collection-tile__header">
+                  <span class="collection-tile__index">No.<%= String(index + 1).padStart(2, '0') %></span>
+                  <span class="collection-tile__price"><%= product.price.toFixed(2) %> ₺</span>
+                </header>
+                <figure class="collection-tile__media">
+                  <img src="<%= imageUrl %>" alt="<%= product.name %>" loading="lazy">
+                </figure>
+                <div class="collection-tile__body">
+                  <h3 class="collection-tile__title"><a href="/product/<%= product.slug %>"><%= product.name %></a></h3>
+                  <p class="collection-tile__description">
+                    <strong><%= product.grams %> g</strong> &bull; <%= product.description %>
+                  </p>
+                </div>
+                <div class="collection-tile__actions">
+                  <form action="/cart/add" method="POST">
+                    <input type="hidden" name="productId" value="<%= product.id %>">
+                    <button type="submit" class="btn btn-primary">Sepete Ekle</button>
+                  </form>
+                  <a class="btn btn-ghost" href="/product/<%= product.slug %>">Detaylar</a>
+                </div>
+              </article>
+            <% }) %>
+          </div>
+        <% } %>
+      </div>
+    </section>
+
+    <section class="section section-experience">
+      <div class="container experience-grid">
+        <div>
+          <span class="eyebrow">Tea2Tea Manifestosu</span>
+          <h2>Minimalist. Rafine. Zamansız.</h2>
+          <p>İlhamımız Kuzey Avrupa tasarım dili ve Uzak Doğu çay seremonisi. Sade çizgiler ve kusursuz harmanlar ile çay ritüelinizi yeniden yorumluyoruz.</p>
+        </div>
+        <ul class="experience-points">
+          <li>
+            <span>01</span>
+            <div>
+              <h4>Kurumsal kalite, butik yaklaşım</h4>
+              <p>Her siparişte; tadım ekibi onayı, aromalar arası denge ve premium paketleme standarttır.</p>
+            </div>
+          </li>
+          <li>
+            <span>02</span>
+            <div>
+              <h4>Sürdürülebilir üretim süreci</h4>
+              <p>Karbon ayak izini minimize eden çiftliklerle çalışıyor, doğaya saygılı bir üretim zinciri kuruyoruz.</p>
+            </div>
+          </li>
+          <li>
+            <span>03</span>
+            <div>
+              <h4>Şeffaf ve hızlı teslimat</h4>
+              <p>Siparişiniz 24 saat içinde hazırlanır, kapınıza kadar takip edilebilir şekilde ulaşır.</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="tea-lab" class="section section-cta">
+      <div class="container cta-card">
+        <div>
+          <span class="eyebrow">Tea Lab</span>
+          <h2>Her ay yeni bir imza harman keşfedin.</h2>
+          <p>Tea Lab aboneliğiyle limitli üretim koleksiyonlara erken erişim, deneyim kutuları ve özel etkinlik davetleri alın.</p>
+          <ul class="tea-lab-benefits">
+            <li>Her ay 100 g seçkin Tea Lab harmanı kapınızda.</li>
+            <li>Öncelikli lansman erişimi ve özel tadım etkinlikleri.</li>
+            <li>Sadece abonelere özel sürpriz aksesuar ve notlar.</li>
+          </ul>
+        </div>
+        <div class="cta-actions">
+          <a href="/tea-lab" class="btn btn-highlight btn-lg"><span>Tea Lab'e Katıl — 599 ₺ / ay</span></a>
+          <a href="#collection" class="btn btn-ghost">Koleksiyona Göz At</a>
+        </div>
+      </div>
+    </section>
+  </main>
+  <%- include('../partials/shop-footer') %>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="tr">
+<%- include('../partials/shop-head', { title: 'Giriş Yap' }) %>
+<body>
+  <%- include('../partials/shop-header') %>
+  <main class="page">
+    <section class="container">
+      <div class="auth-card">
+        <h1>Giriş Yap</h1>
+        <p>Kaydolduğunuz e-posta ve şifrenizle hesabınıza erişin.</p>
+        <%- include('../partials/flash') %>
+        <form action="/login" method="POST" class="auth-form">
+          <label>
+            E-posta
+            <input name="email" type="email" value="<%= typeof form !== 'undefined' ? form.email : '' %>" required>
+          </label>
+          <label>
+            Şifre
+            <input name="password" type="password" required>
+          </label>
+          <button type="submit" class="btn btn-primary btn-lg">Giriş Yap</button>
+        </form>
+        <p class="auth-note">Hesabınız yok mu? <a href="/register">Hızlıca kaydolun</a>.</p>
+      </div>
+    </section>
+  </main>
+  <%- include('../partials/shop-footer') %>
+</body>
+</html>

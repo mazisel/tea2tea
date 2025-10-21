@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="tr">
+<%- include('../partials/admin-head', { title: 'Giriş' }) %>
+<body class="admin-login-page">
+  <main class="login-card">
+    <div class="login-brand">
+      <span class="login-icon">🍃</span>
+      <div>
+        <h1>Admin Paneli</h1>
+        <p>Tea2Tea yönetici giriş ekranı</p>
+      </div>
+    </div>
+    <%- include('../partials/flash') %>
+    <form action="/admin/login" method="POST" class="login-form">
+      <label>
+        Kullanıcı Adı
+        <input name="username" required autofocus>
+      </label>
+      <label>
+        Şifre
+        <input name="password" type="password" required>
+      </label>
+      <button type="submit" class="btn btn-primary btn-lg full-width">Giriş Yap</button>
+    </form>
+    <p class="login-note">Varsayılan bilgiler: <strong>admin / admin123</strong>. Giriş sonrası ayarlar kısmından güncelleyin.</p>
+  </main>
+</body>
+</html>

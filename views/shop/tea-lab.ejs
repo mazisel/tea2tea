@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="tr">
+<%- include('../partials/shop-head', { title: 'Tea Lab Aboneliği' }) %>
+<body>
+  <%- include('../partials/shop-header') %>
+  <main class="page page-tea-lab">
+    <section class="container">
+      <div class="cta-card tea-lab-card">
+        <div class="tea-lab-card__copy">
+          <span class="eyebrow">Tea Lab</span>
+          <h1>Her ay 100 g özel harman, yalnızca abonelere.</h1>
+          <p>Tea Lab ekibinin seçtiği limitli üretim karışımlar ayda bir kapınıza gelir. Tat profilleri, eşlikçi aksesuarlar ve sadece abonelere özel davetlerle deneyiminizi yükseltin.</p>
+          <ul class="tea-lab-benefits">
+            <li>Her ay 100 g imza Tea Lab harmanı ve detaylı tadım rehberi.</li>
+            <li>Koleksiyon lansmanlarından önce ürün seçme ayrıcalığı.</li>
+            <li>Tea Lab tadım buluşmaları ve özel etkinlik davetleri.</li>
+            <li>Dilediğiniz zaman hesabınızdan durdurun veya iptal edin.</li>
+          </ul>
+        </div>
+        <aside class="tea-lab-card__plan">
+          <div class="subscription-summary">
+            <div>
+              <span>Plan</span>
+              <strong>Tea Lab Aylık</strong>
+            </div>
+            <div>
+              <span>Aylık Ücret</span>
+              <strong><%= teaLabPlan.price.toFixed(2) %> ₺</strong>
+            </div>
+            <div>
+              <span>Gönderim</span>
+              <strong>Her ay <%= teaLabPlan.grams %> g özel harman</strong>
+            </div>
+          </div>
+          <div class="subscription-actions">
+            <% if (currentUser) { %>
+              <% const isSubscribed = subscription && subscription.status === 'active'; %>
+              <% if (isSubscribed) { %>
+                <a href="/account" class="btn btn-highlight btn-lg"><span>Abonelik Aktif — Hesabıma Git</span></a>
+              <% } else { %>
+                <form action="/subscriptions" method="POST">
+                  <button type="submit" class="btn btn-highlight btn-lg"><span>Tea Lab'e Katıl</span></button>
+                </form>
+              <% } %>
+            <% } else { %>
+              <a href="/login" class="btn btn-highlight btn-lg"><span>Giriş Yap ve Katıl</span></a>
+              <a href="/register" class="btn btn-ghost">Hesabın yok mu? Kaydol</a>
+            <% } %>
+          </div>
+          <% if (subscription && subscription.createdAt && subscription.status === 'active') { %>
+            <p class="subscription-note">Aboneliğiniz <%= new Date(subscription.createdAt).toLocaleDateString('tr-TR') %> tarihinde başladı.</p>
+          <% } %>
+        </aside>
+      </div>
+    </section>
+
+    <section class="container tea-lab-faq">
+      <div class="tea-lab-faq__intro">
+        <span class="eyebrow">Tea Lab Hakkında</span>
+        <h2>Merak edilenler</h2>
+        <p>Tea Lab aboneliği, çay ritüelinizi sezgisel ve elegan bir deneyime taşımak için tasarlandı. İşte sık sorulan soruların yanıtları:</p>
+      </div>
+      <div class="tea-lab-faq__grid">
+        <article>
+          <h3>Her ay hangi harmanları alacağım?</h3>
+          <p>Tea Lab tadım ekibi, sezonun öne çıkan yapraklarından sınırlı sayıda üretilen harmanları seçer. Her gönderide tadım notları, eşlikçi önerileri ve hikâyesini bulursunuz.</p>
+        </article>
+        <article>
+          <h3>Gönderim hangi tarihlerde yapılır?</h3>
+          <p>Aboneliğinizi aktifleştirmenizin ardından her ayın ilk haftasında paketiniz hazırlanıp aynı hafta içinde kargoya verilir. Kargoya teslim edilince e-posta alırsınız.</p>
+        </article>
+        <article>
+          <h3>Aboneliğimi durdurabilir veya iptal edebilir miyim?</h3>
+          <p>Evet. Hesabım &gt; Tea Lab bölümünden aboneliğinizi dondurabilir veya iptal edebilirsiniz. Bir sonraki gönderim tarihinden önce işlem yapmak yeterli.</p>
+        </article>
+        <article>
+          <h3>Ödeme nasıl alınır?</h3>
+          <p>Ödemeler her ay aboneliğinizin aktifleştirildiği gün baz alınarak otomatik olarak alınır. Faturalar hesabınız üzerinden görüntülenebilir.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+  <%- include('../partials/shop-footer') %>
+</body>
+</html>

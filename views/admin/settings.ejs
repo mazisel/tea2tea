@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="tr">
+<%- include('../partials/admin-head', { title: 'Ayarlar' }) %>
+<body class="admin-app">
+  <%- include('../partials/admin-nav') %>
+  <main class="admin-main">
+    <header class="admin-page-header">
+      <div>
+        <h1>Mağaza Ayarları</h1>
+        <p>Site içeriğini, iletişim bilgilerini ve görselleri buradan yönetebilirsiniz.</p>
+      </div>
+    </header>
+
+    <%- include('../partials/flash') %>
+
+    <form action="/admin/settings" method="POST" enctype="multipart/form-data" class="admin-form">
+      <header>
+        <h2>Genel Bilgiler</h2>
+      </header>
+      <div class="form-grid">
+        <label>
+          Mağaza Adı
+          <input name="site_name" value="<%= settings.site_name %>" required>
+        </label>
+        <label>
+          Hero Başlığı
+          <input name="hero_title" value="<%= settings.hero_title %>" required>
+        </label>
+        <label>
+          İletişim E-postası
+          <input name="contact_email" type="email" value="<%= settings.contact_email %>" required>
+        </label>
+        <label>
+          İletişim Telefonu
+          <input name="contact_phone" value="<%= settings.contact_phone %>">
+        </label>
+      </div>
+      <label>
+        Hero Alt Başlık
+        <textarea name="hero_subtitle" rows="3"><%= settings.hero_subtitle %></textarea>
+      </label>
+      <div class="form-grid">
+        <label>
+          Hero Görseli URL
+          <input name="store_banner" value="<%= settings.store_banner %>" placeholder="https://">
+        </label>
+        <label>
+          Bilgisayardan Yükle
+          <input type="file" name="bannerFile" accept="image/*">
+        </label>
+      </div>
+      <% if (settings.store_banner) { %>
+        <figure class="collection-tile__media" style="max-width: 320px;">
+          <img src="<%= settings.store_banner %>" alt="Hero Görseli">
+        </figure>
+      <% } %>
+      <div class="admin-actions">
+        <button type="submit" class="btn btn-primary">Ayarları Kaydet</button>
+      </div>
+    </form>
+
+    <form action="/admin/settings/change-password" method="POST" class="admin-form">
+      <header>
+        <h2>Şifre Değiştir</h2>
+      </header>
+      <div class="form-grid">
+        <label>
+          Mevcut Şifre
+          <input name="currentPassword" type="password" required>
+        </label>
+        <label>
+          Yeni Şifre
+          <input name="newPassword" type="password" required minlength="6">
+        </label>
+      </div>
+      <div class="admin-actions">
+        <button type="submit" class="btn btn-outline">Şifreyi Güncelle</button>
+      </div>
+    </form>
+  </main>
+</body>
+</html>
