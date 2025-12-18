@@ -2,7 +2,9 @@
   <div class="admin-navbar__brand">
     <span class="admin-navbar__logo">🍃</span>
     <div>
-      <a href="/admin"><%= settings.site_name %></a>
+      <a href="/admin">
+        <%= settings.site_name %>
+      </a>
       <small>Yönetim Paneli</small>
     </div>
   </div>
@@ -16,16 +18,23 @@
   <nav class="admin-navbar__menu" data-admin-nav>
     <a href="/admin" class="<%= currentPath === '/admin' ? 'active' : '' %>">Genel Bakış</a>
     <a href="/admin/products" class="<%= currentPath.startsWith('/admin/products') ? 'active' : '' %>">Ürünler</a>
+    <a href="/admin/categories"
+      class="<%= currentPath.startsWith('/admin/categories') ? 'active' : '' %>">Kategoriler</a>
+    <a href="/admin/discounts" class="<%= currentPath.startsWith('/admin/discounts') ? 'active' : '' %>">İndirimler</a>
     <a href="/admin/orders" class="<%= currentPath.startsWith('/admin/orders') ? 'active' : '' %>">Siparişler</a>
+    <a href="/admin/customers" class="<%= currentPath.startsWith('/admin/customers') ? 'active' : '' %>">Müşteriler</a>
     <a href="/admin/settings" class="<%= currentPath.startsWith('/admin/settings') ? 'active' : '' %>">Ayarlar</a>
   </nav>
 
   <div class="admin-navbar__actions">
     <% if (adminUser) { %>
-      <span>Merhaba, <strong><%= adminUser.username %></strong></span>
+      <span>Merhaba, <strong>
+          <%= adminUser.username %>
+        </strong></span>
       <form action="/admin/logout" method="POST">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <button type="submit" class="btn">Çıkış Yap</button>
       </form>
-    <% } %>
+      <% } %>
   </div>
 </header>

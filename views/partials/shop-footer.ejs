@@ -1,13 +1,94 @@
 <footer class="site-footer">
   <div class="container footer-content">
     <div class="footer-brand">
-      <h4>Tea2Tea</h4>
-      <p>Seçkin çay koleksiyonumuzu keşfedin, misafirlerinize keyif dolu anlar yaşatın.</p>
+      <h4>
+        <%= settings.site_name %>
+      </h4>
+      <p>
+        <%= settings.footer_desc %>
+      </p>
     </div>
+    <nav class="footer-links">
+      <a href="/mesafeli-satis-sozlesmesi">Mesafeli Satış Sözleşmesi</a>
+      <a href="/kvkk-aydinlatma-metni">KVKK Aydınlatma Metni</a>
+      <a href="/cerez-politikasi">Çerez Politikası</a>
+      <button type="button" class="link-button" data-cookie-open>Çerez Tercihleri</button>
+    </nav>
     <div class="footer-contact">
-      <p><a href="mailto:<%= settings.contact_email %>"><%= settings.contact_email %></a></p>
-      <p><a href="tel:<%= settings.contact_phone %>"><%= settings.contact_phone %></a></p>
+      <p><a href="mailto:<%= settings.contact_email %>">
+          <%= settings.contact_email %>
+        </a></p>
+      <p><a href="tel:<%= settings.contact_phone %>">
+          <%= settings.contact_phone %>
+        </a></p>
     </div>
-    <p class="copyright">© <%= new Date().getFullYear() %> <%= settings.site_name %>. Tüm hakları saklıdır.</p>
+    <p class="copyright">© <%= new Date().getFullYear() %>
+        <%= settings.site_name %>. Tüm hakları saklıdır.</p>
   </div>
 </footer>
+
+<div class="cookie-consent" data-cookie-banner hidden>
+  <div class="cookie-consent__inner container">
+    <div class="cookie-consent__copy">
+      <h3>Çerezleri Kullanıyoruz</h3>
+      <p>Deneyiminizi iyileştirmek, site performansını ölçmek ve opsiyonel kişiselleştirmeler sunmak için çerezlerden
+        yararlanıyoruz. Ayrıntılar için <a href="/cerez-politikasi">Çerez Politikası</a> sayfamızı inceleyebilirsiniz.
+      </p>
+    </div>
+    <div class="cookie-consent__actions">
+      <button type="button" class="btn btn-ghost" data-cookie-decline>Yalnızca Gerekli</button>
+      <button type="button" class="btn btn-outline" data-cookie-open>Ayarları Yönet</button>
+      <button type="button" class="btn btn-primary" data-cookie-accept>Tümünü Kabul Et</button>
+    </div>
+  </div>
+</div>
+
+<div class="cookie-modal" data-cookie-modal hidden>
+  <div class="cookie-modal__overlay" data-cookie-close></div>
+  <div class="cookie-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="cookie-modal-title">
+    <header class="cookie-modal__header">
+      <h2 id="cookie-modal-title">Çerez Tercihleri</h2>
+      <button type="button" class="cookie-modal__close" data-cookie-close aria-label="Pencereyi kapat">×</button>
+    </header>
+    <form data-cookie-form>
+      <p class="cookie-modal__intro">Çerez tercihlerinizi istediğiniz zaman güncelleyebilirsiniz. Zorunlu çerezler
+        siteyi çalıştırmak için gereklidir ve kapatılamaz.</p>
+
+      <div class="cookie-modal__option is-required">
+        <div>
+          <h3>Zorunlu Çerezler</h3>
+          <p>Giriş, güvenlik ve sipariş sepeti gibi temel işlevlerin sorunsuz çalışması için zorunludur.</p>
+        </div>
+        <span class="cookie-tag">Zorunlu</span>
+      </div>
+
+      <label class="cookie-modal__option">
+        <div>
+          <h3>Analitik Çerezler</h3>
+          <p>Site performansını ölçmemize ve hangi ürünlerin ilgi gördüğünü anlamamıza yardımcı olur.</p>
+        </div>
+        <div class="cookie-toggle">
+          <input type="checkbox" name="analytics">
+          <span class="cookie-toggle__indicator" aria-hidden="true"></span>
+        </div>
+      </label>
+
+      <label class="cookie-modal__option">
+        <div>
+          <h3>Pazarlama Çerezleri</h3>
+          <p>Kampanyaları ve kişiselleştirilmiş önerileri size göre uyarlayabilmemiz için kullanılır.</p>
+        </div>
+        <div class="cookie-toggle">
+          <input type="checkbox" name="marketing">
+          <span class="cookie-toggle__indicator" aria-hidden="true"></span>
+        </div>
+      </label>
+
+      <div class="cookie-modal__actions">
+        <button type="button" class="btn btn-ghost" data-cookie-close>Vazgeç</button>
+        <button type="button" class="btn btn-outline" data-cookie-accept-modal>Tümünü Kabul Et</button>
+        <button type="submit" class="btn btn-primary" data-cookie-save>Tercihleri Kaydet</button>
+      </div>
+    </form>
+  </div>
+</div>

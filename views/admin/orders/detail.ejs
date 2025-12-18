@@ -43,6 +43,12 @@
               <span>Tutar</span>
               <strong><%= order.totalAmount.toFixed(2) %> ₺</strong>
             </div>
+            <% if (order.discountAmount > 0) { %>
+              <div>
+                <span>İndirim</span>
+                <strong>-₺<%= order.discountAmount.toFixed(2) %> <%= order.discountCode ? `(${order.discountCode})` : '' %></strong>
+              </div>
+            <% } %>
             <div>
               <span>Tarih</span>
               <strong><%= new Date(order.createdAt).toLocaleString('tr-TR') %></strong>
@@ -121,6 +127,7 @@
     <section class="admin-panel">
       <h2>Durum Güncelle</h2>
       <form action="/admin/orders/<%= order.id %>/status" method="POST" class="admin-form inline-form">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <label>
           Sipariş Durumu
           <select name="status" required>

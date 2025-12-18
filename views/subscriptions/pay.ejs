@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="tr">
+<%- include('../partials/shop-head', { title: 'Tea Lab Ödeme' }) %>
+<body>
+  <%- include('../partials/shop-header') %>
+  <main class="page">
+    <section class="container">
+      <div class="payment-shell">
+        <div>
+          <span class="eyebrow">Tea Lab</span>
+          <h1>Abonelik Ödemenizi Tamamlayın</h1>
+          <p>Tea Lab aboneliğiniz her ay <strong><%= plan.grams %> g</strong> özel harman içerir. Aylık ücret <strong><%= plan.price.toFixed(2) %> ₺</strong>.</p>
+        </div>
+        <div class="payment-shell__meta">
+          <span>Ödeme Sağlayıcısı: <strong>PAYTR</strong></span>
+          <span>Güvenli Ödeme</span>
+        </div>
+        <div class="paytr-iframe-wrapper">
+          <iframe
+            id="paytr-iframe"
+            src="https://www.paytr.com/odeme/iframe/<%= paytrToken %>"
+            allow="payment"
+            scrolling="no"
+            class="paytr-iframe"
+            title="PAYTR Güvenli Ödeme">
+          </iframe>
+        </div>
+        <p class="payment-note">
+          Ödeme alanı yüklenmezse <a href="https://www.paytr.com/odeme/iframe/<%= paytrToken %>" target="_blank" rel="noopener">buraya tıklayarak</a> yeni bir sekmede açabilirsiniz.
+        </p>
+      </div>
+    </section>
+  </main>
+  <%- include('../partials/shop-footer') %>
+  <script src="https://www.paytr.com/js/iframeResizer.min.js"></script>
+  <script>
+    if (typeof iFrameResize === 'function') {
+      iFrameResize({ checkOrigin: false, log: false }, '#paytr-iframe');
+    }
+  </script>
+</body>
+</html>

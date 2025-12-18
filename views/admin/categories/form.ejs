@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="tr">
+<% const pageTitle=category ? 'Kategoriyi Düzenle' : 'Yeni Kategori' ; %>
+    <%- include('../../partials/admin-head', { title: pageTitle }) %>
+
+        <body class="admin-app">
+            <%- include('../../partials/admin-nav') %>
+                <main class="admin-main">
+                    <header class="admin-page-header">
+                        <div>
+                            <h1>
+                                <%= pageTitle %>
+                            </h1>
+                            <p>Kategori detaylarını düzenleyin ve kaydedin.</p>
+                        </div>
+                        <a class="btn btn-outline" href="/admin/categories">Kategori Listesi</a>
+                    </header>
+
+                    <%- include('../../partials/flash') %>
+
+                        <form
+                            action="<%= category ? `/admin/categories/${category.id}?_method=PUT` : '/admin/categories' %>"
+                            method="POST" class="admin-form">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+                            <div class="form-grid">
+                                <label>
+                                    Kategori Adı
+                                    <input name="name" value="<%= category ? category.name : '' %>" required
+                                        placeholder="Örn: Yeşil Çay">
+                                </label>
+                                <label>
+                                    Slug (Opsiyonel)
+                                    <input name="slug" value="<%= category ? category.slug : '' %>"
+                                        placeholder="Otomatik oluşturulur">
+                                </label>
+                            </div>
+
+                            <label>
+                                Açıklama
+                                <textarea name="description" rows="3"
+                                    placeholder="Kategori hakkında kısa bir açıklama..."><%= category ? category.description : '' %></textarea>
+                            </label>
+
+                            <div class="admin-actions">
+                                <button type="submit" class="btn btn-primary">
+                                    <%= category ? 'Güncelle' : 'Kaydet' %>
+                                </button>
+                            </div>
+                        </form>
+                </main>
+        </body>
+
+</html>

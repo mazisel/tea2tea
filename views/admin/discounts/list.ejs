@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="tr">
+<%- include('../../partials/admin-head', { title: 'İndirimler' }) %>
+<body class="admin-app">
+  <%- include('../../partials/admin-nav') %>
+  <main class="admin-main">
+    <header class="admin-page-header">
+      <div>
+        <h1>İndirimler</h1>
+        <p>Kampanya kodlarını yönetin, sona eren kodları devre dışı bırakın veya yenilerini ekleyin.</p>
+      </div>
+      <a class="btn btn-primary" href="/admin/discounts/new">Yeni İndirim</a>
+    </header>
+
+    <%- include('../../partials/flash') %>
+
+    <section class="admin-panel">
+      <% if (discounts.length === 0) { %>
+        <div class="empty-state">
+          <h3>Henüz indirim kodu oluşturulmadı</h3>
+          <p>Kısa süreli kampanyalarla satışları artırmak için ilk kodunuzu ekleyin.</p>
+          <a class="btn btn-primary" href="/admin/discounts/new">İndirim Oluştur</a>
+        </div>
+      <% } %>
+
+      <% if (discounts.length > 0) { %>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Kod</th>
+              <th>İndirim</th>
+              <th>Min. Sepet</th>
+              <th>Kullanım</th>
+              <th>Geçerlilik</th>
+              <th>Durum</th>
+              <th>Güncelleme</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% discounts.forEach(discount => { %>
+              <tr>
+                <td>
+                  <strong><%= discount.code %></strong>
+                  <% if (discount.description) { %>
+                    <br><small><%= discount.description %></small>
+                  <% } %>
+                </td>
+                <td>
+                  <% if (discount.type === 'percentage') { %>
+                    %<%= discount.value.toFixed(2) %>
+                  <% } else { %>
+                    ₺<%= discount.value.toFixed(2) %>
+                  <% } %>
+                </td>
+                <td>
+                  <% if (discount.minimumOrderTotal > 0) { %>
+                    ₺<%= discount.minimumOrderTotal.toFixed(2) %>
+                  <% } else { %>
+                    —
+                  <% } %>
+                </td>
+                <td>
+                  <% if (discount.usageLimit) { %>
+                    <strong><%= discount.usedCount %></strong> / <%= discount.usageLimit %>
+                  <% } else { %>
+                    <strong><%= discount.usedCount %></strong> <small>Sınırsız</small>
+                  <% } %>
+                </td>
+                <td>
+                  <% if (discount.startDate) { %>
+                    <small><%= discount.startDate.toLocaleString('tr-TR') %></small>
+                  <% } else { %>
+                    <small>Anında</small>
+                  <% } %>
+                  <br>
+                  <% if (discount.endDate) { %>
+                    <small><%= discount.endDate.toLocaleString('tr-TR') %></small>
+                  <% } else { %>
+                    <small>Belirsiz</small>
+                  <% } %>
+                </td>
+                <td>
+                  <span class="badge <%= discount.isActive ? 'badge-success' : 'badge-muted' %>">
+                    <%= discount.isActive ? 'Aktif' : 'Pasif' %>
+                  </span>
+                </td>
+                <td>
+                  <% if (discount.updatedAt) { %>
+                    <small><%= discount.updatedAt.toLocaleDateString('tr-TR') %></small>
+                  <% } else { %>
+                    <small>—</small>
+                  <% } %>
+                </td>
+                <td class="table-actions">
+                  <a class="btn btn-link" href="/admin/discounts/<%= discount.id %>/edit">Düzenle</a>
+                  <form action="/admin/discounts/<%= discount.id %>?_method=DELETE" method="POST" onsubmit="return confirm('İndirim kodunu silmek istediğinize emin misiniz?');">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button type="submit" class="btn btn-link btn-danger">Sil</button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      <% } %>
+    </section>
+  </main>
+</body>
+</html>

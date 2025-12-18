@@ -24,6 +24,82 @@ const DEFAULT_SETTINGS = [
     key: 'store_banner',
     value: 'https://images.unsplash.com/photo-1484981137412-0ea37f975c85?auto=format&fit=crop&w=1200&q=80',
   },
+  { key: 'logo_url', value: '/logo.png' },
+  { key: 'favicon_url', value: 'https://fav.farm/🍵' },
+  { key: 'primary_color', value: '#0071e3' },
+  { key: 'secondary_color', value: '#f5f5f7' },
+  { key: 'theme_color', value: '#0b0c0f' },
+  // SMTP Settings
+  { key: 'smtp_host', value: process.env.SMTP_HOST || 'smtp.example.com' },
+  { key: 'smtp_port', value: process.env.SMTP_PORT || '587' },
+  { key: 'smtp_user', value: process.env.SMTP_USER || 'user' },
+  { key: 'smtp_pass', value: process.env.SMTP_PASS || 'pass' },
+  { key: 'smtp_secure', value: process.env.SMTP_SECURE === 'true' ? '1' : '0' },
+  // PayTR Settings
+  { key: 'paytr_merchant_id', value: process.env.PAYTR_MERCHANT_ID || '' },
+  { key: 'paytr_merchant_key', value: process.env.PAYTR_MERCHANT_KEY || '' },
+  { key: 'paytr_merchant_salt', value: process.env.PAYTR_MERCHANT_SALT || '' },
+  { key: 'paytr_test_mode', value: process.env.PAYTR_TEST_MODE || '1' },
+  { key: 'paytr_debug', value: process.env.PAYTR_DEBUG || '0' },
+
+  // --- FRONTEND CONTENT DEFAULTS ---
+  // Hero
+  { key: 'hero_eyebrow', value: 'Yeni Nesil Çay Deneyimi' },
+  { key: 'hero_btn_text', value: 'Koleksiyonu İncele' },
+  { key: 'hero_btn_link', value: '#collection' },
+  { key: 'hero_btn2_text', value: "Tea Lab'e Katıl" },
+  { key: 'hero_btn2_link', value: '/tea-lab' },
+  // Hero Metrics
+  { key: 'hero_metric1_val', value: '500+' },
+  { key: 'hero_metric1_label', value: 'mutlu çay sever' },
+  { key: 'hero_metric2_val', value: '36' },
+  { key: 'hero_metric2_label', value: 'özel harman' },
+  { key: 'hero_metric3_val', value: '24s' },
+  { key: 'hero_metric3_label', value: 'teslimat garantisi' },
+
+  // Collection Section
+  { key: 'show_collection', value: '1' },
+  { key: 'collection_eyebrow', value: 'Tea2Tea Koleksiyonu' },
+  { key: 'collection_title', value: 'Özenle hazırlanan premium harmanlar' },
+  { key: 'collection_desc', value: 'Minimalist sunum, yoğun aroma ve rafine bir deneyim. Her bir harman; sürdürülebilir çiftliklerden seçilen yaprakların modern yorumudur.' },
+
+  // Experience Section
+  { key: 'show_experience', value: '1' },
+  { key: 'exp_eyebrow', value: 'Tea2Tea Manifestosu' },
+  { key: 'exp_title', value: 'Minimalist. Rafine. Zamansız.' },
+  { key: 'exp_desc', value: 'İlhamımız Kuzey Avrupa tasarım dili ve Uzak Doğu çay seremonisi. Sade çizgiler ve kusursuz harmanlar ile çay ritüelinizi yeniden yorumluyoruz.' },
+  // Experience Points
+  { key: 'exp_p1_title', value: 'Kurumsal kalite, butik yaklaşım' },
+  { key: 'exp_p1_desc', value: 'Her siparişte; tadım ekibi onayı, aromalar arası denge ve premium paketleme standarttır.' },
+  { key: 'exp_p2_title', value: 'Sürdürülebilir üretim süreci' },
+  { key: 'exp_p2_desc', value: 'Karbon ayak izini minimize eden çiftliklerle çalışıyor, doğaya saygılı bir üretim zinciri kuruyoruz.' },
+  { key: 'exp_p3_title', value: 'Şeffaf ve hızlı teslimat' },
+  { key: 'exp_p3_desc', value: 'Siparişiniz 24 saat içinde hazırlanır, kapınıza kadar takip edilebilir şekilde ulaşır.' },
+
+  // Tea Lab Section
+  { key: 'show_tealab', value: '1' },
+  { key: 'tealab_eyebrow', value: 'Tea Lab' },
+  { key: 'tealab_title', value: 'Her ay yeni bir imza harman keşfedin.' },
+  { key: 'tealab_desc', value: 'Tea Lab aboneliğiyle limitli üretim koleksiyonlara erken erişim, deneyim kutuları ve özel etkinlik davetleri alın.' },
+  { key: 'tealab_btn_text', value: "Tea Lab'e Katıl — 599 ₺ / ay" },
+  { key: 'tealab_btn_link', value: '/tea-lab' },
+  // Tea Lab Benefits
+  { key: 'tealab_benefit1', value: 'Her ay 100 g seçkin Tea Lab harmanı kapınızda.' },
+  { key: 'tealab_benefit2', value: 'Öncelikli lansman erişimi ve özel tadım etkinlikleri.' },
+  { key: 'tealab_benefit3', value: 'Sadece abonelere özel sürpriz aksesuar ve notlar.' },
+
+  // Footer
+  { key: 'footer_desc', value: 'Seçkin çay koleksiyonumuzu keşfedin, misafirlerinize keyif dolu anlar yaşatın.' },
+
+  // Pages
+  // About
+  { key: 'about_title', value: 'Hakkımızda' },
+  { key: 'about_content', value: '<p>Tea2Tea, çay tutkusunu modern bir deneyimle buluşturmak için yola çıktı. 2024 yılında kurulan markamız, dünyanın dört bir yanından özenle seçilen çay yapraklarını, usta harmanlayıcıların dokunuşuyla benzersiz lezzetlere dönüştürüyor.</p><p>Sürdürülebilirlik ve kalite odaklı yaklaşımımızla, her yudumda doğallığı ve saflığı hissetmenizi amaçlıyoruz.</p>' },
+  // Contact
+  { key: 'contact_title', value: 'İletişim' },
+  { key: 'contact_content', value: '<p>Sorularınız, önerileriniz veya iş birlikleri için bize her zaman ulaşabilirsiniz.</p>' },
+  { key: 'contact_address', value: 'Bağdat Caddesi No: 123, Kadıköy, İstanbul' },
+  { key: 'contact_map_url', value: '' },
 ];
 
 const DEFAULT_PRODUCTS = [
@@ -36,6 +112,7 @@ const DEFAULT_PRODUCTS = [
     stock: 42,
     is_active: 1,
     grams: 250,
+    category: 'Yeşil Çay',
   },
   {
     name: 'Earl Grey',
@@ -46,6 +123,7 @@ const DEFAULT_PRODUCTS = [
     stock: 34,
     is_active: 1,
     grams: 200,
+    category: 'Siyah Çay',
   },
   {
     name: 'Adaçayı',
@@ -56,11 +134,13 @@ const DEFAULT_PRODUCTS = [
     stock: 56,
     is_active: 1,
     grams: 150,
+    category: 'Bitki Çayı',
   },
 ];
 
 function initializeDatabase() {
   createTables();
+  migrateCategories();
   seedDefaults();
 }
 
@@ -106,6 +186,21 @@ function createTables() {
       FOREIGN KEY(customer_id) REFERENCES customers(id) ON DELETE CASCADE
     );
 
+    CREATE TABLE IF NOT EXISTS subscription_payments (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      customer_id INTEGER NOT NULL,
+      plan TEXT NOT NULL,
+      price REAL NOT NULL,
+      status TEXT NOT NULL DEFAULT 'pending',
+      merchant_oid TEXT NOT NULL UNIQUE,
+      paytr_token TEXT,
+      payment_provider TEXT,
+      payment_payload TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY(customer_id) REFERENCES customers(id) ON DELETE CASCADE
+    );
+
     CREATE TABLE IF NOT EXISTS products (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
@@ -115,6 +210,7 @@ function createTables() {
       image_url TEXT,
       grams INTEGER DEFAULT 0,
       stock INTEGER DEFAULT 0,
+      category TEXT DEFAULT 'Genel',
       is_active INTEGER NOT NULL DEFAULT 1,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
@@ -129,6 +225,9 @@ function createTables() {
       customer_city TEXT,
       customer_notes TEXT,
       total_amount REAL NOT NULL CHECK(total_amount >= 0),
+      discount_id INTEGER REFERENCES discounts(id),
+      discount_code TEXT,
+      discount_amount REAL NOT NULL DEFAULT 0 CHECK(discount_amount >= 0),
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       customer_id INTEGER,
       status TEXT NOT NULL DEFAULT 'pending',
@@ -150,6 +249,22 @@ function createTables() {
       quantity INTEGER NOT NULL CHECK(quantity > 0),
       FOREIGN KEY(order_id) REFERENCES orders(id) ON DELETE CASCADE,
       FOREIGN KEY(product_id) REFERENCES products(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS discounts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      code TEXT NOT NULL UNIQUE,
+      description TEXT,
+      type TEXT NOT NULL CHECK(type IN ('percentage','amount')),
+      value REAL NOT NULL CHECK(value >= 0),
+      minimum_order_total REAL NOT NULL DEFAULT 0 CHECK(minimum_order_total >= 0),
+      usage_limit INTEGER,
+      used_count INTEGER NOT NULL DEFAULT 0,
+      start_date DATETIME,
+      end_date DATETIME,
+      is_active INTEGER NOT NULL DEFAULT 1,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
 
     CREATE TABLE IF NOT EXISTS blends (
@@ -262,6 +377,46 @@ function createTables() {
   }
 
   try {
+    db.prepare('ALTER TABLE orders ADD COLUMN discount_id INTEGER REFERENCES discounts(id)').run();
+  } catch (err) {
+    if (!String(err.message).includes('duplicate column')) {
+      throw err;
+    }
+  }
+
+  try {
+    db.prepare('ALTER TABLE orders ADD COLUMN discount_code TEXT').run();
+  } catch (err) {
+    if (!String(err.message).includes('duplicate column')) {
+      throw err;
+    }
+  }
+
+  try {
+    db.prepare('ALTER TABLE orders ADD COLUMN discount_amount REAL NOT NULL DEFAULT 0').run();
+  } catch (err) {
+    if (!String(err.message).includes('duplicate column')) {
+      throw err;
+    }
+  }
+
+  try {
+    db.prepare('ALTER TABLE orders ADD COLUMN shipping_address_snapshot TEXT').run();
+  } catch (err) {
+    if (!String(err.message).includes('duplicate column')) {
+      throw err;
+    }
+  }
+
+  try {
+    db.prepare('ALTER TABLE orders ADD COLUMN billing_address_snapshot TEXT').run();
+  } catch (err) {
+    if (!String(err.message).includes('duplicate column')) {
+      throw err;
+    }
+  }
+
+  try {
     db.prepare('ALTER TABLE customers ADD COLUMN phone TEXT').run();
   } catch (err) {
     if (!String(err.message).includes('duplicate column')) {
@@ -271,6 +426,14 @@ function createTables() {
 
   try {
     db.prepare('ALTER TABLE products ADD COLUMN grams INTEGER DEFAULT 0').run();
+  } catch (err) {
+    if (!String(err.message).includes('duplicate column')) {
+      throw err;
+    }
+  }
+
+  try {
+    db.prepare("ALTER TABLE products ADD COLUMN category TEXT DEFAULT 'Genel'").run();
   } catch (err) {
     if (!String(err.message).includes('duplicate column')) {
       throw err;
@@ -290,18 +453,49 @@ function createTables() {
   db.prepare('CREATE UNIQUE INDEX IF NOT EXISTS idx_customers_email ON customers(email)').run();
   db.prepare('CREATE INDEX IF NOT EXISTS idx_customer_addresses_customer ON customer_addresses(customer_id)').run();
   db.prepare('CREATE INDEX IF NOT EXISTS idx_customer_addresses_type ON customer_addresses(type)').run();
+  db.prepare('CREATE INDEX IF NOT EXISTS idx_subscription_payments_customer ON subscription_payments(customer_id)').run();
+  db.prepare('CREATE INDEX IF NOT EXISTS idx_subscription_payments_status ON subscription_payments(status)').run();
   db.prepare('CREATE INDEX IF NOT EXISTS idx_blends_user ON blends(user_id)').run();
   db.prepare('CREATE INDEX IF NOT EXISTS idx_blend_items_blend ON blend_items(blend_id)').run();
   db.prepare('CREATE INDEX IF NOT EXISTS idx_blend_comments_blend ON blend_comments(blend_id)').run();
   db.prepare('CREATE INDEX IF NOT EXISTS idx_subscriptions_customer ON subscriptions(customer_id)').run();
+  db.prepare('CREATE INDEX IF NOT EXISTS idx_discounts_active ON discounts(is_active)').run();
+  db.prepare('CREATE INDEX IF NOT EXISTS idx_discounts_code ON discounts(code)').run();
+  db.prepare('CREATE UNIQUE INDEX IF NOT EXISTS idx_discounts_code ON discounts(code)').run();
+  db.prepare('CREATE INDEX IF NOT EXISTS idx_products_category ON products(category)').run();
+}
+
+function migrateCategories() {
+  // Create categories table if not exists
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS categories (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL UNIQUE,
+      slug TEXT NOT NULL UNIQUE,
+      description TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+
+  // Migrate existing categories from products
+  const products = db.prepare('SELECT DISTINCT category FROM products WHERE category IS NOT NULL').all();
+  const insertCategory = db.prepare('INSERT OR IGNORE INTO categories (name, slug) VALUES (?, ?)');
+
+  products.forEach(p => {
+    if (p.category && p.category.trim() !== '') {
+      const name = p.category.trim();
+      const slug = name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+      insertCategory.run(name, slug);
+    }
+  });
 }
 
 function getDefaultAdminCredentials() {
   const username = process.env.ADMIN_USERNAME || 'admin';
   const password = process.env.ADMIN_PASSWORD;
 
-  if (!password || password.trim().length < 6) {
-    throw new Error('ADMIN_PASSWORD environment variable must be set and at least 6 characters.');
+  if (!password || password.trim().length < 10) {
+    throw new Error('ADMIN_PASSWORD environment variable must be set and at least 10 characters.');
   }
 
   return { username, password: password.trim() };
@@ -314,20 +508,36 @@ function seedDefaults() {
   const productCount = db.prepare('SELECT COUNT(*) as count FROM products').get().count;
   if (productCount === 0) {
     const insertProduct = db.prepare(`
-      INSERT INTO products (name, slug, description, price, image_url, grams, stock, is_active)
-      VALUES (@name, @slug, @description, @price, @image_url, @grams, @stock, @is_active)
+      INSERT INTO products (name, slug, description, price, image_url, grams, stock, category, is_active)
+      VALUES (@name, @slug, @description, @price, @image_url, @grams, @stock, @category, @is_active)
     `);
     DEFAULT_PRODUCTS.forEach((product) => insertProduct.run(product));
   }
 
-  const adminCount = db.prepare('SELECT COUNT(*) as count FROM admin_users').get().count;
-  if (adminCount === 0) {
-    const defaultAdmin = getDefaultAdminCredentials();
-    const passwordHash = bcrypt.hashSync(defaultAdmin.password, 10);
-    db.prepare('INSERT INTO admin_users (username, password_hash) VALUES (?, ?)').run(
-      defaultAdmin.username,
-      passwordHash,
-    );
+  const defaultAdmin = getDefaultAdminCredentials();
+  const existingAdmin = db
+    .prepare('SELECT id, username, password_hash AS passwordHash FROM admin_users WHERE username = ?')
+    .get(defaultAdmin.username);
+
+  const passwordHash = bcrypt.hashSync(defaultAdmin.password, 10);
+
+  if (!existingAdmin) {
+    const adminCount = db.prepare('SELECT COUNT(*) as count FROM admin_users').get().count;
+    if (adminCount === 0) {
+      db.prepare('INSERT INTO admin_users (username, password_hash) VALUES (?, ?)').run(
+        defaultAdmin.username,
+        passwordHash,
+      );
+    } else {
+      db.prepare('INSERT OR IGNORE INTO admin_users (username, password_hash) VALUES (?, ?)').run(
+        defaultAdmin.username,
+        passwordHash,
+      );
+    }
+  } else {
+    if (!bcrypt.compareSync(defaultAdmin.password, existingAdmin.passwordHash)) {
+      db.prepare('UPDATE admin_users SET password_hash = ? WHERE id = ?').run(passwordHash, existingAdmin.id);
+    }
   }
 }
 

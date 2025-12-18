@@ -1,120 +1,164 @@
 <!DOCTYPE html>
 <html lang="tr">
 <%- include('../partials/shop-head', { title: 'Topluluk Karışımları' }) %>
-<body>
-  <%- include('../partials/shop-header') %>
-  <main class="page page-community">
-    <% const heroBlend = blends[0]; %>
-    <section class="container community-hero">
-      <div class="community-hero__content">
-        <span class="eyebrow">Tea2Tea Topluluğu</span>
-        <h1>Seçkin harmanlar, paylaşılan ritüeller.</h1>
-        <p>Apple stilinde rafine bir deneyim. İlham verici karışımları keşfedin, kendi harmanınızı tasarlayın ve çay sohbetlerine yeni bir boyut katın.</p>
-        <div class="community-hero__actions">
-          <a class="btn btn-primary btn-lg" href="/blends/create">Karışımını Paylaş</a>
-          <a class="btn btn-ghost" href="#blend-gallery">Harmanları Keşfet</a>
-        </div>
-      </div>
-      <div class="community-hero__visual">
-        <% if (heroBlend) { %>
-          <article
-            class="community-hero-card <%= heroBlend.previewImage ? 'has-image' : '' %>"
-            style="<%= heroBlend.previewImage ? `--hero-image: url('${heroBlend.previewImage}')` : '' %>"
-          >
-            <header>
-              <span class="community-pill">Öne Çıkan Harman</span>
-              <h2><%= heroBlend.name %></h2>
-              <p><%= heroBlend.description || 'Topluluk tarafından paylaşılan, dengeli ve sofistike bir çay ritüeli.' %></p>
-            </header>
-            <div class="community-hero-card__media">
-              <% if (heroBlend.previewImage) { %>
-                <img src="<%= heroBlend.previewImage %>" alt="<%= heroBlend.name %> karışım görseli">
-              <% } else { %>
-                <span><%= heroBlend.name.charAt(0) %></span>
-              <% } %>
+
+  <body>
+    <%- include('../partials/shop-header') %>
+      <main class="page page-community">
+        <% const heroBlend=blends[0]; %>
+          <section class="container community-hero">
+            <div class="community-hero__content">
+              <span class="eyebrow">
+                <%= settings.site_name %> Topluluğu
+              </span>
+              <h1>Seçkin harmanlar, paylaşılan ritüeller.</h1>
+              <p>Rafine bir deneyim. İlham verici karışımları keşfedin, kendi harmanınızı tasarlayın ve çay sohbetlerine
+                yeni bir boyut katın.</p>
+              <div class="community-hero__actions">
+                <a class="btn btn-primary btn-lg" href="/blends/create">Karışımını Paylaş</a>
+                <a class="btn btn-ghost" href="#blend-gallery">Harmanları Keşfet</a>
+              </div>
             </div>
-            <footer>
+            <div class="community-hero__visual">
+              <% if (heroBlend) { %>
+                <% const heroGallery=heroBlend.previewGallery || []; %>
+                  <% const heroHasCollage=heroGallery.length> 1; %>
+                    <article class="community-hero-card <%= heroBlend.previewImage ? 'has-image' : '' %>"
+                      style="<%= heroBlend.previewImage ? `--hero-image: url('${heroBlend.previewImage}')` : '' %>">
+                      <header>
+                        <span class="community-pill">Öne Çıkan Harman</span>
+                        <h2>
+                          <%= heroBlend.name %>
+                        </h2>
+                        <p>
+                          <%= heroBlend.description
+                            || 'Topluluk tarafından paylaşılan, dengeli ve sofistike bir çay ritüeli.' %>
+                        </p>
+                      </header>
+                      <div class="community-hero-card__media <%= heroHasCollage ? 'is-collage' : '' %>">
+                        <% if (heroHasCollage) { %>
+                          <% heroGallery.forEach((image, idx)=> { %>
+                            <div class="community-hero-card__tile" data-tile="<%= idx %>">
+                              <img src="<%= image %>" alt="<%= heroBlend.name %> bileşen <%= idx + 1 %> görseli">
+                            </div>
+                            <% }) %>
+                              <% } else if (heroBlend.previewImage) { %>
+                                <img src="<%= heroBlend.previewImage %>" alt="<%= heroBlend.name %> karışım görseli">
+                                <% } else { %>
+                                  <span>
+                                    <%= heroBlend.name.charAt(0) %>
+                                  </span>
+                                  <% } %>
+                      </div>
+                      <footer>
+                        <div>
+                          <strong>
+                            <%= heroBlend.ownerName %>
+                          </strong>
+                          <small>Toplam <%= heroBlend.totalGrams %> g • ≈ <%= heroBlend.totalPrice.toFixed(2) %>
+                                ₺</small>
+                        </div>
+                        <a class="btn btn-outline" href="/blends/<%= heroBlend.id %>">Karışımı Gör</a>
+                      </footer>
+                    </article>
+                    <% } else { %>
+                      <article class="community-hero-card community-hero-card--empty">
+                        <header>
+                          <span class="community-pill">İlk Harmanı Sen Paylaş</span>
+                          <h2>Topluluğa katıl</h2>
+                          <p>Favori çaylarını harmanla, görselini ekle ve <%= settings.site_name %> dünyasına ilham ver.
+                          </p>
+                        </header>
+                        <footer>
+                          <a class="btn btn-primary btn-lg" href="/blends/create">Başla</a>
+                        </footer>
+                      </article>
+                      <% } %>
+            </div>
+          </section>
+
+          <section class="container community-catalog" id="blend-gallery">
+            <header class="community-catalog__header">
               <div>
-                <strong><%= heroBlend.ownerName %></strong>
-                <small>Toplam <%= heroBlend.totalGrams %> g • ≈ <%= heroBlend.totalPrice.toFixed(2) %> ₺</small>
+                <span class="eyebrow">Paylaşılan Harmanlar</span>
+                <h2>Ana sahnede bu karışımlar var.</h2>
+                <p>Her biri topluluk üyelerimizin elinden çıkan kürasyonlar. Lezzet profilleri, gramaj dengeleri ve
+                  ilham notlarıyla keşfedin.</p>
               </div>
-              <a class="btn btn-outline" href="/blends/<%= heroBlend.id %>">Karışımı Gör</a>
-            </footer>
-          </article>
-        <% } else { %>
-          <article class="community-hero-card community-hero-card--empty">
-            <header>
-              <span class="community-pill">İlk Harmanı Sen Paylaş</span>
-              <h2>Topluluğa katıl</h2>
-              <p>Favori çaylarını harmanla, görselini ekle ve Tea2Tea dünyasına ilham ver.</p>
+              <a class="btn btn-outline" href="/blends/create">Kendi Harmanını Oluştur</a>
             </header>
-            <footer>
-              <a class="btn btn-primary btn-lg" href="/blends/create">Başla</a>
-            </footer>
-          </article>
-        <% } %>
-      </div>
-    </section>
 
-    <section class="container community-catalog" id="blend-gallery">
-      <header class="community-catalog__header">
-        <div>
-          <span class="eyebrow">Paylaşılan Harmanlar</span>
-          <h2>Ana sahnede bu karışımlar var.</h2>
-          <p>Her biri topluluk üyelerimizin elinden çıkan kürasyonlar. Lezzet profilleri, gramaj dengeleri ve ilham notlarıyla keşfedin.</p>
-        </div>
-        <a class="btn btn-outline" href="/blends/create">Kendi Harmanını Oluştur</a>
-      </header>
-
-      <% if (blends.length === 0) { %>
-        <div class="empty-state elevated community-empty">
-          <h3>Henüz paylaşılmış karışım yok</h3>
-          <p>İlk karışımı siz oluşturabilir ve toplulukla paylaşabilirsiniz.</p>
-          <a class="btn btn-primary" href="/blends/create">Karışımını Oluştur</a>
-        </div>
-      <% } else { %>
-        <div class="community-card-grid">
-          <% blends.forEach((blend, index) => { %>
-            <article
-              class="community-card <%= index === 0 ? 'is-featured' : '' %> <%= blend.previewImage ? 'has-image' : '' %>"
-              style="<%= blend.previewImage ? `--card-image: url('${blend.previewImage}')` : '' %>"
-            >
-              <div class="community-card__media">
-                <% if (blend.previewImage) { %>
-                  <img src="<%= blend.previewImage %>" alt="<%= blend.name %> karışım görseli">
-                <% } else { %>
-                  <span><%= blend.name.charAt(0) %></span>
+            <% if (blends.length===0) { %>
+              <div class="empty-state elevated community-empty">
+                <h3>Henüz paylaşılmış karışım yok</h3>
+                <p>İlk karışımı siz oluşturabilir ve toplulukla paylaşabilirsiniz.</p>
+                <a class="btn btn-primary" href="/blends/create">Karışımını Oluştur</a>
+              </div>
+              <% } else { %>
+                <div class="community-card-grid">
+                  <% blends.forEach((blend, index)=> { %>
+                    <% const gallery=blend.previewGallery || []; %>
+                      <% const hasCollage=gallery.length> 1; %>
+                        <article
+                          class="community-card <%= index === 0 ? 'is-featured' : '' %> <%= blend.previewImage ? 'has-image' : '' %>"
+                          style="<%= blend.previewImage ? `--card-image: url('${blend.previewImage}')` : '' %>">
+                          <div class="community-card__media <%= hasCollage ? 'is-collage' : '' %>">
+                            <% if (hasCollage) { %>
+                              <% gallery.forEach((image, idx)=> { %>
+                                <div class="community-card__tile" data-tile="<%= idx %>">
+                                  <img src="<%= image %>" alt="<%= blend.name %> bileşen <%= idx + 1 %> görseli">
+                                </div>
+                                <% }) %>
+                                  <% } else if (blend.previewImage) { %>
+                                    <img src="<%= blend.previewImage %>" alt="<%= blend.name %> karışım görseli">
+                                    <% } else { %>
+                                      <span>
+                                        <%= blend.name.charAt(0) %>
+                                      </span>
+                                      <% } %>
+                          </div>
+                          <div class="community-card__body">
+                            <div class="community-card__meta">
+                              <span class="community-pill">
+                                <%= blend.ownerName %>
+                              </span>
+                              <span class="community-rating">
+                                ⭐ <strong>
+                                  <%= Number(blend.avgRating).toFixed(1) %>
+                                </strong>
+                                <small>(<%= blend.ratingCount %> oy)</small>
+                              </span>
+                            </div>
+                            <h3><a href="/blends/<%= blend.id %>">
+                                <%= blend.name %>
+                              </a></h3>
+                            <p>
+                              <%= blend.description || 'Topluluğumuzun özenle hazırladığı bu harman sizi bekliyor.' %>
+                            </p>
+                            <ul class="community-card__chips">
+                              <% (blend.previewProducts || []).forEach(productName=> { %>
+                                <li>
+                                  <%= productName %>
+                                </li>
+                                <% }) %>
+                            </ul>
+                          </div>
+                          <footer class="community-card__footer">
+                            <div>
+                              <strong>
+                                <%= blend.totalGrams %> g
+                              </strong>
+                              <span>≈ <%= blend.totalPrice.toFixed(2) %> ₺</span>
+                            </div>
+                            <a class="btn btn-outline" href="/blends/<%= blend.id %>">Detaylar</a>
+                          </footer>
+                        </article>
+                        <% }) %>
+                </div>
                 <% } %>
-              </div>
-              <div class="community-card__body">
-                <div class="community-card__meta">
-                  <span class="community-pill"><%= blend.ownerName %></span>
-                  <span class="community-rating">
-                    ⭐ <strong><%= Number(blend.avgRating).toFixed(1) %></strong>
-                    <small>(<%= blend.ratingCount %> oy)</small>
-                  </span>
-                </div>
-                <h3><a href="/blends/<%= blend.id %>"><%= blend.name %></a></h3>
-                <p><%= blend.description || 'Topluluğumuzun özenle hazırladığı bu harman sizi bekliyor.' %></p>
-                <ul class="community-card__chips">
-                  <% (blend.previewProducts || []).forEach(productName => { %>
-                    <li><%= productName %></li>
-                  <% }) %>
-                </ul>
-              </div>
-              <footer class="community-card__footer">
-                <div>
-                  <strong><%= blend.totalGrams %> g</strong>
-                  <span>≈ <%= blend.totalPrice.toFixed(2) %> ₺</span>
-                </div>
-                <a class="btn btn-outline" href="/blends/<%= blend.id %>">Detaylar</a>
-              </footer>
-            </article>
-          <% }) %>
-        </div>
-      <% } %>
-    </section>
-  </main>
-  <%- include('../partials/shop-footer') %>
-</body>
+          </section>
+      </main>
+      <%- include('../partials/shop-footer') %>
+  </body>
+
 </html>

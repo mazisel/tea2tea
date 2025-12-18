@@ -39,6 +39,7 @@
                 <a href="/account" class="btn btn-highlight btn-lg"><span>Abonelik Aktif — Hesabıma Git</span></a>
               <% } else { %>
                 <form action="/subscriptions" method="POST">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                   <button type="submit" class="btn btn-highlight btn-lg"><span>Tea Lab'e Katıl</span></button>
                 </form>
               <% } %>

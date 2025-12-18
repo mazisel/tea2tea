@@ -1,3 +1,186 @@
+const COOKIE_PREF_KEY = 'tea2tea_cookie_prefs_v1';
+const COOKIE_MAX_AGE_DAYS = 365;
+
+function readCookie(name) {
+  if (typeof document === 'undefined') return null;
+  const cookies = document.cookie ? document.cookie.split('; ') : [];
+  for (let i = 0; i < cookies.length; i += 1) {
+    const parts = cookies[i].split('=');
+    const key = parts.shift();
+    if (key === name) {
+      return decodeURIComponent(parts.join('='));
+    }
+  }
+  return null;
+}
+
+function writeCookie(name, value, days) {
+  const maxAgeSeconds = Math.max(days * 24 * 60 * 60, 0);
+  const secure = window.location.protocol === 'https:' ? '; Secure' : '';
+  document.cookie = `${name}=${encodeURIComponent(value)}; Path=/; Max-Age=${maxAgeSeconds}; SameSite=Lax${secure}`;
+}
+
+function buildCookiePrefs(overrides = {}) {
+  return {
+    necessary: true,
+    analytics: false,
+    marketing: false,
+    updatedAt: new Date().toISOString(),
+    ...overrides,
+  };
+}
+
+function getCookiePrefs() {
+  const raw = readCookie(COOKIE_PREF_KEY);
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') return null;
+    return {
+      necessary: true,
+      analytics: Boolean(parsed.analytics),
+      marketing: Boolean(parsed.marketing),
+      updatedAt: parsed.updatedAt || null,
+    };
+  } catch (error) {
+    return null;
+  }
+}
+
+function storeCookiePrefs(prefs) {
+  const payload = buildCookiePrefs(prefs);
+  writeCookie(COOKIE_PREF_KEY, JSON.stringify(payload), COOKIE_MAX_AGE_DAYS);
+  document.dispatchEvent(new CustomEvent('cookie-preferences-saved', { detail: payload }));
+  return payload;
+}
+
+function initCookieConsent() {
+  const banner = document.querySelector('[data-cookie-banner]');
+  const modal = document.querySelector('[data-cookie-modal]');
+  if (!banner || !modal) return;
+
+  const form = modal.querySelector('[data-cookie-form]');
+  const analyticsInput = form?.querySelector('input[name="analytics"]');
+  const marketingInput = form?.querySelector('input[name="marketing"]');
+  if (!form || !analyticsInput || !marketingInput) return;
+
+  const openButtons = document.querySelectorAll('[data-cookie-open]');
+  const acceptButtons = document.querySelectorAll('[data-cookie-accept]');
+  const declineButtons = document.querySelectorAll('[data-cookie-decline]');
+  const closeButtons = modal.querySelectorAll('[data-cookie-close]');
+  const saveButton = form.querySelector('[data-cookie-save]');
+  const acceptModalButton = modal.querySelector('[data-cookie-accept-modal]');
+
+  const body = document.body;
+  const currentPrefs = getCookiePrefs();
+
+  const showBanner = () => {
+    banner.removeAttribute('hidden');
+  };
+
+  const hideBanner = () => {
+    banner.setAttribute('hidden', '');
+  };
+
+  const openModal = () => {
+    const prefs = getCookiePrefs() || buildCookiePrefs();
+    analyticsInput.checked = Boolean(prefs.analytics);
+    marketingInput.checked = Boolean(prefs.marketing);
+    modal.removeAttribute('hidden');
+    if (body) {
+      body.classList.add('cookie-modal-open');
+    }
+  };
+
+  const closeModal = () => {
+    modal.setAttribute('hidden', '');
+    if (body) {
+      body.classList.remove('cookie-modal-open');
+    }
+  };
+
+  const applyChoice = (prefs, { hide = true } = {}) => {
+    storeCookiePrefs(prefs);
+    if (hide) {
+      hideBanner();
+      closeModal();
+    }
+  };
+
+  const handleSave = (event) => {
+    event.preventDefault();
+    applyChoice(
+      {
+        analytics: analyticsInput.checked,
+        marketing: marketingInput.checked,
+      },
+      { hide: true },
+    );
+  };
+
+  const handleAcceptAll = () => {
+    applyChoice({ analytics: true, marketing: true }, { hide: true });
+  };
+
+  const handleDecline = () => {
+    applyChoice({ analytics: false, marketing: false }, { hide: true });
+  };
+
+  const handleKeydown = (event) => {
+    if (event.key === 'Escape' && !modal.hasAttribute('hidden')) {
+      event.preventDefault();
+      closeModal();
+    }
+  };
+
+  if (!currentPrefs) {
+    showBanner();
+  }
+
+  openButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      hideBanner();
+      openModal();
+    });
+  });
+
+  acceptButtons.forEach((button) => {
+    button.addEventListener('click', handleAcceptAll);
+  });
+
+  declineButtons.forEach((button) => {
+    button.addEventListener('click', handleDecline);
+  });
+
+  if (saveButton) {
+    form.addEventListener('submit', handleSave);
+  }
+
+  if (acceptModalButton) {
+    acceptModalButton.addEventListener('click', handleAcceptAll);
+  }
+
+  closeButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      closeModal();
+      if (!getCookiePrefs()) {
+        showBanner();
+      }
+    });
+  });
+
+  modal.addEventListener('click', (event) => {
+    if (event.target === modal) {
+      closeModal();
+      if (!getCookiePrefs()) {
+        showBanner();
+      }
+    }
+  });
+
+  document.addEventListener('keydown', handleKeydown);
+}
+
 function prefersReducedMotion() {
   return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
@@ -186,4 +369,5 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   initPageTransitions();
+  initCookieConsent();
 });

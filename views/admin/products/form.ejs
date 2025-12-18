@@ -1,89 +1,110 @@
 <!DOCTYPE html>
 <html lang="tr">
-<%
-  const pageTitle = product ? 'Ürünü Düzenle' : 'Yeni Ürün';
-%>
-<%- include('../../partials/admin-head', { title: pageTitle }) %>
-<body class="admin-app">
-  <%- include('../../partials/admin-nav') %>
-  <main class="admin-main">
-    <header class="admin-page-header">
-      <div>
-        <h1><%= pageTitle %></h1>
-        <p>Ürün detaylarını düzenleyerek mağaza içeriklerinizi güncel tutun.</p>
-      </div>
-      <a class="btn btn-outline" href="/admin/products">Ürün Listesi</a>
-    </header>
+<% const pageTitle=product ? 'Ürünü Düzenle' : 'Yeni Ürün' ; %>
+  <%- include('../../partials/admin-head', { title: pageTitle }) %>
 
-    <%- include('../../partials/flash') %>
+    <body class="admin-app">
+      <%- include('../../partials/admin-nav') %>
+        <main class="admin-main">
+          <header class="admin-page-header">
+            <div>
+              <h1>
+                <%= pageTitle %>
+              </h1>
+              <p>Ürün detaylarını düzenleyerek mağaza içeriklerinizi güncel tutun.</p>
+            </div>
+            <a class="btn btn-outline" href="/admin/products">Ürün Listesi</a>
+          </header>
 
-    <form
-      action="<%= product ? `/admin/products/${product.id}?_method=PUT` : '/admin/products' %>"
-      method="POST"
-      enctype="multipart/form-data"
-      class="admin-form"
-    >
-      <header>
-        <h2>Temel Bilgiler</h2>
-      </header>
-      <div class="form-grid">
-        <label>
-          Ürün Adı
-          <input name="name" value="<%= product ? product.name : '' %>" required>
-        </label>
-        <label>
-          Slug
-          <input name="slug" value="<%= product ? product.slug : '' %>" placeholder="Otomatik oluşturulur">
-        </label>
-        <label>
-          Fiyat (₺)
-          <input name="price" type="number" min="0" step="0.01" value="<%= product ? product.price : '' %>" required>
-        </label>
-        <label>
-          Gram
-          <input name="grams" type="number" min="0" step="1" value="<%= product ? product.grams : '' %>">
-        </label>
-        <label>
-          Stok
-          <input name="stock" type="number" min="0" value="<%= product ? product.stock : 0 %>">
-        </label>
-      </div>
+          <%- include('../../partials/flash') %>
 
-      <label>
-        Kısa Açıklama
-        <textarea name="description" rows="4" placeholder="Ürünün tadım notları, demleme önerileri..."><%= product ? product.description : '' %></textarea>
-      </label>
+            <form action="<%= product ? `/admin/products/${product.id}?_method=PUT` : '/admin/products' %>"
+              method="POST" enctype="multipart/form-data" class="admin-form">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <header>
+                <h2>Temel Bilgiler</h2>
+              </header>
+              <div class="form-grid">
+                <label>
+                  Ürün Adı
+                  <input name="name" value="<%= product ? product.name : '' %>" required>
+                </label>
+                <label>
+                  Slug
+                  <input name="slug" value="<%= product ? product.slug : '' %>" placeholder="Otomatik oluşturulur">
+                </label>
+                <label>
+                  Fiyat (₺)
+                  <input name="price" type="number" min="0" step="0.01" value="<%= product ? product.price : '' %>"
+                    required>
+                </label>
+                <label>
+                  Kategori
+                  <a href="/admin/categories" target="_blank" style="font-size: 0.8rem; margin-left: auto;">(Yönet)</a>
+                  <select name="category" required>
+                    <option value="">Seçiniz...</option>
+                    <% if (typeof categories !=='undefined' && categories.length> 0) { %>
+                      <% categories.forEach(cat=> { %>
+                        <option value="<%= cat.name %>" <%=product && product.category===cat.name ? 'selected' : '' %>>
+                          <%= cat.name %>
+                        </option>
+                        <% }) %>
+                          <% } else { %>
+                            <option value="Genel" <%=product && product.category==='Genel' ? 'selected' : '' %>>Genel
+                            </option>
+                            <% } %>
+                  </select>
+                </label>
+                <label>
+                  Gram
+                  <input name="grams" type="number" min="0" step="1" value="<%= product ? product.grams : '' %>">
+                </label>
+                <label>
+                  Stok
+                  <input name="stock" type="number" min="0" value="<%= product ? product.stock : 0 %>">
+                </label>
+              </div>
 
-      <section class="admin-panel">
-        <div class="admin-panel__header">
-          <h2>Ürün Görseli</h2>
-        </div>
-        <p>URL ile uzaktaki görselleri kullanabilir veya bilgisayarınızdan yeni bir görsel yükleyebilirsiniz.</p>
-        <div class="form-grid">
-          <label>
-            Görsel URL
-            <input name="imageUrl" value="<%= product ? product.imageUrl : '' %>" placeholder="https://">
-          </label>
-          <label>
-            Bilgisayardan Yükle
-            <input type="file" name="imageFile" accept="image/*">
-          </label>
-        </div>
-        <% if (product && product.imageUrl) { %>
-          <figure class="collection-tile__media" style="max-width: 260px;">
-            <img src="<%= product.imageUrl %>" alt="<%= product.name %>">
-          </figure>
-        <% } %>
-      </section>
+              <label>
+                Kısa Açıklama
+                <textarea name="description" rows="4"
+                  placeholder="Ürünün tadım notları, demleme önerileri..."><%= product ? product.description : '' %></textarea>
+              </label>
 
-      <div class="admin-actions">
-        <label class="toggle">
-          <input type="checkbox" name="isActive" value="1" <%= !product || product.isActive ? 'checked' : '' %>>
-          <span>Ürün satışta olsun</span>
-        </label>
-        <button type="submit" class="btn btn-primary"><%= product ? 'Güncelle' : 'Kaydet' %></button>
-      </div>
-    </form>
-  </main>
-</body>
+              <section class="admin-panel">
+                <div class="admin-panel__header">
+                  <h2>Ürün Görseli</h2>
+                </div>
+                <p>URL ile uzaktaki görselleri kullanabilir veya bilgisayarınızdan yeni bir görsel yükleyebilirsiniz.
+                </p>
+                <div class="form-grid">
+                  <label>
+                    Görsel URL
+                    <input name="imageUrl" value="<%= product ? product.imageUrl : '' %>" placeholder="https://">
+                  </label>
+                  <label>
+                    Bilgisayardan Yükle
+                    <input type="file" name="imageFile" accept="image/*">
+                  </label>
+                </div>
+                <% if (product && product.imageUrl) { %>
+                  <figure class="collection-tile__media" style="max-width: 260px;">
+                    <img src="<%= product.imageUrl %>" alt="<%= product.name %>">
+                  </figure>
+                  <% } %>
+              </section>
+
+              <div class="admin-actions">
+                <label class="toggle">
+                  <input type="checkbox" name="isActive" value="1" <%=!product || product.isActive ? 'checked' : '' %>>
+                  <span>Ürün satışta olsun</span>
+                </label>
+                <button type="submit" class="btn btn-primary">
+                  <%= product ? 'Güncelle' : 'Kaydet' %>
+                </button>
+              </div>
+            </form>
+        </main>
+    </body>
+
 </html>

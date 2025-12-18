@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="tr">
+<%
+  const pageTitle = isEdit ? 'İndirimi Düzenle' : 'Yeni İndirim';
+%>
+<%- include('../../partials/admin-head', { title: pageTitle }) %>
+<body class="admin-app">
+  <%- include('../../partials/admin-nav') %>
+  <main class="admin-main">
+    <header class="admin-page-header">
+      <div>
+        <h1><%= pageTitle %></h1>
+        <p>Kampanya detaylarını belirleyin ve yayınlayın. Kodlar otomatik olarak büyük harfe çevrilir.</p>
+      </div>
+      <a class="btn btn-outline" href="/admin/discounts">İndirim Listesi</a>
+    </header>
+
+    <%- include('../../partials/flash') %>
+
+    <% if (errors && errors.length) { %>
+      <section class="admin-panel">
+        <ul class="form-errors">
+          <% errors.forEach(error => { %>
+            <li><%= error %></li>
+          <% }) %>
+        </ul>
+      </section>
+    <% } %>
+
+    <form
+      action="<%= isEdit ? `/admin/discounts/${discount.id}?_method=PUT` : '/admin/discounts' %>"
+      method="POST"
+      class="admin-form"
+    >
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <header>
+        <h2>Temel Bilgiler</h2>
+      </header>
+      <div class="form-grid">
+        <label>
+          Kod
+          <input name="code" value="<%= discount.code || '' %>" maxlength="32" required>
+        </label>
+        <label>
+          İndirim Türü
+          <select name="type">
+            <option value="percentage" <%= discount.type === 'percentage' ? 'selected' : '' %>>Yüzdelik (%)</option>
+            <option value="amount" <%= discount.type === 'amount' ? 'selected' : '' %>>Sabit Tutar (₺)</option>
+          </select>
+        </label>
+        <label>
+          İndirim Değeri
+          <input name="value" type="number" step="0.01" min="0" value="<%= discount.value !== '' ? discount.value : '' %>" required>
+        </label>
+        <label>
+          Minimum Sepet Tutarı
+          <input name="minimumOrderTotal" type="number" step="0.01" min="0" value="<%= discount.minimumOrderTotal || 0 %>">
+        </label>
+        <label>
+          Kullanım Limiti
+          <input name="usageLimit" type="number" min="0" value="<%= discount.usageLimit || '' %>" placeholder="Sınırsız için boş bırakın">
+        </label>
+      </div>
+
+      <label>
+        Açıklama
+        <textarea name="description" rows="3" placeholder="Müşteriler için kısa açıklama"><%= discount.description || '' %></textarea>
+      </label>
+
+      <header>
+        <h2>Geçerlilik ve Durum</h2>
+      </header>
+      <div class="form-grid">
+        <label>
+          Başlangıç
+          <input name="startDate" type="datetime-local" value="<%= discount.startDateInput || '' %>">
+        </label>
+        <label>
+          Bitiş
+          <input name="endDate" type="datetime-local" value="<%= discount.endDateInput || '' %>">
+        </label>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" name="isActive" value="1" <%= discount.isActive ? 'checked' : '' %>>
+        <span>İndirim aktif olsun</span>
+      </label>
+
+      <div class="admin-actions">
+        <button type="submit" class="btn btn-primary"><%= isEdit ? 'Güncelle' : 'Kaydet' %></button>
+      </div>
+    </form>
+  </main>
+</body>
+</html>

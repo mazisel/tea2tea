@@ -1,0 +1,97 @@
+[2025-12-17T23:18:32.620Z] POST /admin/settings?_csrf=LNPwaaKz-j3VP2lqHWNsgaf8uFCZmAgdKCS0 - ERROR: Malformed part header
+STACK: Error: Malformed part header
+    at SBMH.ssCb [as _cb] (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/busboy/lib/types/multipart.js:398:32)
+    at feed (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/streamsearch/lib/sbmh.js:248:10)
+    at SBMH.push (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/streamsearch/lib/sbmh.js:104:16)
+    at Multipart._write (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/busboy/lib/types/multipart.js:567:19)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at IncomingMessage.ondata (node:internal/streams/readable:1008:24)
+    at IncomingMessage.emit (node:events:507:28)
+    at Readable.read (node:internal/streams/readable:780:10)
+
+[DEBUG] Request started: POST /admin/settings?_csrf=Ebe0kA1Z-ZfvXEB6Q5K7EUrOGUXCq6AclwhU
+[DEBUG] Multer Error: Malformed part header
+[2025-12-17T23:19:55.809Z] POST /admin/settings?_csrf=Ebe0kA1Z-ZfvXEB6Q5K7EUrOGUXCq6AclwhU - ERROR: Malformed part header
+STACK: Error: Malformed part header
+    at SBMH.ssCb [as _cb] (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/busboy/lib/types/multipart.js:398:32)
+    at feed (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/streamsearch/lib/sbmh.js:248:10)
+    at SBMH.push (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/streamsearch/lib/sbmh.js:104:16)
+    at Multipart._write (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/busboy/lib/types/multipart.js:567:19)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at IncomingMessage.ondata (node:internal/streams/readable:1008:24)
+    at IncomingMessage.emit (node:events:507:28)
+    at Readable.read (node:internal/streams/readable:780:10)
+
+[2025-12-17T23:21:34.703Z] POST /admin/settings?_csrf=Y6WL28a9-6cQHkPMAVGXawOsuIqEDfxjp8ew - ERROR: req.csrfToken is not a function
+STACK: TypeError: req.csrfToken is not a function
+    at /Volumes/Ogz-Project/Projeler/bicerez/server/index.js:209:30
+    at Layer.handleRequest (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/router/index.js:342:13)
+    at /Volumes/Ogz-Project/Projeler/bicerez/node_modules/router/index.js:297:9
+    at processParams (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/router/index.js:582:12)
+    at next (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/router/index.js:291:5)
+    at /Volumes/Ogz-Project/Projeler/bicerez/server/index.js:204:12
+    at Layer.handleRequest (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/router/index.js:342:13)
+    at /Volumes/Ogz-Project/Projeler/bicerez/node_modules/router/index.js:297:9
+
+[DEBUG] Request started: POST /admin/settings?_csrf=qnFZEnIc-1eIVhuoGI7T9uysKjwGwWe4sl7A
+[DEBUG] Multer Error: Malformed part header
+[2025-12-17T23:22:33.512Z] POST /admin/settings?_csrf=qnFZEnIc-1eIVhuoGI7T9uysKjwGwWe4sl7A - ERROR: Malformed part header
+STACK: Error: Malformed part header
+    at SBMH.ssCb [as _cb] (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/busboy/lib/types/multipart.js:398:32)
+    at feed (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/streamsearch/lib/sbmh.js:248:10)
+    at SBMH.push (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/streamsearch/lib/sbmh.js:104:16)
+    at Multipart._write (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/busboy/lib/types/multipart.js:567:19)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at IncomingMessage.ondata (node:internal/streams/readable:1008:24)
+    at IncomingMessage.emit (node:events:507:28)
+    at Readable.read (node:internal/streams/readable:780:10)
+
+[DEBUG] Request started: POST /admin/settings?_csrf=dkAJ7I8Q-JK3hmKKMiKmNhVCx37GbqJzUZ78
+[DEBUG] Multer Error: Malformed part header
+[2025-12-17T23:24:34.005Z] POST /admin/settings?_csrf=dkAJ7I8Q-JK3hmKKMiKmNhVCx37GbqJzUZ78 - ERROR: Malformed part header
+STACK: Error: Malformed part header
+    at SBMH.ssCb [as _cb] (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/busboy/lib/types/multipart.js:398:32)
+    at feed (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/streamsearch/lib/sbmh.js:248:10)
+    at SBMH.push (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/streamsearch/lib/sbmh.js:104:16)
+    at Multipart._write (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/busboy/lib/types/multipart.js:567:19)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at IncomingMessage.ondata (node:internal/streams/readable:1008:24)
+    at IncomingMessage.emit (node:events:507:28)
+    at Readable.read (node:internal/streams/readable:780:10)
+
+[2025-12-17T23:27:09.723Z] POST /admin/settings?_csrf=Xnrvhzlp-xF_mA15lkB6LiMilccVt9sY__NI - ERROR: Malformed part header
+STACK: Error: Malformed part header
+    at SBMH.ssCb [as _cb] (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/busboy/lib/types/multipart.js:398:32)
+    at feed (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/streamsearch/lib/sbmh.js:248:10)
+    at SBMH.push (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/streamsearch/lib/sbmh.js:104:16)
+    at Multipart._write (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/busboy/lib/types/multipart.js:567:19)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at IncomingMessage.ondata (node:internal/streams/readable:1008:24)
+    at IncomingMessage.emit (node:events:507:28)
+    at Readable.read (node:internal/streams/readable:780:10)
+
+[2025-12-17T23:58:26.471Z] PUT /admin/products/1?_method=PUT - ERROR: invalid csrf token
+STACK: ForbiddenError: invalid csrf token
+    at csrf (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/csurf/index.js:112:19)
+    at /Volumes/Ogz-Project/Projeler/bicerez/server/index.js:218:3
+    at Layer.handleRequest (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/router/index.js:342:13)
+    at /Volumes/Ogz-Project/Projeler/bicerez/node_modules/router/index.js:297:9
+    at processParams (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/router/index.js:582:12)
+    at next (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/router/index.js:291:5)
+    at /Volumes/Ogz-Project/Projeler/bicerez/server/index.js:211:3
+    at Layer.handleRequest (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/router/lib/layer.js:152:17)
+    at trimPrefix (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/router/index.js:342:13)
+

@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html lang="tr">
-<%- include('../partials/shop-head', { title: 'Hesabım' }) %>
+  <%- include('../partials/shop-head', { title: 'Hesabım' }) %>
 <body>
   <%- include('../partials/shop-header') %>
+  <% const activeList = activeOrders || []; %>
+  <% const pastList = pastOrders || []; %>
   <main class="page">
-    <% const activeList = activeOrders || []; %>
-    <% const pastList = pastOrders || []; %>
+    <section class="container">
+      <%- include('../partials/flash') %>
+    </section>
     <section class="container">
       <div class="account-card">
         <header>
@@ -32,7 +35,8 @@
     <section class="container account-grid">
       <div class="account-panel">
         <h2>Profil Bilgileri</h2>
-        <form action="/account/profile" method="POST" class="account-form">
+        <form action="/account/profile" method="POST" class="account-form account-form--inline">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
           <label>
             Ad Soyad
             <input name="name" value="<%= currentUser.name %>" required>
@@ -41,100 +45,46 @@
             Telefon
             <input name="phone" value="<%= currentUser.phone || '' %>" placeholder="+90 ...">
           </label>
-          <button type="submit" class="btn btn-primary">Bilgileri Güncelle</button>
+          <button type="submit" class="btn btn-primary">Kaydet</button>
         </form>
       </div>
       <div class="account-panel">
         <h2>Adreslerim</h2>
-        <div class="address-group">
-          <h3>Teslimat Adresi</h3>
-          <form action="/account/address" method="POST" class="account-form">
-            <input type="hidden" name="type" value="shipping">
-            <label>
-              Başlık
-              <input name="title" value="<%= shippingAddress ? shippingAddress.title : '' %>" placeholder="Ev, Ofis...">
-            </label>
-            <label>
-              Alıcı
-              <input name="recipientName" value="<%= shippingAddress ? shippingAddress.recipientName : currentUser.name %>" required>
-            </label>
-            <label>
-              Telefon
-              <input name="phone" value="<%= shippingAddress ? shippingAddress.phone : currentUser.phone || '' %>" placeholder="+90 ...">
-            </label>
-            <label>
-              Adres
-              <textarea name="addressLine" required><%= shippingAddress ? shippingAddress.addressLine : '' %></textarea>
-            </label>
-            <label>
-              İlçe
-              <input name="district" value="<%= shippingAddress ? shippingAddress.district : '' %>">
-            </label>
-            <label>
-              Şehir
-              <input name="city" value="<%= shippingAddress ? shippingAddress.city : '' %>" required>
-            </label>
-            <label>
-              Posta Kodu
-              <input name="postalCode" value="<%= shippingAddress ? shippingAddress.postalCode : '' %>">
-            </label>
-            <label>
-              Ülke
-              <input name="country" value="<%= shippingAddress ? shippingAddress.country : 'Türkiye' %>">
-            </label>
-            <button type="submit" class="btn btn-primary">Teslimat Adresini Kaydet</button>
-          </form>
-          <% if (shippingAddress) { %>
-            <form action="/account/address?_method=DELETE" method="POST" class="address-delete-form">
-              <input type="hidden" name="type" value="shipping">
-              <button type="submit" class="btn btn-ghost">Teslimat adresini sil</button>
-            </form>
-          <% } %>
+        <div class="address-preview">
+          <div>
+            <h3>Teslimat</h3>
+            <% if (shippingAddress) { %>
+              <p>
+                <strong><%= shippingAddress.recipientName %></strong><br>
+                <%= shippingAddress.addressLine %><br>
+                <% if (shippingAddress.district) { %><%= shippingAddress.district %><br><% } %>
+                <%= shippingAddress.city %> <%= shippingAddress.postalCode || '' %><br>
+                <%= shippingAddress.country %><br>
+                <% if (shippingAddress.phone) { %><small>Tel: <%= shippingAddress.phone %></small><% } %>
+              </p>
+            <% } else { %>
+              <p>Henüz kayıtlı teslimat adresiniz yok.</p>
+            <% } %>
+          </div>
+          <div>
+            <h3>Fatura</h3>
+            <% if (billingAddress) { %>
+              <p>
+                <strong><%= billingAddress.recipientName %></strong><br>
+                <%= billingAddress.addressLine %><br>
+                <% if (billingAddress.district) { %><%= billingAddress.district %><br><% } %>
+                <%= billingAddress.city %> <%= billingAddress.postalCode || '' %><br>
+                <%= billingAddress.country %><br>
+                <% if (billingAddress.phone) { %><small>Tel: <%= billingAddress.phone %></small><% } %>
+              </p>
+            <% } else { %>
+              <p>Henüz kayıtlı fatura adresiniz yok.</p>
+            <% } %>
+          </div>
         </div>
-        <div class="address-group">
-          <h3>Fatura Adresi</h3>
-          <form action="/account/address" method="POST" class="account-form">
-            <input type="hidden" name="type" value="billing">
-            <label>
-              Başlık
-              <input name="title" value="<%= billingAddress ? billingAddress.title : '' %>" placeholder="Ev, Ofis...">
-            </label>
-            <label>
-              Alıcı
-              <input name="recipientName" value="<%= billingAddress ? billingAddress.recipientName : currentUser.name %>" required>
-            </label>
-            <label>
-              Telefon
-              <input name="phone" value="<%= billingAddress ? billingAddress.phone : currentUser.phone || '' %>" placeholder="+90 ...">
-            </label>
-            <label>
-              Adres
-              <textarea name="addressLine" required><%= billingAddress ? billingAddress.addressLine : '' %></textarea>
-            </label>
-            <label>
-              İlçe
-              <input name="district" value="<%= billingAddress ? billingAddress.district : '' %>">
-            </label>
-            <label>
-              Şehir
-              <input name="city" value="<%= billingAddress ? billingAddress.city : '' %>" required>
-            </label>
-            <label>
-              Posta Kodu
-              <input name="postalCode" value="<%= billingAddress ? billingAddress.postalCode : '' %>">
-            </label>
-            <label>
-              Ülke
-              <input name="country" value="<%= billingAddress ? billingAddress.country : 'Türkiye' %>">
-            </label>
-            <button type="submit" class="btn btn-primary">Fatura Adresini Kaydet</button>
-          </form>
-          <% if (billingAddress) { %>
-            <form action="/account/address?_method=DELETE" method="POST" class="address-delete-form">
-              <input type="hidden" name="type" value="billing">
-              <button type="submit" class="btn btn-ghost">Fatura adresini sil</button>
-            </form>
-          <% } %>
+        <div class="address-actions">
+          <button type="button" class="btn btn-primary" data-address-modal="shipping">Teslimat Adresi Düzenle</button>
+          <button type="button" class="btn btn-ghost" data-address-modal="billing">Fatura Adresi Düzenle</button>
         </div>
       </div>
     </section>
@@ -167,10 +117,12 @@
         <div class="subscription-actions">
           <% if (isSubscribed) { %>
             <form action="/subscriptions/cancel" method="POST">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
               <button type="submit" class="btn btn-ghost">Aboneliği İptal Et</button>
             </form>
           <% } else { %>
             <form action="/subscriptions" method="POST">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
               <button type="submit" class="btn btn-primary btn-lg">Tea Lab'e Katıl</button>
             </form>
           <% } %>
@@ -281,6 +233,156 @@
       </div>
     </section>
   </main>
+
+  <% if (currentUser) { %>
+    <div class="address-modal" data-modal="shipping">
+      <div class="address-modal__dialog">
+        <header>
+          <h2>Teslimat Adresini Düzenle</h2>
+          <button type="button" class="address-modal__close" data-modal-close>&times;</button>
+        </header>
+        <form action="/account/address" method="POST" class="account-form">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <input type="hidden" name="type" value="shipping">
+          <label>
+            Başlık
+            <input name="title" value="<%= shippingAddress ? shippingAddress.title : '' %>" placeholder="Ev, Ofis...">
+          </label>
+          <label>
+            Alıcı
+            <input name="recipientName" value="<%= shippingAddress ? shippingAddress.recipientName : currentUser.name %>" required>
+          </label>
+          <label>
+            Telefon
+            <input name="phone" value="<%= shippingAddress ? shippingAddress.phone : currentUser.phone || '' %>" placeholder="+90 ...">
+          </label>
+          <label>
+            Adres
+            <textarea name="addressLine" required><%= shippingAddress ? shippingAddress.addressLine : '' %></textarea>
+          </label>
+          <label>
+            İlçe
+            <input name="district" value="<%= shippingAddress ? shippingAddress.district : '' %>">
+          </label>
+          <label>
+            Şehir
+            <input name="city" value="<%= shippingAddress ? shippingAddress.city : '' %>" required>
+          </label>
+          <label>
+            Posta Kodu
+            <input name="postalCode" value="<%= shippingAddress ? shippingAddress.postalCode : '' %>">
+          </label>
+          <label>
+            Ülke
+            <input name="country" value="<%= shippingAddress ? shippingAddress.country : 'Türkiye' %>">
+          </label>
+          <div class="address-modal__actions">
+            <% if (shippingAddress) { %>
+              <button formaction="/account/address?_method=DELETE" formmethod="POST" class="btn btn-ghost" name="type" value="shipping">Adresi Sil</button>
+            <% } %>
+            <button type="submit" class="btn btn-primary">Kaydet</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="address-modal" data-modal="billing">
+      <div class="address-modal__dialog">
+        <header>
+          <h2>Fatura Adresini Düzenle</h2>
+          <button type="button" class="address-modal__close" data-modal-close>&times;</button>
+        </header>
+        <form action="/account/address" method="POST" class="account-form">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <input type="hidden" name="type" value="billing">
+          <label>
+            Başlık
+            <input name="title" value="<%= billingAddress ? billingAddress.title : '' %>" placeholder="Ev, Ofis...">
+          </label>
+          <label>
+            Alıcı
+            <input name="recipientName" value="<%= billingAddress ? billingAddress.recipientName : currentUser.name %>" required>
+          </label>
+          <label>
+            Telefon
+            <input name="phone" value="<%= billingAddress ? billingAddress.phone : currentUser.phone || '' %>" placeholder="+90 ...">
+          </label>
+          <label>
+            Adres
+            <textarea name="addressLine" required><%= billingAddress ? billingAddress.addressLine : '' %></textarea>
+          </label>
+          <label>
+            İlçe
+            <input name="district" value="<%= billingAddress ? billingAddress.district : '' %>">
+          </label>
+          <label>
+            Şehir
+            <input name="city" value="<%= billingAddress ? billingAddress.city : '' %>" required>
+          </label>
+          <label>
+            Posta Kodu
+            <input name="postalCode" value="<%= billingAddress ? billingAddress.postalCode : '' %>">
+          </label>
+          <label>
+            Ülke
+            <input name="country" value="<%= billingAddress ? billingAddress.country : 'Türkiye' %>">
+          </label>
+          <div class="address-modal__actions">
+            <% if (billingAddress) { %>
+              <button formaction="/account/address?_method=DELETE" formmethod="POST" class="btn btn-ghost" name="type" value="billing">Adresi Sil</button>
+            <% } %>
+            <button type="submit" class="btn btn-primary">Kaydet</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  <% } %>
+
   <%- include('../partials/shop-footer') %>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const openButtons = document.querySelectorAll('[data-address-modal]');
+      const closeButtons = document.querySelectorAll('[data-modal-close]');
+      const modals = document.querySelectorAll('.address-modal');
+
+      function toggleBody(state) {
+        if (state) {
+          document.body.classList.add('modal-open');
+        } else {
+          document.body.classList.remove('modal-open');
+        }
+      }
+
+      openButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          const target = button.getAttribute('data-address-modal');
+          const modal = document.querySelector(`.address-modal[data-modal="${target}"]`);
+          if (modal) {
+            modal.classList.add('is-open');
+            toggleBody(true);
+          }
+        });
+      });
+
+      closeButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          const modal = button.closest('.address-modal');
+          if (modal) {
+            modal.classList.remove('is-open');
+            toggleBody(false);
+          }
+        });
+      });
+
+      modals.forEach((modal) => {
+        modal.addEventListener('click', (event) => {
+          if (event.target === modal) {
+            modal.classList.remove('is-open');
+            toggleBody(false);
+          }
+        });
+      });
+    });
+  </script>
 </body>
 </html>

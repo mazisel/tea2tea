@@ -1,82 +1,490 @@
 <!DOCTYPE html>
 <html lang="tr">
-<%- include('../partials/admin-head', { title: 'Ayarlar' }) %>
-<body class="admin-app">
-  <%- include('../partials/admin-nav') %>
-  <main class="admin-main">
-    <header class="admin-page-header">
-      <div>
-        <h1>Mağaza Ayarları</h1>
-        <p>Site içeriğini, iletişim bilgilerini ve görselleri buradan yönetebilirsiniz.</p>
-      </div>
-    </header>
+<%- include('../partials/admin-head', { title: 'Site Ayarları' }) %>
 
-    <%- include('../partials/flash') %>
+  <body class="admin-app">
+    <%- include('../partials/admin-nav') %>
+      <main class="admin-main">
+        <header class="admin-page-header">
+          <div>
+            <h1>Site Ayarları</h1>
+            <p>Marka kimliğinizi, renklerinizi ve site içeriğini buradan yönetebilirsiniz.</p>
+          </div>
+        </header>
 
-    <form action="/admin/settings" method="POST" enctype="multipart/form-data" class="admin-form">
-      <header>
-        <h2>Genel Bilgiler</h2>
-      </header>
-      <div class="form-grid">
-        <label>
-          Mağaza Adı
-          <input name="site_name" value="<%= settings.site_name %>" required>
-        </label>
-        <label>
-          Hero Başlığı
-          <input name="hero_title" value="<%= settings.hero_title %>" required>
-        </label>
-        <label>
-          İletişim E-postası
-          <input name="contact_email" type="email" value="<%= settings.contact_email %>" required>
-        </label>
-        <label>
-          İletişim Telefonu
-          <input name="contact_phone" value="<%= settings.contact_phone %>">
-        </label>
-      </div>
-      <label>
-        Hero Alt Başlık
-        <textarea name="hero_subtitle" rows="3"><%= settings.hero_subtitle %></textarea>
-      </label>
-      <div class="form-grid">
-        <label>
-          Hero Görseli URL
-          <input name="store_banner" value="<%= settings.store_banner %>" placeholder="https://">
-        </label>
-        <label>
-          Bilgisayardan Yükle
-          <input type="file" name="bannerFile" accept="image/*">
-        </label>
-      </div>
-      <% if (settings.store_banner) { %>
-        <figure class="collection-tile__media" style="max-width: 320px;">
-          <img src="<%= settings.store_banner %>" alt="Hero Görseli">
-        </figure>
-      <% } %>
-      <div class="admin-actions">
-        <button type="submit" class="btn btn-primary">Ayarları Kaydet</button>
-      </div>
-    </form>
+        <%- include('../partials/flash') %>
 
-    <form action="/admin/settings/change-password" method="POST" class="admin-form">
-      <header>
-        <h2>Şifre Değiştir</h2>
-      </header>
-      <div class="form-grid">
-        <label>
-          Mevcut Şifre
-          <input name="currentPassword" type="password" required>
-        </label>
-        <label>
-          Yeni Şifre
-          <input name="newPassword" type="password" required minlength="6">
-        </label>
-      </div>
-      <div class="admin-actions">
-        <button type="submit" class="btn btn-outline">Şifreyi Güncelle</button>
-      </div>
-    </form>
-  </main>
-</body>
+          <div class="settings-tabs">
+            <nav class="settings-nav">
+              <button type="button" class="tab-btn active" data-tab="general">Genel & Marka</button>
+              <button type="button" class="tab-btn" data-tab="hero">Anasayfa: Hero</button>
+              <button type="button" class="tab-btn" data-tab="content">Anasayfa: İçerik</button>
+              <button type="button" class="tab-btn" data-tab="footer">Alt Bilgi</button>
+              <button type="button" class="tab-btn" data-tab="integrations">Entegrasyonlar</button>
+              <button type="button" class="tab-btn" data-tab="admins">Yöneticiler</button>
+            </nav>
+
+            <div class="tab-content active" id="general">
+              <form action="/admin/settings?_csrf=<%= csrfToken %>" method="POST" enctype="multipart/form-data"
+                class="admin-form">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <input type="hidden" name="form_section" value="general">
+
+                <section class="admin-panel">
+                  <div class="admin-panel__header">
+                    <h2>Kimlik & Logo</h2>
+                  </div>
+                  <div class="form-grid">
+                    <label>
+                      Site Adı
+                      <input name="site_name" value="<%= settings.site_name %>" required>
+                    </label>
+                  </div>
+                  <div class="form-grid">
+                    <label>
+                      Logo (Görsel)
+                      <input type="file" name="logo" accept="image/*">
+                      <% if (settings.logo_url) { %>
+                        <div
+                          style="margin-top: 0.5rem; padding: 0.5rem; background: #f0f1f3; border-radius: 8px; display: inline-block;">
+                          <img src="<%= settings.logo_url %>" alt="Mevcut Logo" style="height: 40px; width: auto;">
+                        </div>
+                        <% } %>
+                    </label>
+                    <label>
+                      Favicon (Görsel)
+                      <input type="file" name="favicon" accept="image/*">
+                      <% if (settings.favicon_url) { %>
+                        <div style="margin-top: 0.5rem;">
+                          <img src="<%= settings.favicon_url %>" alt="Mevcut Favicon"
+                            style="height: 32px; width: 32px;">
+                        </div>
+                        <% } %>
+                    </label>
+                  </div>
+                </section>
+
+                <section class="admin-panel">
+                  <div class="admin-panel__header">
+                    <h2>Renk Teması</h2>
+                  </div>
+                  <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));">
+                    <label>
+                      Birincil Renk
+                      <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <input type="color" value="<%= settings.primary_color %>"
+                          style="width: 50px; height: 50px; padding: 0; border: none; cursor: pointer;"
+                          oninput="this.nextElementSibling.value = this.value">
+                        <input type="text" name="primary_color" value="<%= settings.primary_color %>"
+                          style="width: 100px;">
+                      </div>
+                    </label>
+                    <label>
+                      İkincil Renk (Arkaplan)
+                      <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <input type="color" value="<%= settings.secondary_color %>"
+                          style="width: 50px; height: 50px; padding: 0; border: none; cursor: pointer;"
+                          oninput="this.nextElementSibling.value = this.value">
+                        <input type="text" name="secondary_color" value="<%= settings.secondary_color %>"
+                          style="width: 100px;">
+                      </div>
+                    </label>
+                    <label>
+                      Tema Rengi (Meta)
+                      <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <input type="color" value="<%= settings.theme_color %>"
+                          style="width: 50px; height: 50px; padding: 0; border: none; cursor: pointer;"
+                          oninput="this.nextElementSibling.value = this.value">
+                        <input type="text" name="theme_color" value="<%= settings.theme_color %>" style="width: 100px;">
+                      </div>
+                    </label>
+                  </div>
+                </section>
+
+                <section class="admin-panel">
+                  <div class="admin-panel__header">
+                    <h2>İletişim</h2>
+                  </div>
+                  <div class="form-grid">
+                    <label>
+                      E-posta
+                      <input name="contact_email" type="email" value="<%= settings.contact_email %>">
+                    </label>
+                    <label>
+                      Telefon
+                      <input name="contact_phone" type="tel" value="<%= settings.contact_phone %>">
+                    </label>
+                  </div>
+                </section>
+
+                <div class="admin-actions">
+                  <button type="submit" class="btn btn-primary">Ayarları Kaydet</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="tab-content" id="hero">
+              <form action="/admin/settings?_csrf=<%= csrfToken %>" method="POST" enctype="multipart/form-data"
+                class="admin-form">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <input type="hidden" name="form_section" value="hero">
+                <section class="admin-panel">
+                  <div class="admin-panel__header">
+                    <h2>Hero Alanı</h2>
+                  </div>
+
+                  <label>
+                    Banner Görseli
+                    <input type="file" name="store_banner" accept="image/*">
+                    <% if (settings.store_banner) { %>
+                      <div style="margin-top: 0.5rem; max-width: 300px;">
+                        <img src="<%= settings.store_banner %>" alt="Current Banner"
+                          style="border-radius: 8px; width: 100%; height: auto;">
+                      </div>
+                      <% } %>
+                  </label>
+
+                  <div class="form-grid">
+                    <label>
+                      Üst Başlık (Eyebrow)
+                      <input name="hero_eyebrow" value="<%= settings.hero_eyebrow %>">
+                    </label>
+                    <label>
+                      Ana Başlık
+                      <input name="hero_title" value="<%= settings.hero_title %>">
+                    </label>
+                  </div>
+                  <label>
+                    Alt Başlık
+                    <textarea name="hero_subtitle" rows="2"><%= settings.hero_subtitle %></textarea>
+                  </label>
+                  <div class="form-grid">
+                    <label>
+                      Buton 1 Metni
+                      <input name="hero_btn_text" value="<%= settings.hero_btn_text %>">
+                    </label>
+                    <label>
+                      Buton 1 Link
+                      <input name="hero_btn_link" value="<%= settings.hero_btn_link %>">
+                    </label>
+                    <label>
+                      Buton 2 Metni
+                      <input name="hero_btn2_text" value="<%= settings.hero_btn2_text %>">
+                    </label>
+                    <label>
+                      Buton 2 Link
+                      <input name="hero_btn2_link" value="<%= settings.hero_btn2_link %>">
+                    </label>
+                  </div>
+                </section>
+
+                <section class="admin-panel">
+                  <div class="admin-panel__header">
+                    <h2>Hero Metrikleri</h2>
+                  </div>
+                  <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+                    <label>Metrik 1 Değer <input name="hero_metric1_val"
+                        value="<%= settings.hero_metric1_val %>"></label>
+                    <label>Metrik 1 Etiket <input name="hero_metric1_label"
+                        value="<%= settings.hero_metric1_label %>"></label>
+
+                    <label>Metrik 2 Değer <input name="hero_metric2_val"
+                        value="<%= settings.hero_metric2_val %>"></label>
+                    <label>Metrik 2 Etiket <input name="hero_metric2_label"
+                        value="<%= settings.hero_metric2_label %>"></label>
+
+                    <label>Metrik 3 Değer <input name="hero_metric3_val"
+                        value="<%= settings.hero_metric3_val %>"></label>
+                    <label>Metrik 3 Etiket <input name="hero_metric3_label"
+                        value="<%= settings.hero_metric3_label %>"></label>
+                  </div>
+                </section>
+
+                <div class="admin-actions">
+                  <button type="submit" class="btn btn-primary">Ayarları Kaydet</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="tab-content" id="content">
+              <form action="/admin/settings?_csrf=<%= csrfToken %>" method="POST" class="admin-form">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <input type="hidden" name="form_section" value="content">
+
+                <section class="admin-panel">
+                  <div class="admin-panel__header">
+                    <h2>Koleksiyon Bölümü</h2>
+                  </div>
+                  <div class="form-grid">
+                    <label>Üst Başlık <input name="collection_eyebrow"
+                        value="<%= settings.collection_eyebrow %>"></label>
+                    <label>Başlık <input name="collection_title" value="<%= settings.collection_title %>"></label>
+                  </div>
+                  <label>Açıklama <textarea name="collection_desc"
+                      rows="2"><%= settings.collection_desc %></textarea></label>
+                </section>
+
+                <section class="admin-panel">
+                  <div class="admin-panel__header">
+                    <h2>Deneyim (Experience) Bölümü</h2>
+                  </div>
+                  <div class="form-grid">
+                    <label>Üst Başlık <input name="exp_eyebrow" value="<%= settings.exp_eyebrow %>"></label>
+                    <label>Başlık <input name="exp_title" value="<%= settings.exp_title %>"></label>
+                  </div>
+                  <label>Açıklama <textarea name="exp_desc" rows="2"><%= settings.exp_desc %></textarea></label>
+
+                  <h3 style="margin-top: 1rem; border-top: 1px solid var(--color-border); padding-top: 1rem;">Deneyim
+                    Maddeleri</h3>
+                  <div class="form-grid">
+                    <div>
+                      <label>Madde 1 Başlık <input name="exp_p1_title" value="<%= settings.exp_p1_title %>"></label>
+                      <label>Madde 1 Açıklama <textarea name="exp_p1_desc"
+                          rows="2"><%= settings.exp_p1_desc %></textarea></label>
+                    </div>
+                    <div>
+                      <label>Madde 2 Başlık <input name="exp_p2_title" value="<%= settings.exp_p2_title %>"></label>
+                      <label>Madde 2 Açıklama <textarea name="exp_p2_desc"
+                          rows="2"><%= settings.exp_p2_desc %></textarea></label>
+                    </div>
+                    <div>
+                      <label>Madde 3 Başlık <input name="exp_p3_title" value="<%= settings.exp_p3_title %>"></label>
+                      <label>Madde 3 Açıklama <textarea name="exp_p3_desc"
+                          rows="2"><%= settings.exp_p3_desc %></textarea></label>
+                    </div>
+                  </div>
+                </section>
+
+
+
+                <div class="admin-actions">
+                  <button type="submit" class="btn btn-primary">Ayarları Kaydet</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="tab-content" id="footer">
+              <form action="/admin/settings" method="POST" class="admin-form">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <input type="hidden" name="form_section" value="footer">
+                <section class="admin-panel">
+                  <div class="admin-panel__header">
+                    <h2>Alt Bilgi (Footer)</h2>
+                  </div>
+                  <label>Footer Açıklaması <textarea name="footer_desc"
+                      rows="3"><%= settings.footer_desc %></textarea></label>
+                </section>
+                <div class="admin-actions">
+                  <button type="submit" class="btn btn-primary">Ayarları Kaydet</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="tab-content" id="integrations">
+              <form action="/admin/settings?_csrf=<%= csrfToken %>" method="POST" class="admin-form">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <input type="hidden" name="form_section" value="integrations">
+
+                <section class="admin-panel">
+                  <div class="admin-panel__header">
+                    <h2>E-posta (SMTP)</h2>
+                  </div>
+                  <div class="form-grid">
+                    <label>
+                      SMTP Host
+                      <input name="smtp_host" value="<%= settings.smtp_host %>" placeholder="smtp.example.com">
+                    </label>
+                    <label>
+                      SMTP Port
+                      <input name="smtp_port" type="number" value="<%= settings.smtp_port %>" placeholder="587">
+                    </label>
+                    <label>
+                      Kullanıcı Adı (Email)
+                      <input name="smtp_user" value="<%= settings.smtp_user %>">
+                    </label>
+                    <label>
+                      Şifre
+                      <input name="smtp_pass" type="password" placeholder="Değiştirmek için yeni şifre girin">
+                    </label>
+                  </div>
+                  <div class="form-grid">
+                    <label class="toggle" style="margin-top: 1rem;">
+                      <input type="checkbox" name="smtp_secure" value="1" <%=settings.smtp_secure==='1' ? 'checked' : ''
+                        %>>
+                      <span>SSL/TLS Kullan (Secure)</span>
+                    </label>
+                  </div>
+                  <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--color-border);">
+                    <h3>Test Maili Gönder</h3>
+                    <p style="font-size: 0.9em; color: var(--color-muted);">Ayarlarınızı kaydettikten sonra test
+                      edebilirsiniz.</p>
+                    <div style="display: flex; gap: 1rem; align-items: flex-end;">
+                      <input form="test-mail-form" type="email" name="to" placeholder="Alıcı E-posta" required
+                        style="flex: 1;">
+                      <button form="test-mail-form" type="submit" class="btn btn-outline">Test Gönder</button>
+                    </div>
+                  </div>
+                </section>
+
+                <section class="admin-panel">
+                  <div class="admin-panel__header">
+                    <h2>Ödeme (PayTR)</h2>
+                  </div>
+                  <div class="form-grid">
+                    <label>
+                      Merchant ID
+                      <input name="paytr_merchant_id" value="<%= settings.paytr_merchant_id %>">
+                    </label>
+                    <label>
+                      Merchant Key
+                      <input name="paytr_merchant_key" value="<%= settings.paytr_merchant_key %>">
+                    </label>
+                    <label>
+                      Merchant Salt
+                      <input name="paytr_merchant_salt" value="<%= settings.paytr_merchant_salt %>">
+                    </label>
+                  </div>
+                  <div class="form-grid">
+                    <label class="toggle">
+                      <input type="checkbox" name="paytr_test_mode" value="1" <%=settings.paytr_test_mode==='1'
+                        ? 'checked' : '' %>>
+                      <span>Test Modu</span>
+                    </label>
+                    <label class="toggle">
+                      <input type="checkbox" name="paytr_debug" value="1" <%=settings.paytr_debug==='1' ? 'checked' : ''
+                        %>>
+                      <span>Debug Modu</span>
+                    </label>
+                  </div>
+                </section>
+
+                <div class="admin-actions">
+                  <button type="submit" class="btn btn-primary">Ayarları Kaydet</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="tab-content" id="admins">
+              <section class="admin-panel">
+                <div class="admin-panel__header">
+                  <h2>Yöneticiler</h2>
+                </div>
+                <p>Yeni bir yönetici hesabı oluşturun.</p>
+                <form action="/admin/admins" method="POST" class="form-grid" style="align-items: flex-end;">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <label>
+                    Kullanıcı Adı
+                    <input name="username" required autocomplete="off">
+                  </label>
+                  <label>
+                    Şifre
+                    <input name="password" type="password" minlength="10" required autocomplete="new-password">
+                  </label>
+                  <button type="submit" class="btn btn-outline">Yönetici Ekle</button>
+                </form>
+              </section>
+            </div>
+          </div>
+
+          <!-- Hidden Form for Test Mail -->
+          <form id="test-mail-form" action="/admin/settings/test-mail" method="POST" style="display: none;">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          </form>
+
+          <style>
+            .settings-tabs {
+              display: flex;
+              flex-direction: column;
+              gap: 2rem;
+            }
+
+            .settings-nav {
+              display: flex;
+              flex-wrap: wrap;
+              gap: 0.5rem;
+              border-bottom: 2px solid var(--color-border);
+              padding-bottom: 0.5rem;
+            }
+
+            .tab-btn {
+              background: none;
+              border: none;
+              padding: 0.75rem 1.25rem;
+              font-weight: 500;
+              font-size: 1rem;
+              color: var(--color-muted);
+              cursor: pointer;
+              border-radius: 8px;
+              transition: all 0.2s;
+            }
+
+            .tab-btn:hover {
+              background-color: var(--color-surface-muted);
+              color: var(--color-text);
+            }
+
+            .tab-btn.active {
+              background-color: var(--color-surface-muted);
+              color: var(--color-accent);
+              font-weight: 600;
+            }
+
+            .tab-content {
+              display: none;
+            }
+
+            .tab-content.active {
+              display: block;
+              animation: fadeIn 0.3s ease;
+            }
+
+            @keyframes fadeIn {
+              from {
+                opacity: 0;
+                transform: translateY(5px);
+              }
+
+              to {
+                opacity: 1;
+                transform: translateY(0);
+              }
+            }
+          </style>
+          <script>
+            document.addEventListener('DOMContentLoaded', () => {
+              const tabs = document.querySelectorAll('.tab-btn');
+              const contents = document.querySelectorAll('.tab-content');
+
+              // Restore active tab from localStorage
+              const savedTab = localStorage.getItem('activeSettingsTab');
+              if (savedTab) {
+                const tabBtn = document.querySelector(`.tab-btn[data-tab="${savedTab}"]`);
+                if (tabBtn) {
+                  tabs.forEach(t => t.classList.remove('active'));
+                  contents.forEach(c => c.classList.remove('active'));
+                  tabBtn.classList.add('active');
+                  const content = document.getElementById(savedTab);
+                  if (content) content.classList.add('active');
+                }
+              }
+
+              tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                  const targetId = tab.dataset.tab;
+                  const content = document.getElementById(targetId);
+                  if (!content) return;
+
+                  tabs.forEach(t => t.classList.remove('active'));
+                  contents.forEach(c => c.classList.remove('active'));
+
+                  tab.classList.add('active');
+                  content.classList.add('active');
+                  localStorage.setItem('activeSettingsTab', targetId);
+                });
+              });
+            });
+          </script>
+      </main>
+  </body>
+
 </html>

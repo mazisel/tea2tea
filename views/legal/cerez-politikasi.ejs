@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="tr">
+<%- include('../partials/shop-head', { title: 'Çerez Politikası' }) %>
+<body>
+  <%- include('../partials/shop-header') %>
+  <main class="page page-legal">
+    <section class="legal-hero">
+      <div class="container">
+        <span class="eyebrow">Çerez Yönetimi</span>
+        <h1>Çerez Politikası</h1>
+        <p>Bu politika, <strong><%= settings.site_name %></strong> tarafından işletilen web sitesinde kullanılan çerezlerin türlerini ve kullanım amaçlarını açıklamaktadır.</p>
+      </div>
+    </section>
+
+    <article class="container legal-content">
+      <section>
+        <h2>1. Çerez Nedir?</h2>
+        <p>Çerezler, ziyaret ettiğiniz internet siteleri tarafından tarayıcınıza veya cihazınıza yerleştirilen küçük metin dosyalarıdır. Çerezler aracılığıyla site deneyiminiz özelleştirilebilir ve site performansı ölçümlenebilir.</p>
+      </section>
+
+      <section>
+        <h2>2. Kullanılan Çerez Türleri</h2>
+        <ul>
+          <li><strong>Zorunlu Çerezler:</strong> Siteyi güvenli biçimde görüntülemek ve temel işlevleri çalıştırmak için gereklidir. Bu çerezler olmadan site düzgün çalışmaz.</li>
+          <li><strong>Analitik Çerezler:</strong> Site ziyaretlerinin ve trafik kaynaklarının analiz edilmesini sağlar. İstatistiksel bilgiler anonim şekilde tutulur.</li>
+          <li><strong>Pazarlama Çerezleri:</strong> Kullanıcı tercihleri doğrultusunda kişiselleştirilmiş içerik ve kampanyalar sunmak için kullanılır.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>3. Çerezleri Yönetme</h2>
+        <p>Web sitemizdeki <button class="link-button" type="button" data-cookie-open>Çerez Tercihleri</button> paneli aracılığıyla analitik ve pazarlama çerezleri için izinlerinizi dilediğiniz zaman güncelleyebilirsiniz. Ayrıca tarayıcı ayarlarınızı kullanarak çerezleri silebilir veya devre dışı bırakabilirsiniz.</p>
+      </section>
+
+      <section>
+        <h2>4. Üçüncü Taraf Çerezleri</h2>
+        <p>Çerez tercihlerinize bağlı olarak, üçüncü taraf analiz ve reklam sağlayıcılarının çerezleri kullanılabilir. Üçüncü taraf sağlayıcıların çerez politikaları ilgili platformlardan temin edilebilir.</p>
+      </section>
+
+      <section>
+        <h2>5. Veri Güvenliği</h2>
+        <p>Çerezler aracılığıyla toplanan kişisel veriler, KVKK ve ilgili mevzuat kapsamında korunur. Detaylı bilgi için <a href="/kvkk-aydinlatma-metni">KVKK Aydınlatma Metni</a> sayfasını inceleyebilirsiniz.</p>
+      </section>
+
+      <section>
+        <h2>6. Politika Değişiklikleri</h2>
+        <p>Bu çerez politikası, teknolojik gelişmeler ve mevzuat değişiklikleri doğrultusunda güncellenebilir. Güncel politika her zaman <%= settings.site_name %> internet sitesinde yayınlanır.</p>
+      </section>
+    </article>
+  </main>
+  <%- include('../partials/shop-footer') %>
+</body>
+</html>

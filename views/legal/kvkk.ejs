@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="tr">
+<%- include('../partials/shop-head', { title: 'KVKK Aydınlatma Metni' }) %>
+<body>
+  <%- include('../partials/shop-header') %>
+  <main class="page page-legal">
+    <section class="legal-hero">
+      <div class="container">
+        <span class="eyebrow">Kişisel Verilerin Korunması</span>
+        <h1>KVKK Aydınlatma Metni</h1>
+        <p>Bu metin, <strong><%= settings.site_name %></strong> tarafından kişisel verilerin işlenmesine ilişkin olarak 6698 sayılı Kişisel Verilerin Korunması Kanunu (“KVKK”) kapsamında bilgi vermek amacıyla hazırlanmıştır.</p>
+      </div>
+    </section>
+
+    <article class="container legal-content">
+      <section>
+        <h2>1. Veri Sorumlusu</h2>
+        <p><strong>Veri Sorumlusu:</strong> <%= settings.site_name %></p>
+        <p><strong>İletişim:</strong> <a href="mailto:<%= settings.contact_email %>"><%= settings.contact_email %></a> &bull; Tel: <%= settings.contact_phone %></p>
+      </section>
+
+      <section>
+        <h2>2. İşlenen Kişisel Veriler</h2>
+        <p>Aşağıdaki kişisel veriler işlenebilmektedir:</p>
+        <ul>
+          <li>Kimlik bilgileri (ad, soyad, T.C. kimlik numarası - opsiyonel)</li>
+          <li>İletişim bilgileri (e-posta, telefon, adres)</li>
+          <li>Sipariş ve ödeme bilgileri (sipariş detayları, fatura bilgileri, ödeme yöntemi)</li>
+          <li>Hizmet kullanım ve işlem güvenliği bilgileri (IP adresi, cihaz bilgileri, log kayıtları)</li>
+          <li>Pazarlama tercihleri ve çerez verileri (açık rıza ile toplanan bilgiler)</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>3. Kişisel Verilerin İşlenme Amaçları</h2>
+        <ul>
+          <li>Siparişlerin alınması, hazırlanması ve teslimat süreçlerinin yürütülmesi</li>
+          <li>Müşteri hizmetleri, destek ve iade taleplerinin yönetimi</li>
+          <li>Ürün ve hizmetlere ilişkin bilgilendirmelerin paylaşılması</li>
+          <li>Şirket faaliyetlerinin mevzuata uygun şekilde yürütülmesi ve raporlanması</li>
+          <li>Hukuki yükümlülüklerin yerine getirilmesi ve yetkili kurum taleplerine cevap verilmesi</li>
+          <li>Açık rıza alınması halinde kampanya ve pazarlama iletişimlerinin gerçekleştirilmesi</li>
+          <li>İnternet sitesi deneyiminin geliştirilmesi ve güvenliğin sağlanması</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>4. Kişisel Verilerin Aktarımı</h2>
+        <p>Kişisel veriler, kanunen yetkili kamu kurum/kuruluşlarına, sözleşmesel yükümlülüklerin yerine getirilebilmesi amacıyla iş ortaklarına (kargo şirketleri, ödeme hizmet sağlayıcıları, çağrı merkezi vb.) ve gerektiğinde yurt içindeki bulut hizmet sağlayıcılarına aktarılabilir. Yurt dışına aktarım yapılması halinde ilgili kişiden açık rıza alınır.</p>
+      </section>
+
+      <section>
+        <h2>5. Toplama Yöntemi ve Hukuki Sebep</h2>
+        <p>Kişisel veriler, internet sitesi, mobil uygulama, elektronik posta, çağrı merkezi ve fiziksel formlar üzerinden otomatik veya otomatik olmayan yöntemlerle toplanmaktadır. Veriler; KVKK’nın 5. ve 6. maddelerinde belirtilen sözleşmenin kurulması ve ifası, hukuki yükümlülüğün yerine getirilmesi, meşru menfaat ve açık rıza hukuki sebeplerine dayanarak işlenmektedir.</p>
+      </section>
+
+      <section>
+        <h2>6. Saklama Süreleri</h2>
+        <p>Kişisel veriler, ilgili mevzuatta öngörülen süreler boyunca saklanmakta; söz konusu sürelerin sona ermesi halinde periyodik imha prosedürleri ile silinmekte, yok edilmekte veya anonim hale getirilmektedir.</p>
+      </section>
+
+      <section>
+        <h2>7. Veri Sahibi Hakları</h2>
+        <p>KVKK’nın 11. maddesi kapsamında veri sahibi olarak aşağıdaki haklara sahipsiniz:</p>
+        <ul>
+          <li>Kişisel veri işlenip işlenmediğini öğrenme,</li>
+          <li>İşlenen kişisel veriler hakkında bilgi talep etme,</li>
+          <li>Verilerin işlenme amacını ve bunların amacına uygun kullanılıp kullanılmadığını öğrenme,</li>
+          <li>Verilerin aktarıldığı üçüncü kişileri bilme,</li>
+          <li>Eksik veya yanlış işlenen verilerin düzeltilmesini isteme,</li>
+          <li>İşlenmesini gerektiren sebeplerin ortadan kalkması halinde verilerin silinmesini veya yok edilmesini isteme,</li>
+          <li>İşlenen verilerin münhasıran otomatik sistemler vasıtasıyla analiz edilmesi suretiyle aleyhinize bir sonucun ortaya çıkmasına itiraz etme,</li>
+          <li>Kanuna aykırı veri işlenmesi sebebiyle zarara uğramanız halinde zararın giderilmesini talep etme.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>8. Başvuru Yöntemi</h2>
+        <p>Haklarınıza ilişkin taleplerinizi, kimlik doğrulaması yapılabilecek iletişim bilgileriyle birlikte <a href="mailto:<%= settings.contact_email %>"><%= settings.contact_email %></a> adresine e-posta göndererek veya yazılı dilekçe ile bize iletebilirsiniz. Talepleriniz en geç 30 gün içinde ücretsiz olarak sonuçlandırılır; işlemin ayrıca bir maliyet gerektirmesi halinde KVKK tarafından belirlenen tarifeye göre ücret talep edilebilir.</p>
+      </section>
+
+      <section>
+        <h2>9. Güncellemeler</h2>
+        <p>İşbu metin, mevzuatta meydana gelebilecek değişiklikler ve operasyonel gereksinimler doğrultusunda güncellenebilir. Güncel metin her zaman <%= settings.site_name %> web sitesinde yayımlanır.</p>
+      </section>
+    </article>
+  </main>
+  <%- include('../partials/shop-footer') %>
+</body>
+</html>

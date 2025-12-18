@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="tr">
+<%- include('../../partials/admin-head', { title: 'Müşteriler' }) %>
+<body class="admin-app">
+  <%- include('../../partials/admin-nav') %>
+  <main class="admin-main">
+    <header class="admin-page-header">
+      <div>
+        <h1>Müşteriler</h1>
+        <p>Hesap açan kullanıcıları görüntüleyin, sipariş sayılarını takip edin.</p>
+      </div>
+    </header>
+
+    <%- include('../../partials/flash') %>
+
+    <section class="admin-panel">
+      <% if (customers.length === 0) { %>
+        <div class="empty-state">
+          <h3>Kayıtlı müşteri bulunmuyor</h3>
+          <p>Kullanıcılar hesabı kayıt ettiğinde burada listelenecek.</p>
+        </div>
+      <% } else { %>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Ad Soyad</th>
+              <th>E-posta</th>
+              <th>Telefon</th>
+              <th>Üyelik Tarihi</th>
+              <th>Sipariş Sayısı</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% customers.forEach(customer => { %>
+              <tr>
+                <td><%= customer.id %></td>
+                <td><%= customer.name %></td>
+                <td><a href="mailto:<%= customer.email %>"><%= customer.email %></a></td>
+                <td><%= customer.phone || '—' %></td>
+                <td><%= new Date(customer.createdAt).toLocaleString('tr-TR') %></td>
+                <td><%= customer.orderCount %></td>
+                <td><a class="btn btn-link" href="/admin/customers/<%= customer.id %>">Detay</a></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      <% } %>
+    </section>
+  </main>
+</body>
+</html>

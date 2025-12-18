@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="tr">
+<%- include('../../partials/admin-head', { title: 'Kategoriler' }) %>
+
+    <body class="admin-app">
+        <%- include('../../partials/admin-nav') %>
+            <main class="admin-main">
+                <header class="admin-page-header">
+                    <div>
+                        <h1>Kategoriler</h1>
+                        <p>Mağazanızdaki ürünleri organize etmek için kategorileri yönetin.</p>
+                    </div>
+                    <a class="btn btn-primary" href="/admin/categories/new">Yeni Kategori</a>
+                </header>
+
+                <%- include('../../partials/flash') %>
+
+                    <section class="admin-panel">
+                        <% if (categories.length===0) { %>
+                            <div class="empty-state">
+                                <h3>Henüz kategori oluşturulmadı</h3>
+                                <p>Ürünlerinizi gruplamak için ilk kategorinizi ekleyin.</p>
+                                <a class="btn btn-primary" href="/admin/categories/new">Kategori Ekle</a>
+                            </div>
+                            <% } else { %>
+                                <table class="admin-table">
+                                    <thead>
+                                        <tr>
+                                            <th>İsim</th>
+                                            <th>Slug</th>
+                                            <th>Oluşturulma</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% categories.forEach(category=> { %>
+                                            <tr>
+                                                <td><strong>
+                                                        <%= category.name %>
+                                                    </strong></td>
+                                                <td>
+                                                    <%= category.slug %>
+                                                </td>
+                                                <td>
+                                                    <%= new Date(category.createdAt).toLocaleDateString('tr-TR') %>
+                                                </td>
+                                                <td class="table-actions">
+                                                    <a class="btn btn-link"
+                                                        href="/admin/categories/<%= category.id %>/edit">Düzenle</a>
+                                                    <form action="/admin/categories/<%= category.id %>?_method=DELETE"
+                                                        method="POST"
+                                                        onsubmit="return confirm('Bu kategoriyi silmek istediğinize emin misiniz?');">
+                                                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                                        <button type="submit"
+                                                            class="btn btn-link btn-danger">Sil</button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                            <% }) %>
+                                    </tbody>
+                                </table>
+                                <% } %>
+                    </section>
+            </main>
+    </body>
+
+</html>

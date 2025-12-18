@@ -1,77 +1,94 @@
 <!DOCTYPE html>
 <html lang="tr">
 <%- include('../partials/shop-head', { title: product.name }) %>
-<body>
-  <%- include('../partials/shop-header') %>
-  <main class="page page-product">
-    <section class="product-hero">
-      <div class="container product-hero-inner">
-        <nav class="breadcrumbs">
-          <a href="/">Mağaza</a>
-          <span>/</span>
-          <span><%= product.name %></span>
-        </nav>
-        <div class="product-hero-copy">
-          <h1><%= product.name %></h1>
-          <p><%= product.description %></p>
-          <div class="hero-meta">
-            <span class="price"><%= product.price.toFixed(2) %> ₺</span>
-            <span class="stock">Stok: <%= product.stock %> adet</span>
-          </div>
-        </div>
-      </div>
-    </section>
 
-    <section class="container product-detail">
-      <%- include('../partials/flash') %>
-      <div class="product-gallery">
-        <% if (product.imageUrl) { %>
-          <img src="<%= product.imageUrl %>" alt="<%= product.name %>">
-        <% } else { %>
-          <div class="image-placeholder">
-            <span>Görsel Yakında</span>
+  <body>
+    <%- include('../partials/shop-header') %>
+      <main class="page page-product">
+        <section class="product-hero">
+          <div class="container product-hero-inner">
+            <nav class="breadcrumbs">
+              <a href="/">Mağaza</a>
+              <span>/</span>
+              <span>
+                <%= product.name %>
+              </span>
+            </nav>
+            <div class="product-hero-copy">
+              <h1>
+                <%= product.name %>
+              </h1>
+              <p>
+                <%= product.description %>
+              </p>
+              <div class="hero-meta">
+                <span class="price">
+                  <%= product.price.toFixed(2) %> ₺
+                </span>
+                <span class="stock">Stok: <%= product.stock %> adet</span>
+              </div>
+            </div>
           </div>
-        <% } %>
-      </div>
-      <aside class="product-info">
-        <div class="product-summary">
-          <form action="/cart/add" method="POST" class="add-form">
-            <input type="hidden" name="productId" value="<%= product.id %>">
-            <label>
-              Adet
-              <input type="number" name="quantity" value="1" min="1">
-            </label>
-            <button type="submit" class="btn btn-primary btn-lg">Sepete Ekle</button>
-            <a href="/cart" class="btn btn-ghost">Sepeti Gör</a>
-          </form>
-          <ul class="summary-meta">
-            <li>
-              <span>Paket</span>
-              <strong><%= product.grams %> g</strong>
-            </li>
-            <li>
-              <span>İçerik</span>
-              <strong>Doğal yaprak çay harmanı</strong>
-            </li>
-            <li>
-              <span>Demleme Önerisi</span>
-              <strong>90°C • 3 dk • 250 ml</strong>
-            </li>
-            <li>
-              <span>Teslimat</span>
-              <strong>24 saat içinde kargoda</strong>
-            </li>
-          </ul>
-        </div>
-        <article class="product-story">
-          <h2>Notalar</h2>
-          <p>Floral aromalar, hafif narenciye notaları ve dengeli gövde. Tek başına ya da minimal eşlikçilerle kusursuz.</p>
-          <h3>Tea2Tea tarafından</h3>
-          <p>Her harmanımız, uzman tadım ekibimizin kürasyonu ile ortaya çıkıyor. Kaynağından fincana kadar şeffaflık sözümüzdür.</p>
-        </article>
-      </aside>
-    </section>
-  </main>
-  <%- include('../partials/shop-footer') %>
-</body>
+        </section>
+
+        <section class="container product-detail">
+          <%- include('../partials/flash') %>
+            <div class="product-gallery">
+              <% if (product.imageUrl) { %>
+                <img src="<%= product.imageUrl %>" alt="<%= product.name %>">
+                <% } else { %>
+                  <div class="image-placeholder">
+                    <span>Görsel Yakında</span>
+                  </div>
+                  <% } %>
+            </div>
+            <aside class="product-info">
+              <div class="product-summary">
+                <form action="/cart/add" method="POST" class="add-form">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <input type="hidden" name="productId" value="<%= product.id %>">
+                  <label>
+                    Adet
+                    <input type="number" name="quantity" value="1" min="1">
+                  </label>
+                  <button type="submit" class="btn btn-primary btn-lg">Sepete Ekle</button>
+                  <a href="/cart" class="btn btn-ghost">Sepeti Gör</a>
+                </form>
+                <ul class="summary-meta">
+                  <li>
+                    <span>Paket</span>
+                    <strong>
+                      <%= product.grams %> g
+                    </strong>
+                  </li>
+                  <li>
+                    <span>İçerik</span>
+                    <strong>Doğal yaprak çay harmanı</strong>
+                  </li>
+                  <li>
+                    <span>Demleme Önerisi</span>
+                    <strong>90°C • 3 dk • 250 ml</strong>
+                  </li>
+                  <li>
+                    <span>Teslimat</span>
+                    <strong>24 saat içinde kargoda</strong>
+                  </li>
+                </ul>
+              </div>
+              <article class="product-story">
+                <h2>Notalar</h2>
+                <p>Floral aromalar, hafif narenciye notaları ve dengeli gövde. Tek başına ya da minimal eşlikçilerle
+                  kusursuz.</p>
+                <h3>
+                  <%= settings.site_name %> tarafından
+                </h3>
+                <p>Her harmanımız, uzman tadım ekibimizin kürasyonu ile ortaya çıkıyor. Kaynağından fincana kadar
+                  şeffaflık sözümüzdür.</p>
+              </article>
+            </aside>
+        </section>
+      </main>
+      <%- include('../partials/shop-footer') %>
+  </body>
+
 </html>

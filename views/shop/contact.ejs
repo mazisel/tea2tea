@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="tr">
+<%- include('../partials/shop-head', { title: title }) %>
+
+    <body>
+        <%- include('../partials/shop-header') %>
+
+            <main class="page page-contact">
+                <div class="container container-narrow">
+                    <header class="page-header">
+                        <h1>
+                            <%= settings.contact_title %>
+                        </h1>
+                    </header>
+
+                    <div class="contact-grid">
+                        <div class="contact-info typography">
+                            <%- settings.contact_content %>
+
+                                <div class="contact-details">
+                                    <% if (settings.contact_address) { %>
+                                        <div class="contact-item">
+                                            <h3>Adres</h3>
+                                            <p>
+                                                <%= settings.contact_address %>
+                                            </p>
+                                        </div>
+                                        <% } %>
+
+                                            <% if (settings.contact_email) { %>
+                                                <div class="contact-item">
+                                                    <h3>E-posta</h3>
+                                                    <p><a href="mailto:<%= settings.contact_email %>">
+                                                            <%= settings.contact_email %>
+                                                        </a></p>
+                                                </div>
+                                                <% } %>
+
+                                                    <% if (settings.contact_phone) { %>
+                                                        <div class="contact-item">
+                                                            <h3>Telefon</h3>
+                                                            <p><a href="tel:<%= settings.contact_phone %>">
+                                                                    <%= settings.contact_phone %>
+                                                                </a></p>
+                                                        </div>
+                                                        <% } %>
+                                </div>
+                        </div>
+
+                        <% if (settings.contact_map_url) { %>
+                            <div class="contact-map">
+                                <iframe src="<%= settings.contact_map_url %>" width="100%" height="400"
+                                    style="border:0;" allowfullscreen="" loading="lazy"
+                                    referrerpolicy="no-referrer-when-downgrade"></iframe>
+                            </div>
+                            <% } %>
+                    </div>
+                </div>
+            </main>
+
+            <%- include('../partials/shop-footer') %>
+    </body>
+
+</html>

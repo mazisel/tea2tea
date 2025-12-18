@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="tr">
+<%- include('../partials/shop-head', { title: 'Mesafeli Satış Sözleşmesi' }) %>
+<body>
+  <%- include('../partials/shop-header') %>
+  <main class="page page-legal">
+    <section class="legal-hero">
+      <div class="container">
+        <span class="eyebrow">Hukuki Metin</span>
+        <h1>Mesafeli Satış Sözleşmesi</h1>
+        <p>Bu sözleşme, <strong><%= settings.site_name %></strong> üzerinden gerçekleştirilen tüm satışlar için geçerlidir.</p>
+      </div>
+    </section>
+
+    <article class="container legal-content">
+      <section>
+        <h2>1. Taraflar</h2>
+        <p><strong>Satıcı:</strong> <%= settings.site_name %> (<a href="mailto:<%= settings.contact_email %>"><%= settings.contact_email %></a>, Tel: <%= settings.contact_phone %>)</p>
+        <p><strong>Alıcı:</strong> İnternet sitesine üye olan veya üye olmadan alışveriş yapan kişi (müşteri).</p>
+      </section>
+
+      <section>
+        <h2>2. Tanımlar</h2>
+        <ul>
+          <li><strong>Site:</strong> <%= settings.site_name %> markasına ait <span><%= settings.contact_email %></span> iletişim adresinde yer alan e-ticaret platformunu,</li>
+          <li><strong>Ürün / Hizmet:</strong> Site üzerinden satışa sunulan tüm fiziksel ve dijital ürünleri,</li>
+          <li><strong>Elektronik Ortam:</strong> İnternet bağlantısı bulunan her türlü cihaz aracılığıyla erişilebilen platformu,</li>
+          <li><strong>Tüketici:</strong> Ticari veya mesleki olmayan amaçlarla siteyi kullanan gerçek kişiyi ifade eder.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>3. Sözleşmenin Konusu</h2>
+        <p>Bu sözleşme, alıcının <%= settings.site_name %> internet sitesi üzerinden elektronik ortamda siparişini verdiği ürün/hizmetin nitelikleri, satış fiyatı, ödeme ve teslimat şartları ile tarafların hak ve yükümlülüklerini düzenler.</p>
+      </section>
+
+      <section>
+        <h2>4. Ürün Bilgileri ve Ödeme</h2>
+        <ul>
+          <li>Ürünlerin temel nitelikleri, vergiler dâhil satış fiyatı ve teslimat bilgileri sipariş öncesinde alıcının bilgisine sunulur.</li>
+          <li>Ödeme işlemi, site üzerinde belirtilen güvenli ödeme altyapıları aracılığıyla yapılır. Ödeme onaylanmadığı sürece sipariş işleme alınmaz.</li>
+          <li>Kur farkı nedeniyle oluşabilecek fiyat değişiklikleri, banka komisyonları ve taksit farkları alıcının sorumluluğundadır.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>5. Teslimat ve Kargo</h2>
+        <ul>
+          <li>Sipariş onayından itibaren ürünler, stok durumu ve lojistik yoğunluğuna bağlı olarak en geç 5 iş günü içinde kargoya verilir.</li>
+          <li>Teslimat süresi; alıcının bulunduğu il, ilçe ve lojistik şirketinin hizmet koşullarına göre değişiklik gösterebilir.</li>
+          <li>Kargo ücretleri sipariş esnasında belirtilir ve aksi belirtilmedikçe alıcı tarafından karşılanır.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>6. Cayma Hakkı</h2>
+        <ul>
+          <li>Alıcı, mesafeli satış sözleşmelerine ilişkin mevzuat gereği ürünü teslim aldığı tarihten itibaren 14 gün içinde hiçbir gerekçe göstermeksizin cayma hakkını kullanabilir.</li>
+          <li>Cayma hakkının kullanılması için bu süre içinde yazılı bildirim yapılması ve ürünün tekrar satılabilirliğini kaybetmemiş olması gerekir.</li>
+          <li>Kişiye özel tasarlanan ürünler, çabuk bozulabilen veya son kullanma tarihi geçme ihtimali olan ürünler ile hijyen kuralları gereği ambalajı açılmış gıda ürünlerinde cayma hakkı kullanılamaz.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>7. İade Süreci</h2>
+        <ul>
+          <li>Cayma hakkının kullanıldığı durumda, ürünün faturası ve varsa promosyon ürünleri ile birlikte eksiksiz şekilde iade edilmesi gerekir.</li>
+          <li>Ürün bedeli, iade talebinin satıcıya ulaşmasından itibaren 14 gün içinde alıcının ödeme yaptığı yöntemle geri ödenir.</li>
+          <li>Kargo bedeli; cayma hakkının kullanılması halinde mevzuata uygun şekilde alıcıya veya satıcıya ait olabilir. İlgili detaylar sipariş özetinde belirtilir.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>8. Garanti ve Sorumluluk</h2>
+        <ul>
+          <li>Sitede satılan ürünler, mevzuat gereği üretici veya ithalatçı firmaların garanti koşullarına tabidir.</li>
+          <li>Ürünün kullanım talimatlarına aykırı kullanım, yanlış saklama veya yetkisiz müdahalelerden kaynaklı hasarlardan satıcı sorumlu değildir.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>9. Gizlilik ve Kişisel Veriler</h2>
+        <p>Alıcıya ait kişisel veriler, 6698 sayılı Kişisel Verilerin Korunması Kanunu ve ilgili mevzuat hükümlerine uygun olarak işlenir. Detaylı bilgi için <a href="/kvkk-aydinlatma-metni">KVKK Aydınlatma Metni</a> ve <a href="/cerez-politikasi">Çerez Politikası</a> sayfalarını inceleyebilirsiniz.</p>
+      </section>
+
+      <section>
+        <h2>10. Uyuşmazlıkların Çözümü</h2>
+        <p>İşbu sözleşmeden doğabilecek uyuşmazlıklarda, Ticaret Bakanlığı tarafından ilan edilen değere kadar Tüketici Hakem Heyetleri, üzerindeki tutarlar için ise Tüketici Mahkemeleri yetkilidir.</p>
+      </section>
+
+      <section>
+        <h2>11. Yürürlük</h2>
+        <p>Alıcı, siparişi onaylamakla bu sözleşmenin tüm koşullarını kabul etmiş sayılır. Siparişin tamamlanmasıyla sözleşme elektronik ortamda yürürlüğe girer.</p>
+      </section>
+    </article>
+  </main>
+  <%- include('../partials/shop-footer') %>
+</body>
+</html>

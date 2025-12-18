@@ -1,71 +1,90 @@
 <!DOCTYPE html>
 <html lang="tr">
 <%- include('../../partials/admin-head', { title: 'Ürünler' }) %>
-<body class="admin-app">
-  <%- include('../../partials/admin-nav') %>
-  <main class="admin-main">
-    <header class="admin-page-header">
-      <div>
-        <h1>Ürünler</h1>
-        <p>Mağaza vitrininizi güncel tutmak için ürünlerinizi yönetin.</p>
-      </div>
-      <a class="btn btn-primary" href="/admin/products/new">Yeni Ürün</a>
-    </header>
 
-    <%- include('../../partials/flash') %>
+  <body class="admin-app">
+    <%- include('../../partials/admin-nav') %>
+      <main class="admin-main">
+        <header class="admin-page-header">
+          <div>
+            <h1>Ürünler</h1>
+            <p>Mağaza vitrininizi güncel tutmak için ürünlerinizi yönetin.</p>
+          </div>
+          <a class="btn btn-primary" href="/admin/products/new">Yeni Ürün</a>
+        </header>
 
-    <section class="admin-panel">
-      <% if (products.length === 0) { %>
-        <div class="empty-state">
-          <h3>Henüz ürün eklenmedi</h3>
-          <p>İlk ürünü ekleyerek mağazanızı hızlıca yayınlayabilirsiniz.</p>
-          <a class="btn btn-primary" href="/admin/products/new">Ürün Ekle</a>
-        </div>
-      <% } %>
+        <%- include('../../partials/flash') %>
 
-      <% if (products.length > 0) { %>
-        <table class="admin-table">
-          <thead>
-              <tr>
-                <th>Ürün</th>
-                <th>Slug</th>
-                <th>Fiyat</th>
-                <th>Gram</th>
-                <th>Stok</th>
-                <th>Durum</th>
-                <th>Oluşturma</th>
-                <th></th>
-              </tr>
-          </thead>
-          <tbody>
-            <% products.forEach(product => { %>
-              <tr>
-                <td>
-                  <strong><%= product.name %></strong><br>
-                  <small><%= (product.description || '').slice(0, 60) %></small>
-                </td>
-                <td><%= product.slug %></td>
-                <td><%= product.price.toFixed(2) %> ₺</td>
-                <td><%= product.grams %> g</td>
-                <td><%= product.stock %></td>
-                <td>
-                  <span class="badge <%= product.isActive ? 'badge-success' : 'badge-muted' %>">
-                    <%= product.isActive ? 'Aktif' : 'Pasif' %>
-                  </span>
-                </td>
-                <td><%= new Date(product.createdAt).toLocaleDateString('tr-TR') %></td>
-                <td class="table-actions">
-                  <a class="btn btn-link" href="/admin/products/<%= product.id %>/edit">Düzenle</a>
-                  <form action="/admin/products/<%= product.id %>?_method=DELETE" method="POST" onsubmit="return confirm('Ürünü silmek istediğinize emin misiniz?');">
-                    <button type="submit" class="btn btn-link btn-danger">Sil</button>
-                  </form>
-                </td>
-              </tr>
-            <% }) %>
-          </tbody>
-        </table>
-      <% } %>
-    </section>
-  </main>
-</body>
+          <section class="admin-panel">
+            <% if (products.length===0) { %>
+              <div class="empty-state">
+                <h3>Henüz ürün eklenmedi</h3>
+                <p>İlk ürünü ekleyerek mağazanızı hızlıca yayınlayabilirsiniz.</p>
+                <a class="btn btn-primary" href="/admin/products/new">Ürün Ekle</a>
+              </div>
+              <% } %>
+
+                <% if (products.length> 0) { %>
+                  <table class="admin-table">
+                    <thead>
+                      <tr>
+                        <th>Ürün</th>
+                        <th>Slug</th>
+                        <th>Kategori</th>
+                        <th>Fiyat</th>
+                        <th>Gram</th>
+                        <th>Stok</th>
+                        <th>Durum</th>
+                        <th>Oluşturma</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% products.forEach(product=> { %>
+                        <tr>
+                          <td>
+                            <strong>
+                              <%= product.name %>
+                            </strong><br>
+                            <small>
+                              <%= (product.description || '' ).slice(0, 60) %>
+                            </small>
+                          </td>
+                          <td>
+                            <%= product.slug %>
+                          </td>
+                          <td>
+                            <%= product.price.toFixed(2) %> ₺
+                          </td>
+                          <td>
+                            <%= product.grams %> g
+                          </td>
+                          <td>
+                            <%= product.stock %>
+                          </td>
+                          <td>
+                            <span class="badge <%= product.isActive ? 'badge-success' : 'badge-muted' %>">
+                              <%= product.isActive ? 'Aktif' : 'Pasif' %>
+                            </span>
+                          </td>
+                          <td>
+                            <%= new Date(product.createdAt).toLocaleDateString('tr-TR') %>
+                          </td>
+                          <td class="table-actions">
+                            <a class="btn btn-link" href="/admin/products/<%= product.id %>/edit">Düzenle</a>
+                            <form action="/admin/products/<%= product.id %>?_method=DELETE" method="POST"
+                              onsubmit="return confirm('Ürünü silmek istediğinize emin misiniz?');">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                              <button type="submit" class="btn btn-link btn-danger">Sil</button>
+                            </form>
+                          </td>
+                        </tr>
+                        <% }) %>
+                    </tbody>
+                  </table>
+                  <% } %>
+          </section>
+      </main>
+  </body>
+
 </html>

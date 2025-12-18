@@ -1,9 +1,11 @@
 <header class="site-header">
   <div class="container header-inner">
     <a class="brand" href="/">
-      <img class="brand-logo" src="/logo.png" alt="Tea2Tea logo">
+      <img class="brand-logo" src="<%= settings.logo_url %>" alt="<%= settings.site_name %> logo">
       <span class="brand-text">
-        <strong><%= settings.site_name %></strong>
+        <strong>
+          <%= settings.site_name %>
+        </strong>
       </span>
     </a>
     <button class="menu-toggle" type="button" aria-label="Menüyü Aç/Kapat" aria-expanded="false">
@@ -13,26 +15,53 @@
     </button>
     <nav class="nav-shell" data-nav>
       <ul class="nav-links">
-        <li><a href="/" class="<%= currentPath === '/' ? 'active' : '' %>">Mağaza</a></li>
-        <li><a href="/#collection" class="<%= currentPath.startsWith('/product') ? 'active' : '' %>">Koleksiyon</a></li>
-        <li><a href="/blends/create" class="<%= currentPath.startsWith('/blends') ? 'active' : '' %>">Karışım</a></li>
-        <li><a href="/community" class="<%= currentPath.startsWith('/community') ? 'active' : '' %>">Topluluk</a></li>
+        <li>
+          <a href="/contact" class="<%= currentPath === '/contact' ? 'active' : '' %>">İletişim</a>
+        </li>
+        <li>
+          <a href="/about" class="<%= currentPath === '/about' ? 'active' : '' %>">Hakkımızda</a>
+        </li>
+        <li class="has-submenu">
+          <a href="#"
+            class="<%= currentPath.startsWith('/product') || currentPath === '/?category=' ? 'active' : '' %>">
+            Kategoriler
+            <svg width="10" height="6" viewBox="0 0 10 6" fill="none" class="dropdown-icon">
+              <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </a>
+          <ul class="submenu">
+            <li><a href="/">Tüm Ürünler</a></li>
+            <% if (typeof globalCategories !=='undefined' ) { %>
+              <% globalCategories.forEach(cat=> { %>
+                <li><a href="/?category=<%= cat.name %>">
+                    <%= cat.name %>
+                  </a></li>
+                <% }) %>
+                  <% } %>
+          </ul>
+        </li>
       </ul>
       <div class="nav-actions">
         <a href="/cart" class="nav-chip <%= currentPath.startsWith('/cart') ? 'is-active' : '' %>">
           Sepet
-          <span class="pill" data-cart-count><%= cart.totalQuantity %></span>
+          <span class="pill" data-cart-count>
+            <%= cart.totalQuantity %>
+          </span>
         </a>
         <div class="nav-auth">
           <% if (currentUser) { %>
-            <a href="/account" class="nav-auth__link <%= currentPath.startsWith('/account') ? 'is-active' : '' %>">Hesabım</a>
+            <a href="/account"
+              class="nav-auth__link <%= currentPath.startsWith('/account') ? 'is-active' : '' %>">Hesabım</a>
             <form action="/logout" method="POST">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
               <button type="submit" class="nav-auth__button">Çıkış Yap</button>
             </form>
-          <% } else { %>
-            <a href="/login" class="nav-auth__link <%= currentPath.startsWith('/login') ? 'is-active' : '' %>">Giriş Yap</a>
-            <a href="/register" class="nav-auth__button nav-auth__primary">Kaydol</a>
-          <% } %>
+            <% } else { %>
+              <a href="/login" class="nav-auth__link <%= currentPath.startsWith('/login') ? 'is-active' : '' %>">Giriş
+                Yap</a>
+              <a href="/register" class="nav-auth__button nav-auth__primary">Kaydol</a>
+              <% } %>
         </div>
       </div>
     </nav>

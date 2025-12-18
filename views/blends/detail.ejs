@@ -17,6 +17,7 @@
           <p class="blend-detail__rating"><strong><%= Number(ratingStats.avgRating).toFixed(1) %>/5</strong> • <%= ratingStats.ratingCount %> oy</p>
         <% } %>
         <form action="/blends/<%= blend.id %>/cart" method="POST" class="blend-detail__actions">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
           <button type="submit" class="btn btn-primary btn-lg">Bu Karışımı Sipariş Et</button>
         </form>
       </div>
@@ -63,6 +64,7 @@
 
         <% if (currentUser) { %>
           <form action="/blends/<%= blend.id %>/comments" method="POST" class="blend-comment-form">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
             <label>
               Puan
               <select name="rating" required>

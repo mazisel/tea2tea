@@ -1,101 +1,142 @@
 <!DOCTYPE html>
 <html lang="tr">
 <%- include('../partials/shop-head', { title: 'Sipariş Alındı' }) %>
-<body>
-  <%- include('../partials/shop-header') %>
-  <main class="page page-order-success">
-    <section class="page-intro">
-      <div class="container intro-heading">
-        <span class="eyebrow">Tea2Tea</span>
-        <h1><%= statusLabel || 'Siparişiniz Güncellendi' %></h1>
-        <p>Çay molanız için bizi seçtiğiniz için teşekkür ederiz. Sipariş durumunuz güncel bilgilerle aşağıda yer alıyor.</p>
-      </div>
-    </section>
 
-    <section class="container order-success-card elevated">
-      <%- include('../partials/flash') %>
-      <div class="success-header">
-        <span class="success-icon">✨</span>
-        <h2><%= statusLabel || 'Siparişiniz Onaylandı' %></h2>
-        <p>Sipariş numaranız <strong><%= order.orderNumber %></strong>. Bu numarayı kargo takibi için kullanabilirsiniz.</p>
-      </div>
-      <div class="order-breakdown">
-        <div class="order-meta">
-          <div>
-            <span class="label">Sipariş Tarihi</span>
-            <strong><%= new Date(order.createdAt).toLocaleString('tr-TR') %></strong>
+  <body>
+    <%- include('../partials/shop-header') %>
+      <main class="page page-order-success">
+        <section class="page-intro">
+          <div class="container intro-heading">
+            <span class="eyebrow">
+              <%= settings.site_name %>
+            </span>
+            <h1>
+              <%= statusLabel || 'Siparişiniz Güncellendi' %>
+            </h1>
+            <p>Çay molanız için bizi seçtiğiniz için teşekkür ederiz. Sipariş durumunuz güncel bilgilerle aşağıda yer
+              alıyor.</p>
           </div>
-          <div>
-            <span class="label">Tutar</span>
-            <strong><%= order.totalAmount.toFixed(2) %> ₺</strong>
-          </div>
-          <% if (order.paidAt) { %>
-            <div>
-              <span class="label">Ödeme Alındı</span>
-              <strong><%= new Date(order.paidAt).toLocaleString('tr-TR') %></strong>
+        </section>
+
+        <section class="container order-success-card elevated">
+          <%- include('../partials/flash') %>
+            <div class="success-header">
+              <span class="success-icon">✨</span>
+              <h2>
+                <%= statusLabel || 'Siparişiniz Onaylandı' %>
+              </h2>
+              <p>Sipariş numaranız <strong>
+                  <%= order.orderNumber %>
+                </strong>. Bu numarayı kargo takibi için kullanabilirsiniz.</p>
             </div>
-          <% } %>
-          <% if (order.shippedAt) { %>
-            <div>
-              <span class="label">Kargoya Verildi</span>
-              <strong><%= new Date(order.shippedAt).toLocaleString('tr-TR') %></strong>
-            </div>
-          <% } %>
-          <% if (order.deliveredAt) { %>
-            <div>
-              <span class="label">Teslim Edildi</span>
-              <strong><%= new Date(order.deliveredAt).toLocaleString('tr-TR') %></strong>
-            </div>
-          <% } %>
-        </div>
-        <% if (order.shippingAddress) { %>
-          <% const hasSeparateBilling = order.billingAddress && order.billingAddressSnapshot && order.billingAddressSnapshot !== order.shippingAddressSnapshot; %>
-          <div class="order-meta">
-            <div>
-              <span class="label">Teslimat Adresi</span>
-              <strong>
-                <%= order.shippingAddress.recipientName %><br>
-                <%= order.shippingAddress.addressLine %><br>
-                <% if (order.shippingAddress.district) { %><%= order.shippingAddress.district %><br><% } %>
-                <%= order.shippingAddress.city %> <%= order.shippingAddress.postalCode || '' %><br>
-                <%= order.shippingAddress.country %>
-              </strong>
-              <% if (order.shippingAddress.phone) { %><small>Tel: <%= order.shippingAddress.phone %></small><% } %>
-            </div>
-            <% if (hasSeparateBilling) { %>
-              <div>
-                <span class="label">Fatura Adresi</span>
-                <strong>
-                  <%= order.billingAddress.recipientName %><br>
-                  <%= order.billingAddress.addressLine %><br>
-                  <% if (order.billingAddress.district) { %><%= order.billingAddress.district %><br><% } %>
-                  <%= order.billingAddress.city %> <%= order.billingAddress.postalCode || '' %><br>
-                  <%= order.billingAddress.country %>
-                </strong>
-                <% if (order.billingAddress.phone) { %><small>Tel: <%= order.billingAddress.phone %></small><% } %>
+            <div class="order-breakdown">
+              <div class="order-meta">
+                <div>
+                  <span class="label">Sipariş Tarihi</span>
+                  <strong>
+                    <%= new Date(order.createdAt).toLocaleString('tr-TR') %>
+                  </strong>
+                </div>
+                <div>
+                  <span class="label">Tutar</span>
+                  <strong>
+                    <%= order.totalAmount.toFixed(2) %> ₺
+                  </strong>
+                </div>
+                <% if (order.discountAmount> 0) { %>
+                  <div>
+                    <span class="label">İndirim</span>
+                    <strong>-₺<%= order.discountAmount.toFixed(2) %>
+                        <%= order.discountCode ? `(${order.discountCode})` : '' %></strong>
+                  </div>
+                  <% } %>
+                    <% if (order.paidAt) { %>
+                      <div>
+                        <span class="label">Ödeme Alındı</span>
+                        <strong>
+                          <%= new Date(order.paidAt).toLocaleString('tr-TR') %>
+                        </strong>
+                      </div>
+                      <% } %>
+                        <% if (order.shippedAt) { %>
+                          <div>
+                            <span class="label">Kargoya Verildi</span>
+                            <strong>
+                              <%= new Date(order.shippedAt).toLocaleString('tr-TR') %>
+                            </strong>
+                          </div>
+                          <% } %>
+                            <% if (order.deliveredAt) { %>
+                              <div>
+                                <span class="label">Teslim Edildi</span>
+                                <strong>
+                                  <%= new Date(order.deliveredAt).toLocaleString('tr-TR') %>
+                                </strong>
+                              </div>
+                              <% } %>
               </div>
-            <% } %>
-          </div>
-        <% } %>
-        <h3>Ürünler</h3>
-        <ul class="summary-list">
-          <% items.forEach(item => { %>
-            <li>
-              <div>
-                <strong><%= item.productName %></strong>
-                <small>Adet: <%= item.quantity %></small>
-              </div>
-              <span><%= (item.unitPrice * item.quantity).toFixed(2) %> ₺</span>
-            </li>
-          <% }) %>
-        </ul>
-      </div>
-      <div class="success-actions">
-        <a class="btn btn-primary" href="/">Mağazaya Dön</a>
-        <a class="btn btn-ghost" href="/cart">Sepeti Gör</a>
-      </div>
-    </section>
-  </main>
-  <%- include('../partials/shop-footer') %>
-</body>
+              <% if (order.shippingAddress) { %>
+                <% const hasSeparateBilling=order.billingAddress && order.billingAddressSnapshot &&
+                  order.billingAddressSnapshot !==order.shippingAddressSnapshot; %>
+                  <div class="order-meta">
+                    <div>
+                      <span class="label">Teslimat Adresi</span>
+                      <strong>
+                        <%= order.shippingAddress.recipientName %><br>
+                          <%= order.shippingAddress.addressLine %><br>
+                            <% if (order.shippingAddress.district) { %>
+                              <%= order.shippingAddress.district %><br>
+                                <% } %>
+                                  <%= order.shippingAddress.city %>
+                                    <%= order.shippingAddress.postalCode || '' %><br>
+                                      <%= order.shippingAddress.country %>
+                      </strong>
+                      <% if (order.shippingAddress.phone) { %><small>Tel: <%= order.shippingAddress.phone %></small>
+                        <% } %>
+                    </div>
+                    <% if (hasSeparateBilling) { %>
+                      <div>
+                        <span class="label">Fatura Adresi</span>
+                        <strong>
+                          <%= order.billingAddress.recipientName %><br>
+                            <%= order.billingAddress.addressLine %><br>
+                              <% if (order.billingAddress.district) { %>
+                                <%= order.billingAddress.district %><br>
+                                  <% } %>
+                                    <%= order.billingAddress.city %>
+                                      <%= order.billingAddress.postalCode || '' %><br>
+                                        <%= order.billingAddress.country %>
+                        </strong>
+                        <% if (order.billingAddress.phone) { %><small>Tel: <%= order.billingAddress.phone %></small>
+                          <% } %>
+                      </div>
+                      <% } %>
+                  </div>
+                  <% } %>
+                    <h3>Ürünler</h3>
+                    <ul class="summary-list">
+                      <% items.forEach(item=> { %>
+                        <li>
+                          <div>
+                            <strong>
+                              <%= item.productName %>
+                            </strong>
+                            <small>Adet: <%= item.quantity %></small>
+                          </div>
+                          <span>
+                            <%= (item.unitPrice * item.quantity).toFixed(2) %> ₺
+                          </span>
+                        </li>
+                        <% }) %>
+                    </ul>
+            </div>
+            <div class="success-actions">
+              <a class="btn btn-primary" href="/">Mağazaya Dön</a>
+              <a class="btn btn-ghost" href="/cart">Sepeti Gör</a>
+            </div>
+        </section>
+      </main>
+      <%- include('../partials/shop-footer') %>
+  </body>
+
 </html>

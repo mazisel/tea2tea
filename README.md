@@ -21,6 +21,9 @@ Tea2Tea; kayıt sistemine ihtiyaç duymayan, tek yöneticili, küçük ölçekli
   - Kayıtlı teslimat ve fatura adresleri, profil bilgilerini güncelleme
   - Aktif siparişleri ve teslim edilen sipariş geçmişini ayrı ayrı görüntüleme
   - Sipariş durumları değiştikçe otomatik e-posta ile bilgilendirilme
+- 🧾 **Tea Lab Aboneliği**
+  - PAYTR üzerinden güvenli ödeme ile abonelik başlatma
+  - Abonelik iptali ve e-posta bilgilendirmeleri
 
 ## Başlarken
 
@@ -41,6 +44,8 @@ Sunucu varsayılan olarak `http://localhost:3010` adresinde çalışır.
 ### Komutlar
 - `npm run dev`: Nodemon ile geliştirme sunucusu
 - `npm start`: Production modunda sunucu
+
+> Güvenlik için `.env` dosyanıza güçlü bir `SESSION_SECRET`, `ADMIN_PASSWORD` (en az 10 karakter), PAYTR bilgileri ve SMTP ayarlarınızı eklemeyi unutmayın.
 
 ## Proje Yapısı
 

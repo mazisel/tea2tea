@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="tr">
+<%- include('../../partials/admin-head', { title: `Müşteri ${customer.name}` }) %>
+<body class="admin-app">
+  <%- include('../../partials/admin-nav') %>
+  <main class="admin-main">
+    <header class="admin-page-header">
+      <div>
+        <h1><%= customer.name %></h1>
+        <p><%= customer.email %> — <%= customer.phone || 'Telefon bilgisi yok' %></p>
+      </div>
+      <a class="btn btn-outline" href="/admin/customers">Tüm Müşteriler</a>
+    </header>
+
+    <section class="admin-panel">
+      <h2>Genel Bilgiler</h2>
+      <div class="order-summary-box">
+        <div>
+          <span>Üyelik Tarihi</span>
+          <strong><%= new Date(customer.createdAt).toLocaleString('tr-TR') %></strong>
+        </div>
+        <div>
+          <span>Sipariş Sayısı</span>
+          <strong><%= orderStats.count %></strong>
+        </div>
+        <div>
+          <span>Toplam Harcama</span>
+          <strong><%= orderStats.total.toFixed(2) %> ₺</strong>
+        </div>
+        <div>
+          <span>Abonelik Durumu</span>
+          <strong><%= subscription ? (subscription.status === 'active' ? 'Aktif Tea Lab' : 'Pasif') : 'Yok' %></strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="admin-panel">
+      <h2>Siparişler</h2>
+      <% if (orders.length === 0) { %>
+        <div class="empty-state">
+          <h3>Henüz sipariş yok</h3>
+        </div>
+      <% } else { %>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Tutar</th>
+              <th>Durum</th>
+              <th>Tarih</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% orders.forEach(order => { %>
+              <tr>
+                <td><a href="/admin/orders/<%= order.id %>"><%= order.orderNumber %></a></td>
+                <td><%= order.totalAmount.toFixed(2) %> ₺</td>
+                <td><%= (orderStatusLabels && orderStatusLabels[order.status]) || order.status %></td>
+                <td><%= new Date(order.createdAt).toLocaleString('tr-TR') %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      <% } %>
+    </section>
+
+    <section class="admin-panel">
+      <h2>Adresler</h2>
+      <% if (addresses.length === 0) { %>
+        <div class="empty-state">
+          <h3>Müşteri adres kaydetmemiş.</h3>
+        </div>
+      <% } else { %>
+        <div class="address-preview">
+          <% addresses.forEach(address => { %>
+            <div>
+              <h3><%= address.type === 'shipping' ? 'Teslimat' : 'Fatura' %> <%= address.isDefault ? '(Varsayılan)' : '' %></h3>
+              <p>
+                <strong><%= address.recipientName %></strong><br>
+                <%= address.addressLine %><br>
+                <% if (address.district) { %><%= address.district %><br><% } %>
+                <%= address.city %> <%= address.postalCode || '' %><br>
+                <%= address.country %>
+                <% if (address.phone) { %><br><small>Tel: <%= address.phone %></small><% } %>
+              </p>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+    </section>
+  </main>
+</body>
+</html>

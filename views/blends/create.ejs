@@ -42,6 +42,7 @@
       }); %>
 
       <form action="/blends" method="POST" class="blend-flow" id="blend-form">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <%- include('../partials/flash') %>
         <header class="blend-progress">
           <ol class="blend-progress__list">
