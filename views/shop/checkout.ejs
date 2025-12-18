@@ -9,7 +9,7 @@
           <div class="container intro-heading">
             <span class="eyebrow">Sipariş 3/3</span>
             <h1>Ödemenizi tamamlayın.</h1>
-            <p>Teslimat detaylarını paylaşın; <%= settings.site_name %> ekibi harmanınızı hazırlayıp adresinize
+            <p>Teslimat detaylarını paylaşın; <%= settings.site_name %> ekibi siparişinizi hazırlayıp adresinize
                 ulaştırsın.</p>
             <div class="checkout-steps">
               <span class="step">Sepet</span>
@@ -187,7 +187,6 @@
                       <aside class="checkout-panel order-panel">
                         <header>
                           <span class="eyebrow">Sipariş Özeti</span>
-                          <h2>Tek yudumda mutluluk.</h2>
                         </header>
                         <div class="order-items">
                           <% cart.items.forEach(item=> { %>
@@ -257,13 +256,7 @@
                                         <% } %>
                             </p>
                             <% } %>
-                              <div class="order-note">
-                                <span>💡</span>
-                                <p>
-                                  <%= settings.site_name %> Club üyeliği ile her siparişte %10 indirim ve öncelikli
-                                    kargo fırsatı yakalayın.
-                                </p>
-                              </div>
+
                       </aside>
                     </div>
                     <% } %>

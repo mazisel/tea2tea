@@ -51,7 +51,7 @@
                     Adet
                     <input type="number" name="quantity" value="1" min="1">
                   </label>
-                  <button type="submit" class="btn btn-primary btn-lg">Sepete Ekle</button>
+                  <button type="submit" class="btn btn-primary">Sepete Ekle</button>
                   <a href="/cart" class="btn btn-ghost">Sepeti Gör</a>
                 </form>
                 <ul class="summary-meta">
@@ -64,27 +64,17 @@
                   <li>
                     <span>İçerik</span>
                     <strong>
-                      <strong>
-                        <%= product.contentsText || 'Doğal yaprak çay harmanı' %>
-                      </strong>
+                      <%= product.contentsText %>
                     </strong>
                   </li>
                   <li>
                     <span>Teslimat</span>
                     <strong>
-                      <%= settings.product_detail_delivery_text || '24 saat içinde kargoda' %>
+                      <%= settings.product_detail_delivery_text %>
                     </strong>
                   </li>
                 </ul>
               </div>
-              <% if (product.tastingNotes) { %>
-                <article class="product-story">
-                  <h2>Notalar</h2>
-                  <p>
-                    <%= product.tastingNotes %>
-                  </p>
-                </article>
-                <% } %>
             </aside>
         </section>
       </main>

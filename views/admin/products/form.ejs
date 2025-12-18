@@ -77,16 +77,9 @@
               <div class="form-grid">
                 <label>
                   İçerik Metni ("Konsept")
-                  <input name="contentsText" value="<%= product ? product.contentsText : '' %>"
-                    placeholder="Örn: Doğal yaprak çay harmanı">
+                  <input name="contentsText" value="<%= product ? product.contentsText : '' %>">
                 </label>
               </div>
-
-              <label style="margin-top: 1rem;">
-                Tadım Notaları
-                <textarea name="tastingNotes" rows="3"
-                  placeholder="Örn: Floral aromalar, hafif narenciye notaları..."><%= product ? product.tastingNotes : '' %></textarea>
-              </label>
 
               <section class="admin-panel">
                 <div class="admin-panel__header">

@@ -2921,6 +2921,11 @@ body.modal-open {
   gap: 1rem;
 }
 
+.product-summary .btn {
+  padding: 0.6rem 1.25rem;
+  font-size: 0.95rem;
+}
+
 .summary-meta {
   list-style: none;
   display: grid;
