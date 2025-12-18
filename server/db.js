@@ -495,6 +495,12 @@ function getDefaultAdminCredentials() {
   const password = process.env.ADMIN_PASSWORD;
 
   if (!password || password.trim().length < 10) {
+    console.error('DEBUG: ADMIN_PASSWORD check failed.');
+    console.error('DEBUG: ADMIN_USERNAME:', username);
+    console.error('DEBUG: ADMIN_PASSWORD value type:', typeof password);
+    console.error('DEBUG: ADMIN_PASSWORD length:', password ? password.length : 'null/undefined');
+    if (password) console.error('DEBUG: ADMIN_PASSWORD trimmed length:', password.trim().length);
+
     throw new Error('ADMIN_PASSWORD environment variable must be set and at least 10 characters.');
   }
 
