@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({ override: false });
 console.log("--- SYSTEM STARTUP " + new Date().toISOString() + " ---");
 const express = require('express');
 const path = require('path');
