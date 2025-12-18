@@ -3208,7 +3208,7 @@ app.get('/admin/products/new', (req, res) => {
 });
 
 app.post('/admin/products', upload.single('imageFile'), (req, res) => {
-  const { name, slug, price, description, grams, imageUrl, stock, category, isActive, tastingNotes, brewingInfo, contentsText } = req.body;
+  const { name, slug, price, description, grams, imageUrl, stock, category, isActive, tastingNotes, contentsText } = req.body;
 
   if (!name || !price) {
     setFlash(req, 'danger', 'İsim ve fiyat zorunlu alanlardır.');
@@ -3230,14 +3230,13 @@ app.post('/admin/products', upload.single('imageFile'), (req, res) => {
     category: category ? category.trim() : 'Genel',
     is_active: isActive ? 1 : 0,
     tasting_notes: tastingNotes?.trim() || '',
-    brewing_info: brewingInfo?.trim() || '',
     contents_text: contentsText?.trim() || '',
   };
 
   try {
     db.prepare(
-      `INSERT INTO products (name, slug, description, price, grams, image_url, stock, category, is_active, tasting_notes, brewing_info, contents_text)
-       VALUES (@name, @slug, @description, @price, @grams, @image_url, @stock, @category, @is_active, @tasting_notes, @brewing_info, @contents_text)`,
+      `INSERT INTO products (name, slug, description, price, grams, image_url, stock, category, is_active, tasting_notes, contents_text)
+       VALUES (@name, @slug, @description, @price, @grams, @image_url, @stock, @category, @is_active, @tasting_notes, @contents_text)`,
     ).run(productData);
     setFlash(req, 'success', 'Ürün eklendi.');
     res.redirect('/admin/products');
@@ -3252,7 +3251,7 @@ app.post('/admin/products', upload.single('imageFile'), (req, res) => {
 app.get('/admin/products/:id/edit', (req, res) => {
   const product = db
     .prepare(
-      `SELECT id, name, slug, description, price, grams, image_url AS imageUrl, stock, category, is_active AS isActive, tasting_notes AS tastingNotes, brewing_info AS brewingInfo, contents_text AS contentsText
+      `SELECT id, name, slug, description, price, grams, image_url AS imageUrl, stock, category, is_active AS isActive, tasting_notes AS tastingNotes, contents_text AS contentsText
        FROM products WHERE id = ?`,
     )
     .get(req.params.id);
@@ -3267,7 +3266,7 @@ app.get('/admin/products/:id/edit', (req, res) => {
 });
 
 app.put('/admin/products/:id', upload.single('imageFile'), (req, res) => {
-  const { name, slug, price, description, grams, imageUrl, stock, category, isActive, tastingNotes, brewingInfo, contentsText } = req.body;
+  const { name, slug, price, description, grams, imageUrl, stock, category, isActive, tastingNotes, contentsText } = req.body;
   const product = db.prepare('SELECT id, image_url FROM products WHERE id = ?').get(req.params.id);
 
   if (!product) {
@@ -3292,7 +3291,6 @@ app.put('/admin/products/:id', upload.single('imageFile'), (req, res) => {
     category: category ? category.trim() : 'Genel',
     is_active: isActive ? 1 : 0,
     tasting_notes: tastingNotes?.trim() || '',
-    brewing_info: brewingInfo?.trim() || '',
     contents_text: contentsText?.trim() || '',
     id: product.id,
   };
@@ -3310,7 +3308,6 @@ app.put('/admin/products/:id', upload.single('imageFile'), (req, res) => {
         category = @category,
         is_active = @is_active,
         tasting_notes = @tasting_notes,
-        brewing_info = @brewing_info,
         contents_text = @contents_text
       WHERE id = @id`,
     ).run(payload);
