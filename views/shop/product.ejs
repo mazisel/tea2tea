@@ -44,35 +44,60 @@
             </div>
             <aside class="product-info">
               <div class="product-summary">
+                <header class="product-summary__header">
+                  <h2>
+                    <%= product.name %>
+                  </h2>
+                  <span class="product-summary__price">₺<%= product.price.toFixed(2) %></span>
+                </header>
                 <form action="/cart/add" method="POST" class="add-form">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                   <input type="hidden" name="productId" value="<%= product.id %>">
-                  <label>
-                    Adet
-                    <input type="number" name="quantity" value="1" min="1">
-                  </label>
-                  <button type="submit" class="btn btn-primary">Sepete Ekle</button>
-                  <a href="/cart" class="btn btn-ghost">Sepeti Gör</a>
+                  <div class="add-form__quantity">
+                    <select name="quantity">
+                      <option value="1">Adet</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                      <option value="5">5</option>
+                    </select>
+                  </div>
+                  <div class="add-form__actions">
+                    <button type="submit" class="btn btn-primary">Sepete Ekle</button>
+                    <a href="/cart" class="btn btn-outline">Sepeti Gör</a>
+                  </div>
                 </form>
-                <ul class="summary-meta">
+                <ul class="product-details">
                   <li>
-                    <span>Paket</span>
-                    <strong>
-                      <%= product.grams %> g
-                    </strong>
+                    <span class="product-details__icon">📦</span>
+                    <div>
+                      <span class="product-details__label">PAKET:</span>
+                      <span class="product-details__value">
+                        <%= product.grams %> g
+                      </span>
+                    </div>
                   </li>
-                  <li>
-                    <span>İçerik</span>
-                    <strong>
-                      <%= product.contentsText %>
-                    </strong>
-                  </li>
-                  <li>
-                    <span>Teslimat</span>
-                    <strong>
-                      <%= settings.product_detail_delivery_text %>
-                    </strong>
-                  </li>
+                  <% if (product.contentsText) { %>
+                    <li>
+                      <span class="product-details__icon">🌿</span>
+                      <div>
+                        <span class="product-details__label">İÇERİK:</span>
+                        <span class="product-details__value">
+                          <%= product.contentsText %>
+                        </span>
+                      </div>
+                    </li>
+                    <% } %>
+                      <li>
+                        <span class="product-details__icon">🚚</span>
+                        <div>
+                          <span class="product-details__label">TESLİMAT:</span>
+                          <span class="product-details__value">
+                            <%= settings.product_detail_delivery_text || '24 saat içinde kargoda' %>
+                          </span>
+                        </div>
+                      </li>
                 </ul>
               </div>
             </aside>
