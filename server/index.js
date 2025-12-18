@@ -2891,7 +2891,7 @@ app.post('/admin/settings', async (req, res) => {
       // Handle file uploads - store paths
       for (const [fieldName, fileArr] of Object.entries(files)) {
         const file = Array.isArray(fileArr) ? fileArr[0] : fileArr;
-        if (file && file.filepath) {
+        if (file && file.size > 0 && file.filepath) {
           const allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
           if (!allowedMimes.includes(file.mimetype)) {
             req.session.flash = { type: 'danger', message: 'Yalnızca görsel dosyalar yüklenebilir.' };
