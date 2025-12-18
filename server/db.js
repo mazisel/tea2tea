@@ -16,6 +16,7 @@ db.pragma('foreign_keys = ON');
 
 const DEFAULT_SETTINGS = [
   { key: 'site_name', value: 'Tea2Tea' },
+  { key: 'show_site_name', value: '1' },
   { key: 'hero_title', value: 'Çayınızı Seçin, Keyfini Çıkarın' },
   { key: 'hero_subtitle', value: 'En özel çay karışımları, sadece birkaç tık uzağınızda.' },
   { key: 'contact_email', value: 'destek@tea2tea.com' },
@@ -100,6 +101,9 @@ const DEFAULT_SETTINGS = [
   { key: 'contact_content', value: '<p>Sorularınız, önerileriniz veya iş birlikleri için bize her zaman ulaşabilirsiniz.</p>' },
   { key: 'contact_address', value: 'Bağdat Caddesi No: 123, Kadıköy, İstanbul' },
   { key: 'contact_map_url', value: '' },
+  // Product Detail Page Defaults
+  { key: 'product_detail_delivery_text', value: '24 saat içinde kargoda' },
+  { key: 'product_detail_manufacturer_text', value: 'Her harmanımız, uzman tadım ekibimizin kürasyonu ile ortaya çıkıyor. Kaynağından fincana kadar şeffaflık sözümüzdür.' },
 ];
 
 const DEFAULT_PRODUCTS = [
@@ -434,6 +438,30 @@ function createTables() {
 
   try {
     db.prepare("ALTER TABLE products ADD COLUMN category TEXT DEFAULT 'Genel'").run();
+  } catch (err) {
+    if (!String(err.message).includes('duplicate column')) {
+      throw err;
+    }
+  }
+
+  try {
+    db.prepare('ALTER TABLE products ADD COLUMN tasting_notes TEXT').run();
+  } catch (err) {
+    if (!String(err.message).includes('duplicate column')) {
+      throw err;
+    }
+  }
+
+  try {
+    db.prepare('ALTER TABLE products ADD COLUMN brewing_info TEXT').run();
+  } catch (err) {
+    if (!String(err.message).includes('duplicate column')) {
+      throw err;
+    }
+  }
+
+  try {
+    db.prepare('ALTER TABLE products ADD COLUMN contents_text TEXT').run();
   } catch (err) {
     if (!String(err.message).includes('duplicate column')) {
       throw err;

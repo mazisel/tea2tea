@@ -63,27 +63,32 @@
                   </li>
                   <li>
                     <span>İçerik</span>
-                    <strong>Doğal yaprak çay harmanı</strong>
+                    <strong>
+                      <%= product.contentsText || 'Doğal yaprak çay harmanı' %>
+                    </strong>
                   </li>
                   <li>
                     <span>Demleme Önerisi</span>
-                    <strong>90°C • 3 dk • 250 ml</strong>
+                    <strong>
+                      <%= product.brewingInfo || '90°C • 3 dk • 250 ml' %>
+                    </strong>
                   </li>
                   <li>
                     <span>Teslimat</span>
-                    <strong>24 saat içinde kargoda</strong>
+                    <strong>
+                      <%= settings.product_detail_delivery_text || '24 saat içinde kargoda' %>
+                    </strong>
                   </li>
                 </ul>
               </div>
               <article class="product-story">
-                <h2>Notalar</h2>
-                <p>Floral aromalar, hafif narenciye notaları ve dengeli gövde. Tek başına ya da minimal eşlikçilerle
-                  kusursuz.</p>
-                <h3>
-                  <%= settings.site_name %> tarafından
-                </h3>
-                <p>Her harmanımız, uzman tadım ekibimizin kürasyonu ile ortaya çıkıyor. Kaynağından fincana kadar
-                  şeffaflık sözümüzdür.</p>
+                <% if (product.tastingNotes) { %>
+                  <h2>Notalar</h2>
+                  <p>
+                    <%= product.tastingNotes %>
+                  </p>
+                  <% } %>
+
               </article>
             </aside>
         </section>

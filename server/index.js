@@ -1292,7 +1292,7 @@ app.get('/api/products', (req, res) => {
 app.get('/product/:slug', (req, res) => {
   const product = db
     .prepare(
-      'SELECT id, name, slug, description, price, grams, image_url AS imageUrl, stock FROM products WHERE slug = ? AND is_active = 1',
+      'SELECT id, name, slug, description, price, grams, image_url AS imageUrl, stock, tasting_notes AS tastingNotes, brewing_info AS brewingInfo, contents_text AS contentsText FROM products WHERE slug = ? AND is_active = 1',
     )
     .get(req.params.slug);
 
@@ -2911,6 +2911,7 @@ app.post('/admin/settings', async (req, res) => {
     // req.body is now body
     const {
       site_name = '',
+      show_site_name, // Checkbox
       hero_title = '',
       hero_subtitle = '',
       contact_email = '',
@@ -2970,6 +2971,9 @@ app.post('/admin/settings', async (req, res) => {
       tealab_benefit1 = '',
       tealab_benefit2 = '',
       tealab_benefit3 = '',
+      // Product Detail
+      product_detail_delivery_text = '',
+      product_detail_manufacturer_text = '',
       // Footer
       footer_desc = '',
       // Pages
@@ -2997,6 +3001,7 @@ app.post('/admin/settings', async (req, res) => {
         if (body._uploaded_logo) {
           setSetting('logo_url', body._uploaded_logo);
         }
+        setSetting('show_site_name', show_site_name ? '1' : '0');
         if (body._uploaded_favicon) {
           setSetting('favicon_url', body._uploaded_favicon);
         }
@@ -3045,6 +3050,10 @@ app.post('/admin/settings', async (req, res) => {
         setSetting('exp_p2_desc', exp_p2_desc);
         setSetting('exp_p3_title', exp_p3_title);
         setSetting('exp_p3_desc', exp_p3_desc);
+      }
+      else if (form_section === 'product_detail') {
+        setSetting('product_detail_delivery_text', product_detail_delivery_text);
+        setSetting('product_detail_manufacturer_text', product_detail_manufacturer_text);
       }
       else if (form_section === 'footer') {
         setSetting('footer_desc', footer_desc);
@@ -3199,7 +3208,7 @@ app.get('/admin/products/new', (req, res) => {
 });
 
 app.post('/admin/products', upload.single('imageFile'), (req, res) => {
-  const { name, slug, price, description, grams, imageUrl, stock, category, isActive } = req.body;
+  const { name, slug, price, description, grams, imageUrl, stock, category, isActive, tastingNotes, brewingInfo, contentsText } = req.body;
 
   if (!name || !price) {
     setFlash(req, 'danger', 'İsim ve fiyat zorunlu alanlardır.');
@@ -3220,12 +3229,15 @@ app.post('/admin/products', upload.single('imageFile'), (req, res) => {
     stock: parseInt(stock, 10) || 0,
     category: category ? category.trim() : 'Genel',
     is_active: isActive ? 1 : 0,
+    tasting_notes: tastingNotes?.trim() || '',
+    brewing_info: brewingInfo?.trim() || '',
+    contents_text: contentsText?.trim() || '',
   };
 
   try {
     db.prepare(
-      `INSERT INTO products (name, slug, description, price, grams, image_url, stock, category, is_active)
-       VALUES (@name, @slug, @description, @price, @grams, @image_url, @stock, @category, @is_active)`,
+      `INSERT INTO products (name, slug, description, price, grams, image_url, stock, category, is_active, tasting_notes, brewing_info, contents_text)
+       VALUES (@name, @slug, @description, @price, @grams, @image_url, @stock, @category, @is_active, @tasting_notes, @brewing_info, @contents_text)`,
     ).run(productData);
     setFlash(req, 'success', 'Ürün eklendi.');
     res.redirect('/admin/products');
@@ -3240,7 +3252,7 @@ app.post('/admin/products', upload.single('imageFile'), (req, res) => {
 app.get('/admin/products/:id/edit', (req, res) => {
   const product = db
     .prepare(
-      `SELECT id, name, slug, description, price, grams, image_url AS imageUrl, stock, category, is_active AS isActive
+      `SELECT id, name, slug, description, price, grams, image_url AS imageUrl, stock, category, is_active AS isActive, tasting_notes AS tastingNotes, brewing_info AS brewingInfo, contents_text AS contentsText
        FROM products WHERE id = ?`,
     )
     .get(req.params.id);
@@ -3255,7 +3267,7 @@ app.get('/admin/products/:id/edit', (req, res) => {
 });
 
 app.put('/admin/products/:id', upload.single('imageFile'), (req, res) => {
-  const { name, slug, price, description, grams, imageUrl, stock, category, isActive } = req.body;
+  const { name, slug, price, description, grams, imageUrl, stock, category, isActive, tastingNotes, brewingInfo, contentsText } = req.body;
   const product = db.prepare('SELECT id, image_url FROM products WHERE id = ?').get(req.params.id);
 
   if (!product) {
@@ -3279,6 +3291,9 @@ app.put('/admin/products/:id', upload.single('imageFile'), (req, res) => {
     stock: parseInt(stock, 10) || 0,
     category: category ? category.trim() : 'Genel',
     is_active: isActive ? 1 : 0,
+    tasting_notes: tastingNotes?.trim() || '',
+    brewing_info: brewingInfo?.trim() || '',
+    contents_text: contentsText?.trim() || '',
     id: product.id,
   };
 
@@ -3293,7 +3308,10 @@ app.put('/admin/products/:id', upload.single('imageFile'), (req, res) => {
         image_url = @image_url,
         stock = @stock,
         category = @category,
-        is_active = @is_active
+        is_active = @is_active,
+        tasting_notes = @tasting_notes,
+        brewing_info = @brewing_info,
+        contents_text = @contents_text
       WHERE id = @id`,
     ).run(payload);
     setFlash(req, 'success', 'Ürün güncellendi.');

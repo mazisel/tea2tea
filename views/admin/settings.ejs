@@ -19,6 +19,7 @@
               <button type="button" class="tab-btn active" data-tab="general">Genel & Marka</button>
               <button type="button" class="tab-btn" data-tab="hero">Anasayfa: Hero</button>
               <button type="button" class="tab-btn" data-tab="content">Anasayfa: İçerik</button>
+              <button type="button" class="tab-btn" data-tab="product-detail">Ürün Detay</button>
               <button type="button" class="tab-btn" data-tab="footer">Alt Bilgi</button>
               <button type="button" class="tab-btn" data-tab="integrations">Entegrasyonlar</button>
               <button type="button" class="tab-btn" data-tab="admins">Yöneticiler</button>
@@ -35,9 +36,13 @@
                     <h2>Kimlik & Logo</h2>
                   </div>
                   <div class="form-grid">
-                    <label>
-                      Site Adı
-                      <input name="site_name" value="<%= settings.site_name %>" required>
+                    Site Adı
+                    <input name="site_name" value="<%= settings.site_name %>" required>
+                    </label>
+                    <label class="toggle" style="margin-top: 1rem;">
+                      <input type="checkbox" name="show_site_name" value="1" <%=settings.show_site_name==='0' ? ''
+                        : 'checked' %>>
+                      <span>Site Adını Header'da Göster</span>
                     </label>
                   </div>
                   <div class="form-grid">
@@ -257,6 +262,30 @@
 
 
 
+                <div class="admin-actions">
+                  <button type="submit" class="btn btn-primary">Ayarları Kaydet</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="tab-content" id="product-detail">
+              <form action="/admin/settings" method="POST" class="admin-form">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <input type="hidden" name="form_section" value="product_detail">
+                <section class="admin-panel">
+                  <div class="admin-panel__header">
+                    <h2>Ürün Detay Sayfası</h2>
+                  </div>
+                  <label>
+                    Teslimat Bilgisi
+                    <input name="product_detail_delivery_text" value="<%= settings.product_detail_delivery_text %>">
+                  </label>
+                  <label style="margin-top: 1rem;">
+                    "Bizim Tarafımızdan" Metni <small>(Kaldırıldı)</small>
+                    <textarea name="product_detail_manufacturer_text" rows="3" disabled
+                      style="background:#eee;"></textarea>
+                  </label>
+                </section>
                 <div class="admin-actions">
                   <button type="submit" class="btn btn-primary">Ayarları Kaydet</button>
                 </div>

@@ -2,11 +2,13 @@
   <div class="container header-inner">
     <a class="brand" href="/">
       <img class="brand-logo" src="<%= settings.logo_url %>" alt="<%= settings.site_name %> logo">
-      <span class="brand-text">
-        <strong>
-          <%= settings.site_name %>
-        </strong>
-      </span>
+      <% if (settings.show_site_name !=='0' ) { %>
+        <span class="brand-text">
+          <strong>
+            <%= settings.site_name %>
+          </strong>
+        </span>
+        <% } %>
     </a>
     <button class="menu-toggle" type="button" aria-label="Menüyü Aç/Kapat" aria-expanded="false">
       <span></span>
