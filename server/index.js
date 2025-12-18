@@ -2873,6 +2873,8 @@ app.post('/admin/settings', async (req, res) => {
         uploadDir: path.join(__dirname, '..', 'public', 'uploads'),
         keepExtensions: true,
         maxFileSize: 2 * 1024 * 1024,
+        allowEmptyFiles: true,
+        minFileSize: 0,
       });
 
       const [formFields, formFiles] = await form.parse(req);
