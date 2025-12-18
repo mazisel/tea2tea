@@ -2919,11 +2919,13 @@ body.modal-open {
 .add-form {
   display: grid;
   gap: 1rem;
+  justify-items: start;
 }
 
 .product-summary .btn {
-  padding: 0.6rem 1.25rem;
-  font-size: 0.95rem;
+  padding: 0.5rem 1.5rem;
+  font-size: 0.9rem;
+  min-width: 200px;
 }
 
 .summary-meta {
