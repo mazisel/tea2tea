@@ -7,6 +7,10 @@ services:
     restart: unless-stopped
     ports:
       - "3010:3010"
+    environment:
+      - ADMIN_USERNAME=${ADMIN_USERNAME}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - SESSION_SECRET=${SESSION_SECRET}
     volumes:
       - tea2tea_data:/app/data
       - tea2tea_uploads:/app/public/uploads
