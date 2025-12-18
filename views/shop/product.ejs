@@ -68,12 +68,6 @@
                     </strong>
                   </li>
                   <li>
-                    <span>Demleme Önerisi</span>
-                    <strong>
-                      <%= product.brewingInfo || '90°C • 3 dk • 250 ml' %>
-                    </strong>
-                  </li>
-                  <li>
                     <span>Teslimat</span>
                     <strong>
                       <%= settings.product_detail_delivery_text || '24 saat içinde kargoda' %>
@@ -81,15 +75,14 @@
                   </li>
                 </ul>
               </div>
-              <article class="product-story">
-                <% if (product.tastingNotes) { %>
+              <% if (product.tastingNotes) { %>
+                <article class="product-story">
                   <h2>Notalar</h2>
                   <p>
                     <%= product.tastingNotes %>
                   </p>
-                  <% } %>
-
-              </article>
+                </article>
+                <% } %>
             </aside>
         </section>
       </main>
