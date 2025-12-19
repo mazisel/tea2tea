@@ -95,3 +95,16 @@ STACK: ForbiddenError: invalid csrf token
     at Layer.handleRequest (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/router/lib/layer.js:152:17)
     at trimPrefix (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/router/index.js:342:13)
 
+[2025-12-19T15:01:16.920Z] POST /admin/products/import - ERROR: Yalnızca görsel dosyalar yüklenebilir.
+STACK: Error: Yalnızca görsel dosyalar yüklenebilir.
+    at fileFilter (/Volumes/Ogz-Project/Projeler/bicerez/server/index.js:103:17)
+    at wrappedFileFilter (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/multer/index.js:44:7)
+    at Multipart.<anonymous> (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/multer/lib/make-middleware.js:132:7)
+    at Multipart.emit (node:events:507:28)
+    at HeaderParser.cb (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/busboy/lib/types/multipart.js:358:14)
+    at HeaderParser.push (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/busboy/lib/types/multipart.js:162:20)
+    at SBMH.ssCb [as _cb] (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/busboy/lib/types/multipart.js:394:37)
+    at feed (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/streamsearch/lib/sbmh.js:219:14)
+    at SBMH.push (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/streamsearch/lib/sbmh.js:104:16)
+    at Multipart._write (/Volumes/Ogz-Project/Projeler/bicerez/node_modules/busboy/lib/types/multipart.js:567:19)
+

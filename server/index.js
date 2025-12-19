@@ -15,6 +15,8 @@ const nodemailer = require('nodemailer');
 const helmet = require('helmet');
 const csrf = require('csurf');
 const { URLSearchParams } = require('url');
+const xlsx = require('xlsx');
+const axios = require('axios');
 const { db, initializeDatabase, getAllSettings, setSetting } = require('./db');
 
 const app = express();
@@ -103,6 +105,21 @@ const upload = multer({
     cb(null, true);
   },
   limits: { fileSize: 2 * 1024 * 1024 },
+});
+
+const ALLOWED_EXCEL_TYPES = [
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "application/vnd.ms-excel"
+];
+const uploadExcel = multer({
+  storage,
+  fileFilter: (req, file, cb) => {
+    if (!ALLOWED_EXCEL_TYPES.includes(file.mimetype)) {
+      return cb(new Error("Yalnızca Excel dosyaları (.xlsx, .xls) yüklenebilir."));
+    }
+    cb(null, true);
+  },
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit for excel
 });
 
 const MAIL_FROM = process.env.MAIL_FROM || 'Tea2Tea <no-reply@tea2tea.local>';
@@ -3244,6 +3261,124 @@ app.post('/admin/products', upload.single('imageFile'), (req, res) => {
     const message = err.code === 'SQLITE_CONSTRAINT_UNIQUE' ? 'Bu ürün adresi (slug) zaten mevcut.' : 'Ürün eklenirken bir hata oluştu.';
     setFlash(req, 'danger', message);
     res.redirect('/admin/products/new');
+  }
+});
+
+// Excel Import Routes
+app.get('/admin/products/import', (req, res) => {
+  res.render('admin/products/import');
+});
+
+app.post('/admin/products/import', uploadExcel.single('importFile'), async (req, res) => {
+  if (!req.file) {
+    setFlash(req, 'danger', 'Lütfen bir Excel dosyası yükleyin.');
+    return res.redirect('/admin/products/import');
+  }
+
+  try {
+    const workbook = xlsx.readFile(req.file.path);
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+    const data = xlsx.utils.sheet_to_json(sheet);
+
+    let successCount = 0;
+    let errorCount = 0;
+
+    for (const row of data) {
+      const name = row['adi'];
+      const categoryName = row['Category'];
+      const pictureUrl = row['picture'];
+
+      if (!name) continue;
+
+      // 1. Handle Category
+      let categorySlug = 'genel';
+      let category = 'Genel';
+
+      if (categoryName && categoryName.trim()) {
+        category = categoryName.trim();
+        categorySlug = slugify(category);
+
+        // Ensure category exists
+        const existingCategory = db.prepare('SELECT id FROM categories WHERE slug = ?').get(categorySlug);
+        if (!existingCategory) {
+          try {
+            db.prepare('INSERT INTO categories (name, slug) VALUES (?, ?)').run(category, categorySlug);
+          } catch (err) {
+            console.error('Category creation failed', err);
+            // Fallback to existing if race condition or similar
+          }
+        }
+      }
+
+      // 2. Handle Image
+      let localImagePath = '';
+      if (pictureUrl && pictureUrl.trim()) {
+        try {
+          const response = await axios({
+            url: pictureUrl.trim(),
+            responseType: 'stream',
+          });
+
+          const unique = `${Date.now()}-${Math.round(Math.random() * 1e6)}`;
+          // Get extension from url/content-type or default to .jpg
+          let ext = '.jpg';
+          if (pictureUrl.includes('.png')) ext = '.png';
+          else if (pictureUrl.includes('.webp')) ext = '.webp';
+
+          const filename = `${unique}${ext}`;
+          const savePath = path.join(uploadsDir, filename);
+
+          const writer = fs.createWriteStream(savePath);
+          response.data.pipe(writer);
+
+          await new Promise((resolve, reject) => {
+            writer.on('finish', resolve);
+            writer.on('error', reject);
+          });
+
+          localImagePath = `/uploads/${filename}`;
+        } catch (err) {
+          console.error(`Failed to download image for ${name}:`, err.message);
+          // Continue without image or with existing logic
+        }
+      }
+
+      // 3. Create Product
+      const slug = slugify(name) + '-' + Math.round(Math.random() * 1000); // Unique slug
+
+      try {
+        db.prepare(
+          `INSERT INTO products (name, slug, description, price, grams, image_url, stock, category, is_active)
+           VALUES (@name, @slug, @description, @price, @grams, @image_url, @stock, @category, @is_active)`
+        ).run({
+          name: name.trim(),
+          slug: slug,
+          description: '', // No description in excel
+          price: 0, // No price in excel
+          grams: 0,
+          image_url: localImagePath,
+          stock: 100, // Default stock
+          category: category,
+          is_active: 1
+        });
+        successCount++;
+      } catch (err) {
+        console.error(`Failed to insert product ${name}`, err);
+        errorCount++;
+      }
+    }
+
+    // Cleanup uploaded excel file
+    fs.unlinkSync(req.file.path);
+
+    setFlash(req, 'success', `${successCount} ürün başarıyla içe aktarıldı. ${errorCount > 0 ? errorCount + ' hata oluştu.' : ''}`);
+    res.redirect('/admin/products');
+
+  } catch (err) {
+    console.error('Import process failed', err);
+    setFlash(req, 'danger', 'İçe aktarma işlemi sırasında bir hata oluştu: ' + err.message);
+    res.redirect('/admin/products/import');
   }
 });
 

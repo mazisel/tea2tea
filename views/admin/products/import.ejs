@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="tr">
+<%- include('../../partials/admin-head', { title: 'Excel Ürün İçe Aktar' }) %>
+
+    <body class="admin-app">
+        <%- include('../../partials/admin-nav') %>
+            <main class="admin-main">
+                <header class="admin-page-header">
+                    <div>
+                        <h1>Excel İçe Aktar</h1>
+                        <p>Excel dosyası yükleyerek ürünleri toplu olarak ekleyin.</p>
+                    </div>
+                    <a class="btn btn-secondary" href="/admin/products">Geri Dön</a>
+                </header>
+
+                <%- include('../../partials/flash') %>
+
+                    <section class="admin-panel">
+                        <div class="form-section">
+                            <form action="/admin/products/import" method="POST" enctype="multipart/form-data">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+                                <div class="alert alert-info" style="margin-bottom: 2rem;">
+                                    <h4>Dikkat Edilecekler:</h4>
+                                    <ul>
+                                        <li>Excel dosyanızda şu sütunlar bulunmalıdır: <strong>adi</strong>,
+                                            <strong>Category</strong>, <strong>picture</strong></li>
+                                        <li>Ürün adı (adi) boş olamaz.</li>
+                                        <li>"picture" sütununda ürün görselinin direkt linki olmalıdır.</li>
+                                        <li>Sistem kategorileri otomatik olarak oluşturur.</li>
+                                    </ul>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Excel Dosyası (.xlsx, .xls)</label>
+                                    <div class="file-upload-wrapper">
+                                        <input type="file" name="importFile" accept=".xlsx, .xls" required>
+                                        <div class="file-upload-placeholder">
+                                            <i class="ph ph-microsoft-excel-logo"
+                                                style="font-size: 2rem; color: #1d6f42;"></i>
+                                            <span>Dosya seçmek için tıklayın veya sürükleyin</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary">Yükle ve İçe Aktar</button>
+                                </div>
+                            </form>
+                        </div>
+                    </section>
+            </main>
+    </body>
+
+</html>
