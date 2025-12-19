@@ -3455,11 +3455,27 @@ app.put('/admin/products/:id', upload.single('imageFile'), (req, res) => {
 
 app.delete('/admin/products/:id', (req, res) => {
   try {
-    db.prepare('DELETE FROM products WHERE id = ?').run(req.params.id);
-    setFlash(req, 'success', 'Ürün silindi.');
+    const productId = req.params.id;
+    console.log(`[DEBUG] Attempting to delete product ${productId}`);
+    db.prepare('DELETE FROM products WHERE id = ?').run(productId);
+    console.log(`[DEBUG] Product ${productId} deleted successfully`);
+    setFlash(req, 'success', 'Ürün tamamen silindi.');
   } catch (err) {
-    console.error('Failed to delete product', err);
-    setFlash(req, 'danger', 'Ürün silinirken hata oluştu.');
+    console.error('[DEBUG] Delete failed:', err);
+    console.error('[DEBUG] Error Code:', err.code);
+
+    if (String(err.code).includes('CONSTRAINT_FOREIGNKEY') || String(err.message).includes('FOREIGN KEY')) {
+      try {
+        db.prepare('UPDATE products SET is_active = 0 WHERE id = ?').run(req.params.id);
+        setFlash(req, 'warning', 'Ürün siparişlerde veya karışımlarda kullanıldığı için silinemedi, ancak pasife alındı.');
+      } catch (updateErr) {
+        console.error('Failed to soft delete product', updateErr);
+        setFlash(req, 'danger', 'Ürün pasife alınırken hata oluştu.');
+      }
+    } else {
+      console.error('Failed to delete product', err);
+      setFlash(req, 'danger', 'Ürün silinirken hata oluştu: ' + err.message);
+    }
   }
   res.redirect('/admin/products');
 });
