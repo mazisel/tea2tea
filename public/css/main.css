@@ -485,6 +485,8 @@ body.is-navigating .site-header {
   gap: 6px;
   cursor: pointer;
   box-shadow: none;
+  position: relative;
+  /* Fix: Contain pseudo-elements */
 }
 
 .menu-toggle span {
@@ -1581,24 +1583,100 @@ body.is-navigating .site-header {
 
   .collection-board {
     grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
+    gap: 0.8rem;
+  }
+
+  .collection-tile {
+    display: flex;
+    flex-direction: column;
+    padding: 0.6rem;
+    gap: 0.6rem;
+    height: 100%;
+  }
+
+  .collection-tile__media {
+    order: 1;
+    /* First: Image */
+    aspect-ratio: 1 / 1;
+    border-radius: var(--radius-md);
+    background: #fff;
+    width: 100%;
+  }
+
+  .collection-tile__media img {
+    object-fit: contain;
+    padding: 0.2rem;
+  }
+
+  .collection-tile__body {
+    order: 2;
+    /* Second: Title */
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: auto;
+    gap: 0.2rem;
+  }
+
+  .collection-tile__header {
+    order: 3;
+    /* Third: Price */
+    font-size: 0.9rem;
+    flex-direction: column-reverse;
+    /* Reverses items in flex-col, but header items are index and price. Price will be visible. */
+    align-items: flex-start;
+    gap: 0;
+    margin-bottom: 0.2rem;
   }
 
   .collection-tile__actions {
+    order: 4;
+    /* Fourth: Buttons */
+    margin-top: auto;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.4rem;
+    width: 100%;
   }
 
   .collection-tile__actions form {
     width: 100%;
-    display: flex;
+    /* Fix: Form takes full width so button inherits it */
+  }
+
+  .collection-tile__title {
+    font-size: 0.9rem;
+    line-height: 1.3;
+    margin-bottom: 0;
+  }
+
+  .collection-tile__description {
+    display: none;
   }
 
   .collection-tile__actions .btn {
     width: 100%;
-    padding: 0.6rem;
-    font-size: 0.9rem;
-    min-height: 38px;
+    padding: 0.5rem;
+    font-size: 0.8rem;
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+  }
+
+  .collection-tile__price {
+    font-size: 1rem;
+    color: var(--color-accent);
+    font-weight: 700;
+  }
+
+  .collection-tile__index {
+    display: none;
+  }
+
+  .collection-tile__price {
+    font-size: 1rem;
+    color: var(--color-accent);
   }
 
   .community-hero__content h1 {
@@ -4033,6 +4111,7 @@ textarea {
     margin-left: 0;
   }
 
+
   .paytr-iframe {
     min-height: 560px;
   }
@@ -4180,8 +4259,13 @@ textarea {
   }
 
   .page {
-    gap: 3rem;
+    gap: 1.8rem;
   }
+
+  .page-intro {
+    padding: 2rem 0 0.5rem;
+  }
+
 
   .hero-card {
     aspect-ratio: auto;
@@ -4197,12 +4281,64 @@ textarea {
   }
 
   .footer-content {
+    flex-direction: column;
+    align-items: center;
+    gap: 2.5rem;
     text-align: center;
   }
 
-  .footer-contact {
+  .footer-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .footer-links {
+    text-align: center;
     justify-items: center;
-    width: 100%;
+  }
+
+  .footer-contact {
+    text-align: center;
+    justify-items: center;
+    margin-left: 0;
+    width: auto;
+  }
+
+
+  .product-summary {
+    padding: 1.5rem;
+  }
+
+  .cart-list,
+  .cart-summary,
+  .checkout-panel,
+  .payment-shell {
+    padding: 1.5rem;
+  }
+
+  .line-main {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .line-main .btn {
+    align-self: flex-start;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+
+  .product-details li {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
   }
 
   .success-actions,
@@ -4213,6 +4349,7 @@ textarea {
     align-items: stretch;
   }
 }
+
 
 /* Filter Bar */
 .filter-bar {
